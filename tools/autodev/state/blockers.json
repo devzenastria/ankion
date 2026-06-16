@@ -1,0 +1,8 @@
+﻿[
+{
+    "code":  "GIT_UNAVAILABLE",
+    "severity":  "BLOCKER",
+    "message":  "AUTODEV cannot verify diffs because git is unavailable on PATH.",
+    "safeNextAction":  "Install Git for Windows or add Git to PATH, then rerun preflight."
+}
+]

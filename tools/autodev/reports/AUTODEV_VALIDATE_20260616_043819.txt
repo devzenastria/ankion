@@ -1,0 +1,8 @@
+﻿AUTODEV VALIDATION REPORT
+Timestamp: 2026-06-16T04:38:19.6012087+03:00
+Repo root: C:\ankion
+APK/Gradle/emulator/adb validation: disabled
+
+COMMAND: corepack pnpm --filter @ankion/mobile typecheck
+ERROR: $ tsc --noEmit
+EXIT_CODE: 1

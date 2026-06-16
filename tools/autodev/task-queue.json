@@ -1,0 +1,106 @@
+﻿{
+  "tasks": [
+    {
+      "id": "AUTO-V2-DRYRUN-001",
+      "title": "AUTODEV v2 preflight and guard dry-run",
+      "mode": "dry-run",
+      "description": "Verify the AUTODEV v2 preflight and guard pipeline without changing ANKION app source.",
+      "allowedFiles": [
+        "tools/autodev/*"
+      ],
+      "forbiddenFiles": [
+        "package.json",
+        "pnpm-lock.yaml",
+        ".env",
+        ".env.*",
+        "supabase/migrations/*",
+        "apps/mobile/android/*",
+        "android/*",
+        "ios/*",
+        "app.json",
+        "eas.json",
+        ".github/*",
+        "**/build/*",
+        "**/dist/*",
+        "**/.expo/*",
+        "**/node_modules/*"
+      ],
+      "validation": [
+        "corepack pnpm --filter @ankion/mobile typecheck",
+        "corepack pnpm --filter @ankion/web typecheck",
+        "corepack pnpm --filter @ankion/web build"
+      ],
+      "riskLevel": "LOW",
+      "requiresHumanApproval": true,
+      "expectedOutcome": "A timestamped report showing preflight, guard, and human approval status."
+    },
+    {
+      "id": "AUTO-V2-REPORT-001",
+      "title": "AUTODEV v2 report format dry-run",
+      "mode": "dry-run",
+      "description": "Verify that AUTODEV v2 reports include the required status sections without changing ANKION app source.",
+      "allowedFiles": [
+        "tools/autodev/*"
+      ],
+      "forbiddenFiles": [
+        "package.json",
+        "pnpm-lock.yaml",
+        ".env",
+        ".env.*",
+        "supabase/migrations/*",
+        "apps/mobile/android/*",
+        "android/*",
+        "ios/*",
+        "app.json",
+        "eas.json",
+        ".github/*",
+        "**/build/*",
+        "**/dist/*",
+        "**/.expo/*",
+        "**/node_modules/*"
+      ],
+      "validation": [
+        "corepack pnpm --filter @ankion/mobile typecheck",
+        "corepack pnpm --filter @ankion/web typecheck",
+        "corepack pnpm --filter @ankion/web build"
+      ],
+      "riskLevel": "LOW",
+      "requiresHumanApproval": true,
+      "expectedOutcome": "A consistent report file under tools/autodev/reports."
+    },
+    {
+      "id": "AUTO-V2-PROMPT-001",
+      "title": "AUTODEV v2 Codex prompt dry-run",
+      "mode": "dry-run",
+      "description": "Verify Codex prompt generation for safe AUTODEV system tasks without changing ANKION app source.",
+      "allowedFiles": [
+        "tools/autodev/*"
+      ],
+      "forbiddenFiles": [
+        "package.json",
+        "pnpm-lock.yaml",
+        ".env",
+        ".env.*",
+        "supabase/migrations/*",
+        "apps/mobile/android/*",
+        "android/*",
+        "ios/*",
+        "app.json",
+        "eas.json",
+        ".github/*",
+        "**/build/*",
+        "**/dist/*",
+        "**/.expo/*",
+        "**/node_modules/*"
+      ],
+      "validation": [
+        "corepack pnpm --filter @ankion/mobile typecheck",
+        "corepack pnpm --filter @ankion/web typecheck",
+        "corepack pnpm --filter @ankion/web build"
+      ],
+      "riskLevel": "LOW",
+      "requiresHumanApproval": true,
+      "expectedOutcome": "A timestamped Codex prompt file under tools/autodev/prompts."
+    }
+  ]
+}

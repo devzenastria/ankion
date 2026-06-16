@@ -1,0 +1,85 @@
+﻿{
+  "version": "2.1.0",
+  "repoRoot": "C:\\ankion",
+  "maxTasksPerRun": 1,
+  "maxFilesChanged": 5,
+  "requireHumanApproval": true,
+  "allowAutofix": false,
+  "apkTestingEnabled": false,
+  "gitPushEnabled": false,
+  "deployEnabled": false,
+  "commitEnabled": false,
+  "recursiveCodexEnabled": false,
+  "failClosedWhenGitUnavailable": true,
+  "allowedValidationCommands": [
+    "corepack pnpm --filter @ankion/mobile typecheck",
+    "corepack pnpm --filter @ankion/web typecheck",
+    "corepack pnpm --filter @ankion/web build"
+  ],
+  "forbiddenPathPatterns": [
+    "package.json",
+    "pnpm-lock.yaml",
+    ".env",
+    ".env.*",
+    "supabase/migrations/*",
+    "apps/mobile/android/*",
+    "android/*",
+    "ios/*",
+    "app.json",
+    "eas.json",
+    ".github/*",
+    "**/build/*",
+    "**/dist/*",
+    "**/.expo/*",
+    "**/node_modules/*"
+  ],
+  "protectedWorkCategories": [
+    "Supabase",
+    "Auth",
+    "RLS",
+    "Storage",
+    "payments",
+    "monetization implementation",
+    "APK",
+    "native Android",
+    "native iOS",
+    "package dependencies",
+    "production deployment"
+  ],
+  "protectedProductRules": [
+    "ANKION is an anonymous voice-first mobile app.",
+    "No public profile browsing.",
+    "No user search.",
+    "No global profile discovery.",
+    "No dating, swipe, or profile-browsing behavior.",
+    "No room or chat-room direction.",
+    "Anonymous identity and real profile must remain strictly separated.",
+    "Real profile is visible only if the owner approves it.",
+    "Real profile visibility must be context-based.",
+    "Make it work now, fix later is forbidden.",
+    "Safety, privacy, Auth, RLS, and monetization boundaries must not be changed automatically."
+  ],
+  "allowedRiskLevels": [
+    "LOW",
+    "MEDIUM",
+    "HIGH"
+  ],
+  "reportRequiredSections": [
+    "Run id",
+    "Timestamp",
+    "Git available",
+    "Task id",
+    "Task title",
+    "Preflight result",
+    "Prompt generated",
+    "Prompt path",
+    "Validation result",
+    "Guard result",
+    "Diff review result",
+    "Forbidden files touched",
+    "Package/lockfile/env/Supabase/Auth/RLS/APK/native touched",
+    "Human approval required",
+    "Final decision"
+  ]
+}
+

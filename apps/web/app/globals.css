@@ -1,0 +1,91 @@
+:root {
+  color-scheme: dark;
+  --background: #080a0f;
+  --surface: #0d111a;
+  --surface-border: rgba(255, 255, 255, 0.1);
+  --text-primary: #f4f7fb;
+  --text-secondary: #b8c0d4;
+  --text-muted: #7e879d;
+  --brand-primary: #8ea7ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background:
+    radial-gradient(circle at 30% 0%, rgba(142, 167, 255, 0.18), transparent 34%),
+    radial-gradient(circle at 90% 10%, rgba(182, 156, 255, 0.14), transparent 28%),
+    var(--background);
+  color: var(--text-primary);
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+.skeleton-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+}
+
+.skeleton-card {
+  width: min(100%, 560px);
+  border: 1px solid var(--surface-border);
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.035));
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.46);
+  padding: 28px;
+}
+
+.skeleton-kicker {
+  margin: 0 0 12px;
+  color: var(--brand-primary);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.skeleton-card h1 {
+  margin: 0;
+  font-size: clamp(28px, 6vw, 42px);
+  line-height: 1.05;
+}
+
+.skeleton-card p {
+  margin: 16px 0 0;
+  color: var(--text-secondary);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.skeleton-card ul {
+  display: grid;
+  gap: 10px;
+  margin: 24px 0 0;
+  padding: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+  list-style: none;
+}
+
+.skeleton-card li::before {
+  margin-right: 8px;
+  color: var(--brand-primary);
+  content: "•";
+}

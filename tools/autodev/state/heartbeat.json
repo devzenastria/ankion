@@ -1,0 +1,12 @@
+﻿{
+    "timestamp":  "2026-06-16T04:57:18.7441705+03:00",
+    "repoRoot":  "C:\\ankion",
+    "gitAvailable":  false,
+    "lastRunReportPath":  "C:\\ankion\\tools\\autodev\\reports\\AUTODEV_RUN_20260616_045204.txt",
+    "lastValidationReportPath":  "C:\\ankion\\tools\\autodev\\reports\\AUTODEV_VALIDATE_20260616_043850.txt",
+    "lastPromptPath":  "",
+    "currentMode":  "SYNC_ONLY",
+    "currentStatus":  "BLOCKED",
+    "stopReason":  "Git unavailable on PATH",
+    "humanApprovalRequired":  true
+}

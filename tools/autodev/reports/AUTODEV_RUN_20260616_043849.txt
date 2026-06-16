@@ -1,0 +1,24 @@
+﻿AUTODEV RUN REPORT
+Timestamp: 2026-06-16T04:38:49.9920273+03:00
+Repo root: C:\ankion
+Task queue: C:\ankion\tools\autodev\task-queue.sample.json
+
+Task
+ID: AUTO-DRYRUN-001
+Title: Autodev scaffold dry-run validation
+Mode: dry-run
+
+Scope Validation
+PASS: Task scope accepted for dry-run validation.
+
+Validation Commands
+Validation exit code: 0
+
+Guard Result
+Guard exit code: 0
+
+Forbidden Files
+Forbidden file policy enforced by guard.ps1.
+
+Human Approval
+HUMAN APPROVAL REQUIRED

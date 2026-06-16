@@ -1,0 +1,40 @@
+﻿AUTODEV RUN REPORT
+Timestamp: 2026-06-16T04:45:19.3056833+03:00
+Repo root: C:\ankion
+Task queue: C:\ankion\tools\autodev\task-queue.sample.json
+
+Git Preflight
+Git available: NO
+Git unavailable on PATH
+Git diff name-only result: FAIL
+Git diff stat result: FAIL
+Forbidden files touched: UNKNOWN
+
+Task
+ID: AUTO-DRYRUN-001
+Title: Autodev scaffold dry-run validation
+Mode: dry-run
+
+Scope Validation
+PASS: Task scope accepted for dry-run validation.
+
+Validation Commands
+Validation skipped: Git diff verification is unavailable or failed.
+Validation result: FAIL
+
+Guard Result
+Guard result: FAIL
+Guard exit code: 1
+
+Final Summary
+Git available: NO
+Git diff name-only result: FAIL
+Git diff stat result: FAIL
+Validation result: FAIL
+Guard result: FAIL
+Forbidden files touched: UNKNOWN
+Final decision: FAILED
+Human approval required: YES
+
+Human Approval
+HUMAN APPROVAL REQUIRED

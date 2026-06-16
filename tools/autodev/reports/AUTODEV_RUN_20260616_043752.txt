@@ -1,0 +1,17 @@
+﻿AUTODEV RUN REPORT
+Timestamp: 2026-06-16T04:37:52.1393091+03:00
+Repo root: C:\ankion
+Task queue: C:\ankion\tools\autodev\task-queue.sample.json
+
+Task
+ID: AUTO-DRYRUN-001
+Title: Autodev scaffold dry-run validation
+Mode: dry-run
+
+Scope Validation
+FAIL: Task text contains forbidden AUTODEV v1 work area keywords.
+Forbidden Files
+Forbidden file policy enforced by guard.ps1.
+
+Human Approval
+HUMAN APPROVAL REQUIRED
