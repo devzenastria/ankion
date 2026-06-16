@@ -27,13 +27,13 @@ export default function HomeScreen() {
         <View style={styles.brandRow}>
           <Text style={styles.brandName}>ANKION</Text>
           <View style={styles.identityPill}>
-            <Text style={styles.identityPillText}>Kimlik kapalı</Text>
+            <Text style={styles.identityPillText}>Anonim mod</Text>
           </View>
         </View>
 
-        <Text style={styles.title}>Bugün ne yapmak istiyorsun?</Text>
+        <Text style={styles.title}>Anonim sesle başla</Text>
         <Text style={styles.subtitle}>
-          Anonim kalabilir, ses bırakabilir veya bağlantılarına dönebilirsin.
+          Sesini bırak, akışı dinle veya bağlantılarına geri dön.
         </Text>
       </View>
 
@@ -49,14 +49,14 @@ export default function HomeScreen() {
           <View style={styles.primaryIcon}>
             <Text style={styles.primaryIconText}>+</Text>
           </View>
-          <Text style={styles.primaryMeta}>21 sn anonim ses · Profil kapalı</Text>
+          <Text style={styles.primaryMeta}>Anonim ses · profil kapalı</Text>
         </View>
 
-        <Text style={styles.primaryTitle}>Ses bırak</Text>
+        <Text style={styles.primaryTitle}>Akışa ses bırak</Text>
         <Text style={styles.primaryBody}>
-          Anonim bir sesle başla. Bağlantı oluşursa konuşma devam eder.
+          Gerçek profilini açmadan başla. Bir yanıt gelirse Chat'te devam eder.
         </Text>
-        <Text style={styles.primaryAction}>Akışa geç</Text>
+        <Text style={styles.primaryAction}>Anonim akışı aç</Text>
       </Pressable>
 
       <Pressable
@@ -69,23 +69,23 @@ export default function HomeScreen() {
       >
         <View>
           <Text style={styles.secondaryTitle}>Bağlantılara dön</Text>
-          <Text style={styles.secondaryText}>Sesli bağlantıların burada.</Text>
+          <Text style={styles.secondaryText}>Aktif sesli konuşmaların Chat'te.</Text>
         </View>
         <Text style={styles.secondaryArrow}>›</Text>
       </Pressable>
 
       <View style={styles.statusCard}>
         <Text style={styles.cardLabel}>Durum</Text>
-        <Text style={styles.statusTitle}>Bekleyen önemli işlem yok.</Text>
+        <Text style={styles.statusTitle}>Bekleyen acil işlem yok.</Text>
         <Text style={styles.statusText}>
-          Yeni ses geldiğinde bağlantılarında görünür.
+          Yeni bir ses geldiğinde bağlantılarında görünür.
         </Text>
       </View>
 
       <View style={styles.privacyCard}>
         <Text style={styles.cardLabel}>Gizlilik</Text>
         <Text style={styles.privacyText}>
-          Gerçek profilin global görünmez. Sadece izin verdiğin bağlantıda açılır.
+          Gerçek profilin herkese açılmaz. Sadece izin verdiğin bağlantıda görünür.
         </Text>
       </View>
 
@@ -109,7 +109,7 @@ export default function HomeScreen() {
             Gece yürüyüşü
           </Text>
           <Text numberOfLines={1} style={styles.recentText}>
-            Yeni ses cevabı şimdi aktif
+            Yeni ses cevabı aktif
           </Text>
         </View>
 
