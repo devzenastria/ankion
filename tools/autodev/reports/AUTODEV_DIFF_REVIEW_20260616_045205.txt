@@ -1,5 +1,0 @@
-﻿AUTODEV DIFF REVIEW REPORT
-Timestamp: 2026-06-16T04:52:05.5217296+03:00
-Git available: NO
-Diff review result: FAIL
-Forbidden files touched: UNKNOWN

@@ -1,4 +1,4 @@
-# Dependencies
+﻿# Dependencies
 node_modules/
 .pnpm-store/
 
@@ -108,3 +108,12 @@ apps/mobile/android/.gradle/
 
 # Keep env example tracked, block real env files
 !.env.example
+# AUTODEV generated runtime artifacts
+tools/autodev/reports/*.txt
+tools/autodev/prompts/*.md
+tools/autodev/state/*.json
+tools/autodev/state/LATEST_HANDOFF.md
+!tools/autodev/reports/.gitkeep
+!tools/autodev/prompts/.gitkeep
+!tools/autodev/state/.gitkeep
+
