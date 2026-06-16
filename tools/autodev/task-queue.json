@@ -1,12 +1,13 @@
 ﻿{
   "tasks": [
     {
-      "id": "AUTO-V2-DRYRUN-001",
-      "title": "AUTODEV v2 preflight and guard dry-run",
-      "mode": "dry-run",
-      "description": "Verify the AUTODEV v2 preflight and guard pipeline without changing ANKION app source.",
+      "id": "AUTO-WORKDAY-CHAT-COPY-001",
+      "title": "Clarify Chat connection state copy",
+      "mode": "coding-prompt-only",
+      "description": "Copy-only polish for waiting/replyable/closed state text. Do not change logic. Do not change state names. Do not change navigation. Do not change composer behavior.",
+      "riskLevel": "LOW",
       "allowedFiles": [
-        "tools/autodev/*"
+        "apps/mobile/app/chat.tsx"
       ],
       "forbiddenFiles": [
         "package.json",
@@ -25,22 +26,33 @@
         "**/.expo/*",
         "**/node_modules/*"
       ],
+      "productRules": [
+        "ANKION is anonymous voice-first.",
+        "Do not add profile browsing.",
+        "Do not add user search.",
+        "Do not add dating/swipe behavior.",
+        "Do not add rooms.",
+        "Keep Home as compact control/start screen.",
+        "Feed remains the anonymous content surface.",
+        "Chat remains the connection surface.",
+        "Do not change behavior, navigation, state, data model, Auth, RLS, Supabase, package, APK, native code, or monetization."
+      ],
       "validation": [
         "corepack pnpm --filter @ankion/mobile typecheck",
         "corepack pnpm --filter @ankion/web typecheck",
         "corepack pnpm --filter @ankion/web build"
       ],
-      "riskLevel": "LOW",
       "requiresHumanApproval": true,
-      "expectedOutcome": "A timestamped report showing preflight, guard, and human approval status."
+      "expectedOutcome": "Only clearer Chat connection state copy in apps/mobile/app/chat.tsx, with no behavior, state, navigation, composer, or data changes."
     },
     {
-      "id": "AUTO-V2-REPORT-001",
-      "title": "AUTODEV v2 report format dry-run",
-      "mode": "dry-run",
-      "description": "Verify that AUTODEV v2 reports include the required status sections without changing ANKION app source.",
+      "id": "AUTO-WORKDAY-FEED-COPY-001",
+      "title": "Clarify Feed anonymous voice entry copy",
+      "mode": "coding-prompt-only",
+      "description": "Copy-only polish for anonymous voice feed entry, camera draft copy, and passive helper texts. Do not change draft behavior. Do not change camera behavior. Do not change navigation.",
+      "riskLevel": "LOW",
       "allowedFiles": [
-        "tools/autodev/*"
+        "apps/mobile/app/feed.tsx"
       ],
       "forbiddenFiles": [
         "package.json",
@@ -59,22 +71,33 @@
         "**/.expo/*",
         "**/node_modules/*"
       ],
+      "productRules": [
+        "ANKION is anonymous voice-first.",
+        "Do not add profile browsing.",
+        "Do not add user search.",
+        "Do not add dating/swipe behavior.",
+        "Do not add rooms.",
+        "Keep Home as compact control/start screen.",
+        "Feed remains the anonymous content surface.",
+        "Chat remains the connection surface.",
+        "Do not change behavior, navigation, state, data model, Auth, RLS, Supabase, package, APK, native code, or monetization."
+      ],
       "validation": [
         "corepack pnpm --filter @ankion/mobile typecheck",
         "corepack pnpm --filter @ankion/web typecheck",
         "corepack pnpm --filter @ankion/web build"
       ],
-      "riskLevel": "LOW",
       "requiresHumanApproval": true,
-      "expectedOutcome": "A consistent report file under tools/autodev/reports."
+      "expectedOutcome": "Only clearer Feed anonymous voice, camera draft, and passive helper copy in apps/mobile/app/feed.tsx, with no draft, camera, navigation, or behavior changes."
     },
     {
-      "id": "AUTO-V2-PROMPT-001",
-      "title": "AUTODEV v2 Codex prompt dry-run",
-      "mode": "dry-run",
-      "description": "Verify Codex prompt generation for safe AUTODEV system tasks without changing ANKION app source.",
+      "id": "AUTO-WORKDAY-DISCOVER-COPY-001",
+      "title": "Clarify Discover anonymous connection copy",
+      "mode": "coding-prompt-only",
+      "description": "Copy-only polish for anonymous discovery and connection invitation text. Do not add search. Do not add profile browsing. Do not add dating/swipe behavior. Do not change navigation.",
+      "riskLevel": "LOW",
       "allowedFiles": [
-        "tools/autodev/*"
+        "apps/mobile/app/discover.tsx"
       ],
       "forbiddenFiles": [
         "package.json",
@@ -93,14 +116,24 @@
         "**/.expo/*",
         "**/node_modules/*"
       ],
+      "productRules": [
+        "ANKION is anonymous voice-first.",
+        "Do not add profile browsing.",
+        "Do not add user search.",
+        "Do not add dating/swipe behavior.",
+        "Do not add rooms.",
+        "Keep Home as compact control/start screen.",
+        "Feed remains the anonymous content surface.",
+        "Chat remains the connection surface.",
+        "Do not change behavior, navigation, state, data model, Auth, RLS, Supabase, package, APK, native code, or monetization."
+      ],
       "validation": [
         "corepack pnpm --filter @ankion/mobile typecheck",
         "corepack pnpm --filter @ankion/web typecheck",
         "corepack pnpm --filter @ankion/web build"
       ],
-      "riskLevel": "LOW",
       "requiresHumanApproval": true,
-      "expectedOutcome": "A timestamped Codex prompt file under tools/autodev/prompts."
+      "expectedOutcome": "Only clearer Discover anonymous connection invitation copy in apps/mobile/app/discover.tsx, with no search, profile browsing, dating/swipe, navigation, or behavior changes."
     }
   ]
 }
