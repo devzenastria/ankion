@@ -21,6 +21,22 @@ function Get-ReportValue {
   return $Default
 }
 
+function Get-ChangedFileCountFromDiffReview {
+  param([string]$DiffText)
+  $count = 0
+  $inChangedFiles = $false
+  foreach ($line in ($DiffText -split "`r?`n")) {
+    if ($line -eq "Changed files:") { $inChangedFiles = $true; continue }
+    if ($line -eq "Diff stat:") { $inChangedFiles = $false; continue }
+    if ($inChangedFiles -and -not [string]::IsNullOrWhiteSpace($line)) { $count++ }
+  }
+  return $count
+}
+
+function Write-JsonFile {
+  param([string]$Path, [object]$Value)
+  $Value | ConvertTo-Json -Depth 8 | Set-Content -Path $Path -Encoding UTF8
+}
 
 function Write-JsonArrayFile {
   param([string]$Path, [object]$Items)
@@ -34,10 +50,6 @@ function Write-JsonArrayFile {
   } else {
     $array | ConvertTo-Json -Depth 8 | Set-Content -Path $Path -Encoding UTF8
   }
-}
-function Write-JsonFile {
-  param([string]$Path, [object]$Value)
-  $Value | ConvertTo-Json -Depth 8 | Set-Content -Path $Path -Encoding UTF8
 }
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
@@ -53,13 +65,15 @@ if (Test-Path $policyPath) {
   try { $version = (Get-Content $policyPath -Raw | ConvertFrom-Json).version } catch { $version = "UNKNOWN" }
 }
 
-$gitCommand = Get-Command git -ErrorAction SilentlyContinue
-$gitAvailable = ($null -ne $gitCommand)
 $latestRunReportPath = Get-LatestFilePath -Directory $reportsDir -Filter "AUTODEV_RUN_*.txt"
 $latestValidationReportPath = Get-LatestFilePath -Directory $reportsDir -Filter "AUTODEV_VALIDATE_*.txt"
+$latestDiffReviewReportPath = Get-LatestFilePath -Directory $reportsDir -Filter "AUTODEV_DIFF_REVIEW_*.txt"
 $latestPromptPath = Get-LatestFilePath -Directory $promptsDir -Filter "CODEX_PROMPT_*.md"
+
 $runText = ""
+$diffText = ""
 if (-not [string]::IsNullOrWhiteSpace($latestRunReportPath)) { $runText = Get-Content $latestRunReportPath -Raw }
+if (-not [string]::IsNullOrWhiteSpace($latestDiffReviewReportPath)) { $diffText = Get-Content $latestDiffReviewReportPath -Raw }
 
 $validationResult = Get-ReportValue -ReportText $runText -Label "Validation result" -Default "UNKNOWN"
 $guardResult = Get-ReportValue -ReportText $runText -Label "Guard result" -Default "UNKNOWN"
@@ -68,21 +82,38 @@ $forbiddenFilesTouched = Get-ReportValue -ReportText $runText -Label "Forbidden 
 $protectedFilesTouched = Get-ReportValue -ReportText $runText -Label "Package/lockfile/env/Supabase/Auth/RLS/APK/native touched" -Default "UNKNOWN"
 $finalDecision = Get-ReportValue -ReportText $runText -Label "Final decision" -Default "UNKNOWN"
 
-$currentMode = "SYNC_ONLY"
-$currentStatus = if ($gitAvailable -and $finalDecision -eq "PASS") { "READY_FOR_HUMAN_REVIEW" } elseif ($gitAvailable) { "NEEDS_HUMAN_REVIEW" } else { "BLOCKED" }
-$stopReason = if ($gitAvailable) { "HUMAN_APPROVAL_REQUIRED" } else { "Git unavailable on PATH" }
-$safeNextAction = if ($gitAvailable) { "Review latest AUTODEV reports and approve or reject the next safe action." } else { "Install Git for Windows or add Git to PATH, then rerun preflight." }
-$finalRecommendation = if ($gitAvailable) { "REVIEW REPORTS BEFORE ANY AUTONOMOUS CODING." } else { "DO NOT ENABLE AUTONOMOUS CODING. FIX GIT PATH FIRST." }
-$appSourceModified = if ($gitAvailable) { "UNKNOWN" } else { "UNKNOWN" }
-if (-not $gitAvailable) {
+$diffReviewReportResult = Get-ReportValue -ReportText $diffText -Label "Diff review result" -Default "UNKNOWN"
+$diffReviewForbidden = Get-ReportValue -ReportText $diffText -Label "Forbidden files touched" -Default "UNKNOWN"
+$diffReviewGitAvailable = Get-ReportValue -ReportText $diffText -Label "Git available" -Default "UNKNOWN"
+$changedFileCount = Get-ChangedFileCountFromDiffReview -DiffText $diffText
+
+$gitCommand = Get-Command git -ErrorAction SilentlyContinue
+$gitAvailable = ($null -ne $gitCommand) -or $diffReviewGitAvailable -eq "YES" -or (Get-ReportValue -ReportText $runText -Label "Git available" -Default "UNKNOWN") -eq "YES"
+
+if ($diffReviewReportResult -eq "PASS") { $diffReviewResult = "PASS" }
+if ($guardResult -eq "PASS" -and $diffReviewForbidden -eq "NO") { $forbiddenFilesTouched = "NO" }
+
+$appSourceModified = "UNKNOWN"
+if ($gitAvailable -and $diffReviewResult -eq "PASS" -and $changedFileCount -eq 0) {
+  $forbiddenFilesTouched = "NO"
+  $protectedFilesTouched = "NO"
+  $appSourceModified = "NO"
+} elseif (-not $gitAvailable) {
   $forbiddenFilesTouched = "UNKNOWN"
   $protectedFilesTouched = "UNKNOWN"
 }
 
+$cleanPass = ($gitAvailable -and $validationResult -eq "PASS" -and $guardResult -eq "PASS" -and $diffReviewResult -eq "PASS" -and $forbiddenFilesTouched -eq "NO")
+$currentMode = "SYNC_ONLY"
+$currentStatus = if ($cleanPass) { "DRY_RUN_READY_FOR_HUMAN_REVIEW" } elseif ($gitAvailable) { "NEEDS_HUMAN_REVIEW" } else { "BLOCKED" }
+$stopReason = if ($gitAvailable) { "HUMAN_APPROVAL_REQUIRED" } else { "Git unavailable on PATH" }
+$safeNextAction = if ($cleanPass) { "Review LATEST_HANDOFF.md and approve or reject the first LOW-risk coding task." } elseif ($gitAvailable) { "Review latest AUTODEV reports and resolve any failed status before coding." } else { "Install Git for Windows or add Git to PATH, then rerun preflight." }
+$finalRecommendation = if ($cleanPass) { "AUTODEV DRY-RUN READY. REAL AUTONOMOUS CODING STILL REQUIRES HUMAN APPROVAL." } elseif ($gitAvailable) { "REVIEW REPORTS BEFORE ANY AUTONOMOUS CODING." } else { "DO NOT ENABLE AUTONOMOUS CODING. FIX GIT PATH FIRST." }
+
 $heartbeat = [ordered]@{
   timestamp = (Get-Date -Format o)
   repoRoot = $repoRoot
-  gitAvailable = $gitAvailable
+  gitAvailable = [bool]$gitAvailable
   lastRunReportPath = $latestRunReportPath
   lastValidationReportPath = $latestValidationReportPath
   lastPromptPath = $latestPromptPath
@@ -111,17 +142,19 @@ if (-not $gitAvailable) {
 Write-JsonArrayFile -Path (Join-Path $stateDir "blockers.json") -Items $blockers
 
 $decisions = New-Object System.Collections.Generic.List[object]
-$decisions.Add([ordered]@{
-  id = "DECIDE-GIT-PATH-001"
-  title = "Fix Git PATH before autonomous coding"
-  status = "PENDING"
-  requiredBefore = "REAL_AUTONOMOUS_CODING"
-})
+if (-not $gitAvailable) {
+  $decisions.Add([ordered]@{
+    id = "DECIDE-GIT-PATH-001"
+    title = "Fix Git PATH before autonomous coding"
+    status = "PENDING"
+    requiredBefore = "REAL_AUTONOMOUS_CODING"
+  })
+}
 Write-JsonArrayFile -Path (Join-Path $stateDir "decisions.json") -Items $decisions
 
 $handoffPath = Join-Path $stateDir "LATEST_HANDOFF.md"
 $lines = New-Object System.Collections.Generic.List[string]
-$lines.Add("# ANKION AUTODEV v2.1 Latest Handoff")
+$lines.Add("# ANKION AUTODEV v2.2 Latest Handoff")
 $lines.Add("")
 $lines.Add("AUTODEV version: $version")
 $lines.Add("Timestamp: $(Get-Date -Format o)")
@@ -133,15 +166,18 @@ $lines.Add("")
 $lines.Add("## Latest Paths")
 $lines.Add("Latest run report: $latestRunReportPath")
 $lines.Add("Latest validation report: $latestValidationReportPath")
+$lines.Add("Latest diff review report: $latestDiffReviewReportPath")
 $lines.Add("Latest generated prompt: $latestPromptPath")
 $lines.Add("")
 $lines.Add("## Latest Results")
 $lines.Add("Validation result: $validationResult")
 $lines.Add("Guard result: $guardResult")
 $lines.Add("Diff review result: $diffReviewResult")
+$lines.Add("Changed files count: $changedFileCount")
 $lines.Add("Forbidden files touched: $forbiddenFilesTouched")
 $lines.Add("Package/lockfile/env/Supabase/Auth/RLS/APK/native touched: $protectedFilesTouched")
 $lines.Add("App source modified: $appSourceModified")
+$lines.Add("Real autonomous coding: NO-GO until user approves first LOW-risk coding task.")
 $lines.Add("")
 $lines.Add("## Blockers")
 if ($blockers.Count -eq 0) { $lines.Add("- None recorded") } else { foreach ($b in $blockers) { $lines.Add("- [$($b.severity)] $($b.code): $($b.message) Safe next action: $($b.safeNextAction)") } }
@@ -150,7 +186,7 @@ $lines.Add("## Questions")
 if ($questions.Count -eq 0) { $lines.Add("- None") } else { foreach ($q in $questions) { $lines.Add("- $q") } }
 $lines.Add("")
 $lines.Add("## Decisions Needed")
-foreach ($d in $decisions) { $lines.Add("- $($d.id): $($d.title) [$($d.status)] required before $($d.requiredBefore)") }
+if ($decisions.Count -eq 0) { $lines.Add("- None") } else { foreach ($d in $decisions) { $lines.Add("- $($d.id): $($d.title) [$($d.status)] required before $($d.requiredBefore)") } }
 $lines.Add("")
 $lines.Add("## Safe Next Action")
 $lines.Add($safeNextAction)
@@ -167,8 +203,6 @@ Write-Host "Heartbeat path: $(Join-Path $stateDir 'heartbeat.json')"
 Write-Host "Latest handoff path: $handoffPath"
 Write-Host "Forbidden files touched: $forbiddenFilesTouched"
 Write-Host "Package/lockfile/env/Supabase/Auth/RLS/APK/native touched: $protectedFilesTouched"
+Write-Host "App source modified: $appSourceModified"
 Write-Host "Human approval required: YES"
 exit 0
-
-
-

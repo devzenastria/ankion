@@ -1,12 +1,12 @@
 ﻿{
-    "timestamp":  "2026-06-16T04:57:18.7441705+03:00",
+    "timestamp":  "2026-06-16T05:18:42.3738798+03:00",
     "repoRoot":  "C:\\ankion",
-    "gitAvailable":  false,
-    "lastRunReportPath":  "C:\\ankion\\tools\\autodev\\reports\\AUTODEV_RUN_20260616_045204.txt",
-    "lastValidationReportPath":  "C:\\ankion\\tools\\autodev\\reports\\AUTODEV_VALIDATE_20260616_043850.txt",
-    "lastPromptPath":  "",
+    "gitAvailable":  true,
+    "lastRunReportPath":  "C:\\ankion\\tools\\autodev\\reports\\AUTODEV_RUN_20260616_051807.txt",
+    "lastValidationReportPath":  "C:\\ankion\\tools\\autodev\\reports\\AUTODEV_VALIDATE_20260616_051807.txt",
+    "lastPromptPath":  "C:\\ankion\\tools\\autodev\\prompts\\CODEX_PROMPT_AUTO-V2-DRYRUN-001_20260616_051807.md",
     "currentMode":  "SYNC_ONLY",
-    "currentStatus":  "BLOCKED",
-    "stopReason":  "Git unavailable on PATH",
+    "currentStatus":  "NEEDS_HUMAN_REVIEW",
+    "stopReason":  "HUMAN_APPROVAL_REQUIRED",
     "humanApprovalRequired":  true
 }

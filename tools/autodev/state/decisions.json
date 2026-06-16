@@ -1,8 +1,1 @@
-﻿[
-{
-    "id":  "DECIDE-GIT-PATH-001",
-    "title":  "Fix Git PATH before autonomous coding",
-    "status":  "PENDING",
-    "requiredBefore":  "REAL_AUTONOMOUS_CODING"
-}
-]
+﻿[]

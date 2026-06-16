@@ -1,5 +1,5 @@
 ﻿{
-  "version": "2.1.0",
+  "version": "2.2.0",
   "repoRoot": "C:\\ankion",
   "maxTasksPerRun": 1,
   "maxFilesChanged": 5,
@@ -82,4 +82,5 @@
     "Final decision"
   ]
 }
+
 
