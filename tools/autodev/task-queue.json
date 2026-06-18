@@ -2,9 +2,9 @@
   "tasks": [
     {
       "id": "AUTO-WORKDAY-CHAT-COPY-001",
-      "title": "Clarify Chat connection state copy",
+      "title": "Clarify Chat composer and connection copy",
       "mode": "coding-prompt-only",
-      "description": "Copy-only polish for waiting/replyable/closed state text. Do not change logic. Do not change state names. Do not change navigation. Do not change composer behavior.",
+      "description": "Copy-only polish for the existing Chat composer/header labels and visible connection copy for waiting, replyable, and closed modes. Target only existing copy returned by getVoiceComposerCopy, getThreadHeaderCopy, getConnectionSideLabel, and nearby visible helper text. Do not change logic. Do not change state names. Do not change navigation. Do not change composer behavior.",
       "riskLevel": "LOW",
       "allowedFiles": [
         "apps/mobile/app/chat.tsx"
@@ -43,13 +43,13 @@
         "corepack pnpm --filter @ankion/web build"
       ],
       "requiresHumanApproval": true,
-      "expectedOutcome": "Only clearer Chat connection state copy in apps/mobile/app/chat.tsx, with no behavior, state, navigation, composer, or data changes."
+      "expectedOutcome": "Only clearer existing Chat composer/header/connection copy in apps/mobile/app/chat.tsx, with no behavior, state names, navigation, composer behavior, or data changes."
     },
     {
       "id": "AUTO-WORKDAY-FEED-COPY-001",
-      "title": "Clarify Feed anonymous voice entry copy",
+      "title": "Clarify Feed share and moment copy",
       "mode": "coding-prompt-only",
-      "description": "Copy-only polish for anonymous voice feed entry, camera draft copy, and passive helper texts. Do not change draft behavior. Do not change camera behavior. Do not change navigation.",
+      "description": "Copy-only polish for existing Feed share-sheet option text, local draft text, section intro text, moment metadata, and answer button copy. Do not change draft behavior. Do not change camera behavior. Do not change filters. Do not change navigation.",
       "riskLevel": "LOW",
       "allowedFiles": [
         "apps/mobile/app/feed.tsx"
@@ -88,13 +88,13 @@
         "corepack pnpm --filter @ankion/web build"
       ],
       "requiresHumanApproval": true,
-      "expectedOutcome": "Only clearer Feed anonymous voice, camera draft, and passive helper copy in apps/mobile/app/feed.tsx, with no draft, camera, navigation, or behavior changes."
+      "expectedOutcome": "Only clearer existing Feed share-sheet, local draft, moment, and answer copy in apps/mobile/app/feed.tsx, with no draft, camera, filter, navigation, or behavior changes."
     },
     {
       "id": "AUTO-WORKDAY-DISCOVER-COPY-001",
-      "title": "Clarify Discover anonymous connection copy",
+      "title": "Clarify Discover anonymous voice copy",
       "mode": "coding-prompt-only",
-      "description": "Copy-only polish for anonymous discovery and connection invitation text. Do not add search. Do not add profile browsing. Do not add dating/swipe behavior. Do not change navigation.",
+      "description": "Copy-only polish for existing Discover search placeholder, topic/section labels, local draft text, voice metadata, random anonymous voice card, and voice action copy. Do not add new search behavior. Do not add profile browsing. Do not add dating/swipe behavior. Do not change navigation.",
       "riskLevel": "LOW",
       "allowedFiles": [
         "apps/mobile/app/discover.tsx"
@@ -133,7 +133,7 @@
         "corepack pnpm --filter @ankion/web build"
       ],
       "requiresHumanApproval": true,
-      "expectedOutcome": "Only clearer Discover anonymous connection invitation copy in apps/mobile/app/discover.tsx, with no search, profile browsing, dating/swipe, navigation, or behavior changes."
+      "expectedOutcome": "Only clearer existing Discover anonymous voice, local draft, metadata, random card, and action copy in apps/mobile/app/discover.tsx, with no new search behavior, profile browsing, dating/swipe, navigation, or behavior changes."
     }
   ]
 }
