@@ -3084,3 +3084,29 @@ Post-execution validation:
 
 Next required phase:
 - Phase 25F - local post-execution documentation checkpoint + backup.
+
+## Phase 27B - Owner-Controlled Creation Path Docs Update (2026-06-18)
+
+Status: PASS - owner-controlled creation path planning documented. This phase is docs-only. No backend implementation, SQL implementation, migration creation/editing, DB command, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase runtime, Storage, Reveal, RPC/view/function/trigger, staging, production, or Dev Console work was performed.
+
+Creation path decision:
+- Direct broad INSERT remains blocked for both `profiles_private` and `anonymous_identities`.
+- A controlled creation boundary is preferred for later implementation because it can enforce owner binding, one private profile per Auth user, one active anonymous identity per Auth user, system/safety field defaults, duplicate prevention, audit metadata, rate limits, and abuse scoring before any row is created.
+- Direct owner INSERT policy may be reconsidered later only if it is narrow, owner-bound, field-limited, covered by deny/allow tests, and protected from `owner_user_id` spoofing and system-field mutation. It is not the preferred default.
+- `profiles_private` creation should be tied to the authenticated owner only and must not expose or depend on public profile lookup, search, browse, or global profile concepts.
+- `anonymous_identities` creation should remain internally owner-bound, app-facing, and separated from real profile visibility. It must not create an anonymous-to-real lookup path for non-owner clients.
+
+Required preconditions before implementation:
+- Explicit human GO for any migration, write policy, controlled function/RPC, service boundary, Auth/runtime integration, test data/user creation, RLS harness execution, package change, or local DB mutation.
+- RLS must remain deny-by-default for INSERT/UPDATE/DELETE until the creation boundary is approved and tested.
+- Future tests must cover duplicate creation, cross-owner spoofing, `owner_user_id` reassignment, system/safety field mutation, raw reveal/profile reads, public/search/browse/global access, and monetization bypass.
+
+Android/voice/live anti-abuse planning added:
+- Treat Android client signals as untrusted risk inputs only.
+- Root/emulator/hook detection is a weak signal, not an absolute security boundary.
+- Fake microphone input, replay/pre-recorded voice, repeated upload/replay, local storage tampering, live-session manipulation, and speed/volume/device metadata abuse must be planned before voice/reveal/runtime.
+- Server-side verification, rate limits, abuse scoring, voice freshness/liveness boundaries, replay detection boundaries, and upload nonce/session binding are required later before runtime acceptance.
+- Real profile visibility must never depend only on client-side checks.
+- Monetization must never bypass identity, reveal, consent, or anti-abuse boundaries.
+
+Next safe step: Phase 27C - docs-only creation path implementation preflight/checklist, or a checkpoint commit after human review. Backend implementation remains NO-GO until separate explicit approval.

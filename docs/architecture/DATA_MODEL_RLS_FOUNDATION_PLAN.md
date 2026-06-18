@@ -1432,3 +1432,70 @@ Phase 24 closure decision:
 - Auth/runtime/app integration remains NO-GO.
 - Staging and production remain NO-GO.
 - Phase 25 may begin in a new chat with a handoff prompt.
+
+## Phase 27B - Owner-Controlled Creation Path Planning (2026-06-18)
+
+Status: PASS - docs-only planning update. No SQL, migration, DB command, RLS harness, test data/user, Auth/runtime, Supabase runtime, Storage, Reveal, RPC/view/function/trigger, package/env/APK/native, staging, or production work was performed.
+
+### Creation Boundary Decision
+
+Direct broad INSERT remains blocked for `profiles_private` and `anonymous_identities`.
+
+Preferred later path: controlled creation boundary. The boundary may be a narrowly approved server-side service/RPC/function design in a future explicit phase, but Phase 27B does not implement or choose executable SQL. The boundary must derive ownership from the authenticated session/server context, not from client-supplied `owner_user_id`.
+
+Direct owner INSERT policy remains a conditional fallback only. It is acceptable to reconsider later only if the policy is narrow, owner-bound, field-limited, protected by immutable owner linkage, covered by deny/allow tests, and reviewed against duplicate creation and abuse risks. It is not the preferred default.
+
+### profiles_private Creation Requirements
+
+Future creation must:
+- create at most one active/private profile row per Auth user.
+- set `owner_user_id` from trusted server/session context only.
+- reject client-supplied owner reassignment or system/safety fields.
+- initialize profile visibility, safety, verification, soft-delete, and audit fields with server-owned defaults.
+- avoid public username, profile search, global profile slug, public profile browsing, or global profile opening semantics.
+- keep raw private profile rows owner-only by default.
+
+### anonymous_identities Creation Requirements
+
+Future creation must:
+- keep V1 to one active anonymous identity per Auth user unless a later rotation phase changes it.
+- set owner linkage from trusted context only.
+- keep anonymous identity app-facing and separated from real profile identity.
+- prevent anonymous-to-real lookup paths in non-owner DTOs.
+- avoid user search, anonymous identity search, global directory, room/member-directory, and browse semantics.
+- initialize safety/status/rotation/audit fields through server-owned defaults.
+
+### RLS / Policy Preconditions
+
+Before implementation:
+- Existing owner-bound SELECT policies remain the only implemented RLS policies for these two tables.
+- INSERT/UPDATE/DELETE remain deny-by-default until a separate explicit GO approves the creation boundary.
+- Future RLS must test cross-owner spoofing, duplicate creation, `owner_user_id` reassignment, system/safety field mutation, raw reveal/profile read denial, and public/search/browse/global denial.
+- Reveal must never grant raw `profiles_private` table read access.
+- Monetization must never bypass identity, reveal, consent, or anti-abuse boundaries.
+
+### Anti-Abuse / Android / Voice Preconditions
+
+Creation path approval must account for:
+- creation path abuse and repeated provisioning attempts.
+- Android manipulation risks, with all client signals treated as untrusted.
+- root/emulator/hook detection as weak risk signal only, not final security.
+- fake microphone input and pre-recorded/replayed voice risk.
+- repeated upload/replay and local storage tampering.
+- live interaction manipulation.
+- speed, volume, and device metadata abuse.
+- server-side verification required later.
+- rate limits and abuse scoring required later.
+- voice freshness/liveness boundaries, replay detection boundaries, and upload nonce/session binding before runtime acceptance.
+- moderation, consent, and reveal manipulation risks.
+
+### Future GO Gates
+
+Separate explicit human GO remains required for:
+- migration creation or editing.
+- local migration apply or DB mutation.
+- RLS/write policy implementation.
+- controlled function/RPC/service boundary implementation.
+- Auth/Supabase runtime integration.
+- RLS harness execution or test data/user creation.
+- Storage, Reveal, RPC/view/function/trigger, staging, or production.

@@ -3059,3 +3059,22 @@ Result: PHASE 25E PASS - GUARDED LOCAL RLS HARNESS EXECUTED ONCE AGAINST supabas
 - Post-execution metadata and migration/harness hashes remained unchanged.
 - No execution log file was created; output was captured in the Codex run and summarized in docs.
 - No db push/reset/repair/link, staging/production/remote command, migration edit, app/runtime/backend/storage/reveal implementation, package/env/APK change, or git command occurred.
+
+## 2026-06-18 - Phase 27B Owner-Controlled Creation Path Docs Update
+
+**Type:** Backend Planning / Security / Anti-Abuse  
+**Status:** Completed  
+
+Documented the owner-controlled creation path decision for `profiles_private` and `anonymous_identities`:
+
+- Direct broad INSERT remains blocked.
+- Controlled creation boundary is preferred for later implementation.
+- Direct owner INSERT is not the preferred default and may be reconsidered only after narrow field mutability, RLS, deny/allow tests, and anti-abuse preconditions are satisfied.
+- `profiles_private` creation must remain authenticated-owner-bound and must not create public/global profile access.
+- `anonymous_identities` creation must remain internally owner-bound and separated from real profile visibility.
+- Added Android/voice/live anti-abuse planning: untrusted client signals, fake microphone input, replay/pre-recorded voice, repeated upload/replay, local storage tampering, live-session manipulation, weak root/emulator/hook signals, server-side verification, rate limits, abuse scoring, freshness/liveness, replay detection, and upload nonce/session binding.
+- Added future explicit GO gates for migration/write policy/function/RPC/service boundary/Auth/runtime/test data/RLS harness work.
+
+No backend implementation, SQL implementation, migration creation/editing, DB command, RLS harness run, package/env/APK/native work, Auth/Supabase runtime, Storage, Reveal, RPC/view/function/trigger, staging, production, or Dev Console work was performed.
+
+---

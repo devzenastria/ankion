@@ -2602,3 +2602,21 @@ Decision basis:
 
 Boundary:
 - This does not approve staging, production, remote execution, app/Auth/runtime integration, storage/backend work, reveal implementation, RPC/view/function/trigger work, or write-policy expansion.
+
+## DEC-123 - Owner-Controlled Creation Path Before Write Policies
+
+**Status:** Approved  
+**Date:** 2026-06-18  
+**Scope:** Backend / Security / RLS / Anti-Abuse
+
+**Decision:**  
+Direct broad INSERT into `profiles_private` and `anonymous_identities` remains blocked. A controlled creation boundary is the preferred later implementation path for creating owner-bound private profile and anonymous identity rows. Direct owner INSERT policy is not the default and may be reconsidered only after narrow field mutability, RLS preconditions, deny/allow tests, anti-abuse controls, and explicit human GO are complete.
+
+**Reason:**  
+Creation is the first write path that can bind Auth identity to real profile and anonymous identity. A broad client INSERT path risks `owner_user_id` spoofing, duplicate rows, unsafe defaults, system/safety field mutation, anonymous-to-real correlation, raw reveal/profile access, and abuse before voice/reveal/runtime controls exist.
+
+**Impact:**  
+Future implementation must decide a safe creation boundary before any write policy or runtime binding. The boundary must enforce authenticated owner binding, one private profile per Auth user, one active anonymous identity per Auth user for V1, server-owned defaults, audit metadata, rate limits, abuse scoring, replay/voice freshness planning, and deny-by-default RLS for non-owner and raw reveal paths.
+
+**Do Not:**  
+Do not create broad INSERT policies. Do not let real profile visibility depend only on Android/client-side checks. Do not expose raw `profiles_private` rows to reveal recipients. Do not create user/profile search, public profile browsing, global profile opening, room/member-directory behavior, or monetization-based identity/reveal/consent bypass.

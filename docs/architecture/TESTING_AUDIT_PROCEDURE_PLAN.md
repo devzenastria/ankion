@@ -1993,3 +1993,32 @@ This is the safest next slice because Phase 25E validated owner SELECT only, whi
 - Codex status/output is the primary checkpoint until a notification path is designed.
 - Phone/mobile notification must not be assumed as guaranteed.
 - If notification automation is desired later, create a separate planning phase before implementation.
+
+## Phase 27B - Owner-Controlled Creation Path Test Planning (2026-06-18)
+
+Status: PASS - docs-only test planning update. No tests were run. No test data/users were created. No DB command, migration, SQL, RLS harness, runtime, package/env/APK/native, staging, or production work was performed.
+
+Future creation path tests must be added before any implementation:
+
+1. Authenticated owner cannot create `profiles_private` for another `owner_user_id`.
+2. Authenticated owner cannot create `anonymous_identities` for another `owner_user_id`.
+3. Repeated provisioning cannot create duplicate `profiles_private` rows.
+4. Repeated provisioning cannot create duplicate active `anonymous_identities` rows.
+5. Client-supplied system/safety/verification/moderation fields are ignored or rejected.
+6. `owner_user_id` cannot be reassigned during creation or later mutation.
+7. Reveal recipient cannot raw-select `profiles_private` after creation.
+8. Anonymous preview cannot expose `owner_user_id`, `auth_user_id`, `profile_private_id`, or anonymous-to-real correlation.
+9. Public/profile search, user search, global profile opening, profile browsing, room/member-directory, and global anonymous directory paths remain denied.
+10. Monetization cannot bypass identity, reveal, consent, creation, or anti-abuse controls.
+
+Android/voice/live anti-abuse test planning:
+- Treat all Android client signals as untrusted.
+- Root/emulator/hook checks may be tested only as weak risk signals, not final blockers.
+- Fake microphone input, pre-recorded/replayed voice, repeated upload/replay, local storage tampering, live-session manipulation, and speed/volume/device metadata abuse must have server-side mitigation plans before runtime acceptance.
+- Future runtime tests must include rate limits, abuse scoring, voice freshness/liveness boundaries, replay detection boundaries, and upload nonce/session binding.
+
+Future execution gates:
+- Any RLS harness update or execution requires separate explicit human GO.
+- Any test data/user creation requires separate explicit human GO.
+- Any local DB mutation requires backup/checkpoint and explicit human GO.
+- Staging and production remain NO-GO.

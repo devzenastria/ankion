@@ -1611,3 +1611,21 @@ Phase 24 closure decision:
 - Auth/runtime/app integration remains NO-GO.
 - Staging and production remain NO-GO.
 - Phase 25 may begin in a new chat with a handoff prompt.
+
+## Phase 27B - Owner-Controlled Creation Path Readiness Update (2026-06-18)
+
+Result: PASS - docs-only readiness update. No implementation, SQL, migration creation/editing, DB command, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase runtime, Storage, Reveal, RPC/view/function/trigger, staging, or production work occurred.
+
+Readiness decision:
+- Direct broad INSERT remains blocked for `profiles_private` and `anonymous_identities`.
+- Controlled creation boundary is preferred later.
+- Direct owner INSERT policy is not the preferred default and remains conditional until field mutability, ownership binding, deny/allow tests, anti-abuse checks, and explicit GO are complete.
+
+Creation implementation remains NOT READY until:
+- owner binding is derived from trusted session/server context.
+- duplicate `profiles_private` and duplicate active `anonymous_identities` creation is prevented.
+- server-owned defaults are defined for status, safety, verification, visibility, rotation, soft-delete, and audit fields.
+- RLS/write policy plan blocks cross-owner spoofing, owner reassignment, system/safety field mutation, raw reveal reads, public/search/browse/global access, and monetization bypass.
+- Android/voice/live anti-abuse controls are planned: untrusted client signals, weak root/emulator/hook signals, fake microphone input, replay/pre-recorded voice, repeated upload/replay, local storage tampering, live-session manipulation, speed/volume/device metadata abuse, server-side verification, rate limits, abuse scoring, freshness/liveness, replay detection, and upload nonce/session binding.
+
+Future explicit-GO gates remain required for migration creation/editing, local migration apply, DB mutation, RLS/write policy implementation, controlled function/RPC/service boundary implementation, Auth/Supabase runtime integration, RLS harness execution, test data/user creation, Storage, Reveal, RPC/view/function/trigger, staging, and production.

@@ -552,3 +552,27 @@ Phase 24 closure decision:
 - Auth/runtime/app integration remains NO-GO.
 - Staging and production remain NO-GO.
 - Phase 25 may begin in a new chat with a handoff prompt.
+
+## Phase 27B - Creation Path Separation Reinforcement (2026-06-18)
+
+Phase 27B keeps real profile identity and anonymous identity separated during future row creation planning.
+
+Creation decisions:
+- `profiles_private` creation must be owner-controlled and must not create a public profile, searchable profile, global profile, or profile-browsing surface.
+- `anonymous_identities` creation must be owner-bound internally but anonymous-facing externally; it must not expose `owner_user_id`, `auth_user_id`, `profile_private_id`, or anonymous-to-real correlation data to non-owner clients.
+- Direct broad INSERT remains blocked. Controlled creation boundary is preferred later because it can enforce owner binding, duplicate prevention, server-owned defaults, audit fields, rate limits, and abuse scoring before rows exist.
+- Direct owner INSERT policy is only a conditional fallback after field mutability, RLS, anti-abuse, and deny/allow tests are explicitly approved.
+
+Reveal and profile visibility boundaries:
+- Real profile visibility remains owner-approved and connection/context-bound only.
+- Real profile visibility must never depend only on Android/client-side checks.
+- Reveal must never grant raw `profiles_private` table read access.
+- Monetization must never bypass identity, reveal, consent, or anti-abuse boundaries.
+
+Android/voice/live anti-abuse planning:
+- Android client signals are untrusted and may only inform risk scoring.
+- Root/emulator/hook checks are weak risk signals, not absolute blockers.
+- Fake microphone input, replay/pre-recorded voice, repeated upload/replay, local storage tampering, live-session manipulation, and speed/volume/device metadata abuse must be treated as future attack paths.
+- Server-side verification, rate limits, abuse scoring, voice freshness/liveness boundaries, replay detection, and upload nonce/session binding are required before voice/reveal/runtime acceptance.
+
+Phase boundary: no SQL, migration, DB command, runtime integration, Auth/Supabase client, Storage, Reveal, RPC/view/function/trigger, test data/user, staging, or production work is approved by this note.

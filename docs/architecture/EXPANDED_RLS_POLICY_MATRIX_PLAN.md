@@ -2495,3 +2495,33 @@ anonymous_identities executed results:
 - malicious owner_user_id reassignment and safety field mutation: PASS, permission denied by missing UPDATE grant.
 
 Rollback verification found zero persistent fake rows. Coverage remains limited to the current local owner-bound SELECT RLS scope.
+
+## Phase 27B - Creation Path RLS Matrix Update (2026-06-18)
+
+Status: PASS - docs-only matrix update. No executable SQL, migration edit, DB command, RLS harness run, test data/user creation, runtime integration, package/env/APK/native, staging, or production work was performed.
+
+### profiles_private Future Creation Matrix
+
+| Scenario | Phase 27B decision | Required future mechanism |
+|---|---|---|
+| Authenticated owner creates own private profile | CONDITIONAL / controlled boundary preferred | Server/session-derived owner binding, one-row uniqueness, field allowlist, server-owned defaults, rate limit, abuse score. |
+| Authenticated owner direct broad INSERT | BLOCKED | Too much risk for owner spoofing, unsafe defaults, duplicate rows, and system/safety field mutation. |
+| Owner creates row for another `owner_user_id` | DENY | Trusted owner binding; client-supplied owner linkage ignored or rejected. |
+| Repeated profile provisioning | DENY / idempotent safe handling later | Unique owner constraint plus controlled provisioning semantics. |
+| Reveal recipient raw `profiles_private` read after creation | DENY | Safe context-scoped DTO only; no raw table read. |
+| Public/search/browse/global profile creation side effect | FORBIDDEN | No public profile, search, browse, global profile, or room/member-directory model. |
+
+### anonymous_identities Future Creation Matrix
+
+| Scenario | Phase 27B decision | Required future mechanism |
+|---|---|---|
+| Authenticated owner receives active anonymous identity | CONDITIONAL / controlled boundary preferred | Server/session-derived owner binding, one-active-per-owner for V1, safe defaults, rate limit, abuse score. |
+| Authenticated owner direct broad INSERT | BLOCKED | Too much risk for duplicate active identities, owner spoofing, unsafe safety/status fields, and anonymous-to-real correlation. |
+| Owner creates identity for another `owner_user_id` | DENY | Trusted owner binding; no client-supplied owner linkage. |
+| Rotation/history creation | DEFERRED | Separate explicit rotation phase required. |
+| Global anonymous directory/search/browse | FORBIDDEN | No user search, profile search, anonymous identity search, room/member-directory, or browse model. |
+| Monetization-based identity lookup | FORBIDDEN | Monetization cannot bypass identity/reveal/consent boundaries. |
+
+### Required Anti-Abuse Preconditions
+
+Before write policy or controlled boundary implementation, future tests/plans must cover creation spam, duplicate provisioning, Android manipulation, fake microphone input, replay/pre-recorded voice, repeated upload/replay, live-session manipulation, local storage tampering, speed/volume/device metadata abuse, server-side verification, rate limits, abuse scoring, voice freshness/liveness, replay detection, upload nonce/session binding, moderation manipulation, consent manipulation, and reveal manipulation.
