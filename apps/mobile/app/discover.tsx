@@ -104,7 +104,7 @@ export default function DiscoverScreen() {
   function prepareDiscoverDraft(sourceId?: string) {
     setLocalDraft({
       ...createLocalDiscoverDraftPreview(sourceId),
-      text: "Anonim ses taslağı hazır. Profil izni olmadan kimlik kapalı kalır.",
+      text: "Yerel taslak hazır. Profil görünürlüğü değişmez.",
     });
   }
 
@@ -228,7 +228,7 @@ export default function DiscoverScreen() {
               accessibilityRole="button"
               onPress={() => openVoiceThread(persona.threadId)}
             >
-              <Text style={styles.voiceAction}>Chat'te yanıtla</Text>
+              <Text style={styles.voiceAction}>Sese cevap ver</Text>
             </Pressable>
           </View>
         ))}
@@ -245,10 +245,10 @@ export default function DiscoverScreen() {
         <View style={styles.randomCopy}>
           <Text style={styles.randomTitle}>Rastgele anonim ses</Text>
           <Text style={styles.randomText}>
-            Kimlik kapalı kalır. Merak edersen Chat'te sesle devam et.
+            Profil gizli kalır. Merak edersen bağlantıda sesle devam et.
           </Text>
         </View>
-        <Text style={styles.randomAction}>Chat'e geç</Text>
+        <Text style={styles.randomAction}>Bağlantıda devam et</Text>
       </Pressable>
     </ScreenContainer>
   );

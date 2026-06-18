@@ -69,7 +69,9 @@ export default function HomeScreen() {
       >
         <View>
           <Text style={styles.secondaryTitle}>Bağlantılara dön</Text>
-          <Text style={styles.secondaryText}>Aktif sesli konuşmaların Chat'te.</Text>
+          <Text style={styles.secondaryText}>
+            Cevap verilebilen sesler bağlantılarında.
+          </Text>
         </View>
         <Text style={styles.secondaryArrow}>›</Text>
       </Pressable>
@@ -78,7 +80,7 @@ export default function HomeScreen() {
         <Text style={styles.cardLabel}>Durum</Text>
         <Text style={styles.statusTitle}>Bekleyen acil işlem yok.</Text>
         <Text style={styles.statusText}>
-          Yeni bir ses geldiğinde bağlantılarında görünür.
+          Yeni ses gelince bağlantıda devam edebilirsin.
         </Text>
       </View>
 

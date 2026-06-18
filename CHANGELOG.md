@@ -16,6 +16,23 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-18 - Phase 26D Feed-to-Chat Reply Handoff Copy Clarity
+
+**Type:** Mobile UI Copy / Flow Handoff Clarity  
+**Status:** Completed  
+
+Updated existing Feed, Discover, Home, and Chat copy so handoff into Chat reads as anonymous voice reply and connection continuation:
+
+- Feed and Discover reply buttons now say `Sese cevap ver`.
+- Discover random voice action now says `Bağlantıda devam et`.
+- Home connection helper copy now says replyable voices appear in connections.
+- Chat connection list helper copy now says replyable voices appear there and profile visibility requires approval in the relevant connection.
+- Local draft copy now states profile visibility does not change.
+
+No Supabase, Auth, RLS, backend, package, env, APK, native, navigation, route, state-name, or composer behavior changes were made.
+
+---
+
 ## 2026-06-18 - Phase 26C Chat Empty and Edge State Clarity
 
 **Type:** Mobile UI Copy / Edge State Clarity  

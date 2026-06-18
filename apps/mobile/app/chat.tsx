@@ -819,7 +819,7 @@ export default function ChatScreen() {
           <View style={styles.infoRow}>
             <Text style={styles.infoTitle}>Keşiften sohbete</Text>
             <Text style={styles.infoText}>
-              Keşif ve Akıştan gelen sesler burada devam eder. Profil yalnızca ilgili bağlantıda izinle görünür.
+              Cevap verilebilen sesler burada görünür. Profil sadece ilgili bağlantıda onayla görünür.
             </Text>
           </View>
         </>

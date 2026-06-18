@@ -107,7 +107,7 @@ export default function FeedScreen() {
       mode === "voice"
         ? {
             ...nextDraft,
-            text: "Anonim ses taslağı hazır. Profilin kapalı kalır.",
+            text: "Yerel taslak hazır. Profil görünürlüğü değişmez.",
           }
         : nextDraft,
     );
@@ -242,7 +242,7 @@ export default function FeedScreen() {
                 accessibilityRole="button"
                 onPress={() => openVoiceThread(persona.threadId)}
               >
-                <Text style={styles.answerButton}>Chat'te yanıtla</Text>
+                <Text style={styles.answerButton}>Sese cevap ver</Text>
               </Pressable>
             </View>
           );
@@ -323,7 +323,7 @@ export default function FeedScreen() {
                 <View style={styles.sheetOptionCopy}>
                   <Text style={styles.sheetOptionTitle}>Kamera ile an bırak</Text>
                   <Text style={styles.sheetOptionText}>
-                    Fotoğraf veya kısa video taslağı oluştur. Galeri akışta yok.
+                    Yerel taslak oluştur. Profil görünürlüğü değişmez.
                   </Text>
                 </View>
               </Pressable>
