@@ -3200,3 +3200,22 @@ Applied the corrective crypto schema migration to the local Supabase DB only:
 No staging, production, remote Supabase command, RLS harness rerun, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, app runtime integration, Dev Console work, or commit was performed.
 
 ---
+
+## 2026-06-18 - Phase 28H Local Controlled Creation Function Harness Rerun
+
+**Type:** Local DB Harness / Controlled Creation Verification  
+**Status:** Completed  
+
+Reran the local-only controlled creation function harness after the corrective crypto schema migration:
+
+- Targeted local DB/container: `supabase_db_ankion`.
+- Targeted function: `public.create_owner_identity_foundation(text, text, text)`.
+- Created temporary Phase 28H fake actors/data inside a transaction only.
+- Passed 27/27 assertions.
+- Verified function shape, `SECURITY DEFINER`, fixed `search_path=public, auth`, `auth.uid()` ownership derivation, no `owner_user_id` argument, `extensions.gen_random_bytes(8)`, no unqualified `gen_random_bytes(8)`, no dynamic SQL, anon execute denial, and narrow authenticated execute grant.
+- Verified authenticated owner creation, unauthenticated rejection, duplicate handling, non-owner boundary, direct INSERT/UPDATE/DELETE denial, non-owner raw `profiles_private` read denial, safe system/safety/audit/reveal defaults, and absence of broad write policies/grants.
+- Rolled back the transaction and verified persistent fake auth/users/profile/anonymous rows remaining at 0.
+
+No staging, production, remote Supabase command, migration creation/edit/apply, RLS policy edit, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, app runtime integration, Dev Console work, or commit was performed.
+
+---

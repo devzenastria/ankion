@@ -2134,3 +2134,33 @@ Fix candidate:
 
 Future testing:
 - Phase 28E harness must not be rerun until the Phase 28F migration candidate passes static review and any local apply phase receives separate explicit GO.
+
+## Phase 28H - Controlled Creation Function Harness Rerun Result (2026-06-18)
+
+Status: PASS - local-only controlled creation function harness rerun completed against `supabase_db_ankion`.
+
+Harness target:
+- Function: `public.create_owner_identity_foundation(text, text, text)`.
+- Tables: `public.profiles_private` and `public.anonymous_identities`.
+- Execution model: transaction-scoped temporary local test actors/data with rollback.
+
+Result:
+- Total assertions: 27.
+- Passed: 27.
+- Failed: 0.
+- Persistent fake auth/users/profile/anonymous rows remaining after rollback: 0.
+
+Covered assertions:
+- Function exists, keeps `SECURITY DEFINER`, fixed `search_path=public, auth`, `auth.uid()` ownership derivation, no `owner_user_id` argument, no dynamic SQL, anon execute denial, and narrow authenticated execute grant.
+- Corrective crypto call uses `extensions.gen_random_bytes(8)` and has no unqualified `gen_random_bytes(8)` call.
+- Unauthenticated caller is rejected.
+- Authenticated owner can create own foundation.
+- Duplicate private profile and duplicate active anonymous identity are blocked or safely handled.
+- Non-owner cannot create for another user because there is no owner argument and owner counts remain isolated.
+- Function result does not expose real private profile fields.
+- Direct table INSERT/UPDATE/DELETE remains blocked.
+- Non-owner raw `profiles_private` read is not newly granted.
+- System, safety, audit, status, reveal, and rotation fields remain server/default-controlled.
+- No broad write policies or write grants were introduced.
+
+No raw private profile row contents were printed. No staging, production, migration edit/apply, RLS policy edit, runtime integration, Storage, Reveal, APK/native, package/dependency, or Dev Console work was performed.

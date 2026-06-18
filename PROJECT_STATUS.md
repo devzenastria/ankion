@@ -3228,3 +3228,19 @@ Local apply result:
 
 Next required phase:
 - Phase 28G checkpoint verification. Harness rerun remains blocked until separate explicit GO.
+
+## Phase 28H - Local Controlled Creation Function Harness Rerun (2026-06-18)
+
+Status: PASS - local controlled creation function harness rerun completed against `supabase_db_ankion`. No staging, production, remote Supabase command, migration creation/edit/apply, RLS policy edit, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, app runtime integration, Dev Console work, or commit was performed.
+
+Harness result:
+- Target function: `public.create_owner_identity_foundation(text, text, text)`.
+- Target tables: `public.profiles_private` and `public.anonymous_identities`.
+- Temporary local-only Phase 28H fake actors/data were created inside a transaction and rolled back.
+- Assertions: 27 total, 27 passed, 0 failed.
+- Covered function shape, authenticated creation, unauthenticated rejection, duplicate handling, non-owner boundary, direct table INSERT/UPDATE/DELETE denial, raw non-owner private profile read denial, safe defaults, write policy/grant absence, and corrected `extensions.gen_random_bytes(8)` usage.
+- Cleanup verification recorded persistent fake auth/users/profile/anonymous rows remaining at 0.
+- Raw private profile row contents were not printed.
+
+Next required phase:
+- Phase 28H checkpoint verification. Runtime integration, staging, production, reveal/storage, and app binding remain blocked.
