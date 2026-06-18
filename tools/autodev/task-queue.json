@@ -94,7 +94,7 @@
     },
     {
       "id": "AUTO-WORKDAY-DISCOVER-COPY-001",
-      "status": "PENDING",
+      "status": "COMPLETED",
       "title": "Clarify Discover anonymous voice copy",
       "mode": "coding-prompt-only",
       "description": "Copy-only polish for existing Discover search placeholder, topic/section labels, local draft text, voice metadata, random anonymous voice card, and voice action copy. Do not add new search behavior. Do not add profile browsing. Do not add dating/swipe behavior. Do not change navigation.",

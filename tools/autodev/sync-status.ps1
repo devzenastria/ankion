@@ -108,7 +108,7 @@ $blockedTasks = @($tasks | Where-Object { (Get-TaskStatus -Task $_) -eq "BLOCKED
 $skippedTasks = @($tasks | Where-Object { (Get-TaskStatus -Task $_) -eq "SKIPPED" })
 $selectedTask = if ($pendingTasks.Count -gt 0) { $pendingTasks[0] } else { $null }
 $selectedTaskLabel = if ($null -ne $selectedTask) { "$($selectedTask.id): $($selectedTask.title)" } else { "NONE" }
-$safeNextTask = if ($null -ne $selectedTask) { "$($selectedTask.id): $($selectedTask.title)" } else { "NONE - no pending tasks" }
+$safeNextTask = if ($null -ne $selectedTask) { "$($selectedTask.id): $($selectedTask.title)" } else { "Prepare SubAgent v1 planning task" }
 
 $latestRunReportPath = Get-LatestFilePath -Directory $reportsDir -Filter "AUTODEV_RUN_*.txt"
 $latestValidationReportPath = Get-LatestFilePath -Directory $reportsDir -Filter "AUTODEV_VALIDATE_*.txt"
@@ -152,7 +152,7 @@ $cleanPass = ($gitAvailable -and $validationResult -eq "PASS" -and $guardResult 
 $currentMode = "SYNC_ONLY"
 $currentStatus = if ($cleanPass) { "DRY_RUN_READY_FOR_HUMAN_REVIEW" } elseif ($gitAvailable) { "NEEDS_HUMAN_REVIEW" } else { "BLOCKED" }
 $stopReason = if ($gitAvailable) { "HUMAN_APPROVAL_REQUIRED" } else { "Git unavailable on PATH" }
-$safeNextAction = if ($cleanPass -and $null -ne $selectedTask) { "Review LATEST_HANDOFF.md and approve or reject the next LOW-risk coding task: $safeNextTask." } elseif ($cleanPass) { "No pending tasks remain. Review LATEST_HANDOFF.md and decide whether to add or unblock a task." } elseif ($gitAvailable) { "Review latest AUTODEV reports and resolve any failed status before coding." } else { "Install Git for Windows or add Git to PATH, then rerun preflight." }
+$safeNextAction = if ($cleanPass -and $null -ne $selectedTask) { "Review LATEST_HANDOFF.md and approve or reject the next LOW-risk coding task: $safeNextTask." } elseif ($cleanPass) { "Prepare SubAgent v1 planning task." } elseif ($gitAvailable) { "Review latest AUTODEV reports and resolve any failed status before coding." } else { "Install Git for Windows or add Git to PATH, then rerun preflight." }
 $finalRecommendation = if ($cleanPass) { "AUTODEV DRY-RUN READY. REAL AUTONOMOUS CODING STILL REQUIRES HUMAN APPROVAL." } elseif ($gitAvailable) { "REVIEW REPORTS BEFORE ANY AUTONOMOUS CODING." } else { "DO NOT ENABLE AUTONOMOUS CODING. FIX GIT PATH FIRST." }
 
 $heartbeat = [ordered]@{
