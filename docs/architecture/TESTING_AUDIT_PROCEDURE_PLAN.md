@@ -2117,3 +2117,20 @@ Phase 28E must still not run tests unless explicit GO is given.
 
 Exact future GO for any harness execution:
 `GO: Run Phase 28E local controlled creation function harness only.`
+
+## Phase 28F - Controlled Creation Function Crypto Schema Fix Planning Note (2026-06-18)
+
+Status: PASS - corrective migration candidate prepared for static review only. No DB command, migration apply, SQL execution, RLS harness run, test data/user creation, runtime integration, staging, or production occurred.
+
+Phase 28E blocker:
+- The first creation-behavior assertion failed because `gen_random_bytes(8)` was unqualified while the function uses fixed `search_path = public, auth`.
+- Local metadata showed the crypto function in schema `extensions`.
+
+Fix candidate:
+- `supabase/migrations/20260618170000_fix_controlled_creation_crypto_schema.sql`
+- Replaces `public.create_owner_identity_foundation(text, text, text)`.
+- Uses `extensions.gen_random_bytes(8)`.
+- Preserves `SECURITY DEFINER`, fixed `search_path`, `auth.uid()` ownership, no `owner_user_id` argument, and no broad write policies.
+
+Future testing:
+- Phase 28E harness must not be rerun until the Phase 28F migration candidate passes static review and any local apply phase receives separate explicit GO.

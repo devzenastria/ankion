@@ -3164,3 +3164,19 @@ Planned the future local-only harness for the controlled creation boundary:
 No DB command, SQL execution, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, app runtime integration, staging, production, Dev Console work, or commit was performed.
 
 ---
+
+## 2026-06-18 - Phase 28F Controlled Creation Function Crypto Schema Fix
+
+**Type:** Backend Migration Candidate / Corrective Fix  
+**Status:** Completed for static review  
+
+Prepared a corrective migration candidate after Phase 28E found that `gen_random_bytes(8)` could not resolve under the function's fixed `search_path=public, auth`:
+
+- Added `supabase/migrations/20260618170000_fix_controlled_creation_crypto_schema.sql`.
+- Replaced `public.create_owner_identity_foundation(text, text, text)` with the same controlled boundary shape.
+- Changed crypto generation to `extensions.gen_random_bytes(8)`.
+- Preserved `SECURITY DEFINER`, fixed `search_path`, `auth.uid()` ownership derivation, no `owner_user_id` argument, no broad write policy/grant, and no raw `profiles_private` read path.
+
+No DB command, migration apply, SQL execution, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, app runtime integration, staging, production, Dev Console work, or commit was performed.
+
+---

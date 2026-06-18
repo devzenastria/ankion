@@ -3199,3 +3199,15 @@ Planned actor/assertion coverage:
 
 Next recommended phase:
 - Phase 28E - Local RLS / Function Harness Dry Plan or Implementation Prep. Harness execution requires separate explicit GO.
+
+## Phase 28F - Controlled Creation Function Crypto Schema Resolution Fix (2026-06-18)
+
+Status: PASS - corrective migration candidate prepared after Phase 28E harness exposed an unqualified crypto function lookup. No DB command, migration apply, SQL execution, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, app runtime integration, staging, production, Dev Console work, or commit was performed.
+
+Fix candidate:
+- Added `supabase/migrations/20260618170000_fix_controlled_creation_crypto_schema.sql`.
+- The new migration replaces `public.create_owner_identity_foundation(text, text, text)` and schema-qualifies crypto generation as `extensions.gen_random_bytes(8)`.
+- `SECURITY DEFINER`, fixed `search_path = public, auth`, `auth.uid()` ownership derivation, no `owner_user_id` argument, narrow authenticated execute grant, and broad direct INSERT/UPDATE/DELETE block posture are preserved.
+
+Next required step:
+- Phase 28F static SQL review before any local apply or harness retry.
