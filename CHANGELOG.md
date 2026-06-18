@@ -3148,3 +3148,19 @@ Applied the controlled creation boundary migration to the local Supabase DB only
 No staging, production, Supabase link, remote push, RLS harness, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, app runtime integration, Dev Console work, or commit was performed.
 
 ---
+
+## 2026-06-18 - Phase 28D RLS / Function Test Harness Planning
+
+**Type:** Backend Test Planning / RLS Function Harness  
+**Status:** Completed  
+
+Planned the future local-only harness for the controlled creation boundary:
+
+- Scoped the harness to `public.create_owner_identity_foundation(text, text, text)`, `profiles_private`, and `anonymous_identities`.
+- Defined future actors: unauthenticated caller, authenticated owner A, authenticated owner B/non-owner, duplicate private profile scenario, and duplicate active anonymous identity scenario.
+- Added assertion coverage for unauthenticated rejection, owner-only creation, owner spoof prevention, duplicate handling, direct table write denial, raw private profile read denial, safe anonymous identity output, non-client-controlled system/safety/audit/reveal fields, narrow authenticated execute grant, anon execute denial, fixed `search_path`, and absence of dynamic SQL.
+- Documented that future test users/data, harness implementation, and harness execution require separate explicit GO and local-only cleanup verification.
+
+No DB command, SQL execution, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, app runtime integration, staging, production, Dev Console work, or commit was performed.
+
+---

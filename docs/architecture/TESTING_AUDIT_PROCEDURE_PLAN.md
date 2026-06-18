@@ -2045,3 +2045,75 @@ Before any apply or runtime binding, future tests must include:
 14. Fake microphone, replay/pre-recorded voice, repeated upload/replay, local storage tampering, live-session manipulation, and device metadata abuse have server-side mitigation plans before runtime.
 
 Future RLS harness changes or execution require separate explicit human GO.
+
+## Phase 28D - Controlled Creation Function Harness Planning (2026-06-18)
+
+Status: PASS - planning-only harness design for the local controlled creation boundary. No test execution, SQL execution, DB command, RLS harness run, test data/user creation, Auth runtime, Supabase client runtime, Storage, Reveal, app runtime integration, package/env/APK/native work, staging, production, Dev Console work, or commit was performed.
+
+### Harness Scope
+
+- Local-only.
+- Target function only: `public.create_owner_identity_foundation(text, text, text)`.
+- Target tables only: `profiles_private` and `anonymous_identities`.
+- No reveal, Storage, runtime Auth, Supabase client, app binding, APK/native, staging, or production.
+- Future harness execution requires separate explicit GO.
+
+### Future Actor Model
+
+1. `unauthenticated_caller`: anon/no JWT context; function call must be rejected.
+2. `authenticated_owner_a`: authenticated role with owner A JWT claim; own foundation creation may pass.
+3. `authenticated_owner_b_non_owner`: authenticated role with owner B JWT claim; cannot create rows for owner A or read owner A raw private rows.
+4. `duplicate_owner_private_profile`: owner A calls provisioning after a private profile already exists; duplicate must be blocked or safely idempotent.
+5. `duplicate_active_anonymous_identity`: owner A calls provisioning after an active anonymous identity already exists; duplicate active identity must be blocked or safely idempotent.
+
+### Required Future Assertions
+
+1. Unauthenticated caller is rejected.
+2. Authenticated owner can create only their own foundation rows.
+3. Caller cannot pass or spoof `owner_user_id`.
+4. Duplicate `profiles_private` creation is blocked or safely handled.
+5. Duplicate active `anonymous_identities` creation is blocked or safely handled.
+6. Non-owner cannot create for another user.
+7. Direct table INSERT remains blocked outside the controlled function.
+8. Direct UPDATE and DELETE remain blocked.
+9. Raw `profiles_private` read is not granted by creation.
+10. Function does not expose real profile data through anonymous identity output.
+11. System, safety, audit, status, verification, rotation, soft-delete, and reveal fields are not client-controlled.
+12. Authenticated execute grant is intentional and narrow.
+13. Anon execute remains denied.
+14. Function `search_path` remains fixed.
+15. Dynamic SQL remains absent.
+
+### Future Harness Execution Design
+
+- Simulate `auth.uid()` locally by setting role and JWT claim settings in a transaction, following the Phase 25 harness model.
+- Use deterministic local-only fake UUIDs and fake parent rows only after separate explicit GO.
+- Record assertion rows in a transaction-local temp table.
+- Count total, passed, and failed assertions explicitly.
+- End with rollback unless a later approved phase documents a different cleanup-safe method.
+- Do not print raw private profile rows, broad `SELECT *`, real user data, email, phone, storage paths, or secrets.
+- Block execution unless the target is local `supabase_db_ankion`.
+- No staging or production execution is allowed.
+
+### Test Data Boundary
+
+- No test users or test data are created in Phase 28D.
+- Future test data/user creation requires separate explicit GO.
+- Persistent fake data must be cleaned and verified.
+- Future Phase 28E must include cleanup verification before any harness execution is approved.
+
+### Anti-Abuse Carryover
+
+- Android/client signals remain untrusted.
+- Fake microphone, replay/pre-recorded voice, live-session manipulation, repeated upload/replay, local storage tampering, and device metadata abuse remain future server-side concerns.
+- Creation boundary tests must not rely on Android client-only checks.
+- Reveal, identity, consent, and monetization bypass remain blocked.
+
+### Phase 28E Recommendation
+
+Recommended next phase: Phase 28E - Local RLS / Function Harness Dry Plan or Implementation Prep.
+
+Phase 28E must still not run tests unless explicit GO is given.
+
+Exact future GO for any harness execution:
+`GO: Run Phase 28E local controlled creation function harness only.`

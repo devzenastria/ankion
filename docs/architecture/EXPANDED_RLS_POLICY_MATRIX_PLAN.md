@@ -2556,3 +2556,35 @@ Status: PASS - docs-only matrix preflight. No SQL, migration, DB command, RLS ha
 - Reveal does not grant raw private profile read.
 - Public/search/browse/global profile and room/member-directory paths remain denied.
 - Monetization does not bypass identity/reveal/consent.
+
+## Phase 28D - Controlled Creation Function RLS/Test Matrix (2026-06-18)
+
+Status: PASS - planning-only matrix update for the local controlled creation function. No tests were run. No DB command, SQL execution, RLS harness run, test data/user creation, runtime integration, package/env/APK/native work, staging, or production occurred.
+
+### Controlled Creation Function Assertions
+
+| Scenario | Expected result | Required mechanism |
+|---|---|---|
+| Unauthenticated caller invokes `create_owner_identity_foundation` | DENY | `auth.uid()` is null and function raises authenticated-owner-required error. |
+| Authenticated owner A invokes function with allowed display fields | ALLOW | Function derives owner from owner A JWT context and inserts or returns owner A foundation rows. |
+| Caller attempts `owner_user_id` spoofing | DENY / impossible | Function signature has no `owner_user_id` parameter and uses `auth.uid()`. |
+| Duplicate private profile provisioning | DENY / safely idempotent | Existing `profiles_private_owner_user_id_key` and function conflict handling prevent duplicate private profile rows. |
+| Duplicate active anonymous identity provisioning | DENY / safely idempotent | Existing `anonymous_identities_one_active_per_owner_idx` and function conflict handling prevent duplicate active identities. |
+| Authenticated owner B tries to create for owner A | DENY / impossible | Function does not accept target owner input. |
+| Direct table INSERT by authenticated role | DENY | No authenticated INSERT grant and no direct INSERT policy. |
+| Direct table UPDATE/DELETE by authenticated role | DENY | No authenticated UPDATE/DELETE grant and no UPDATE/DELETE policy. |
+| Raw `profiles_private` read after creation by non-owner/reveal context | DENY | Creation does not add raw profile read paths; owner SELECT policy remains unchanged. |
+| Anonymous identity output leaks real profile data | DENY | Function returns IDs only and anonymous defaults contain no real profile fields. |
+| Client controls system/safety/audit/reveal fields | DENY | Function accepts only optional display fields and relies on table defaults for server-owned fields. |
+| Anon executes function | DENY | Function execute is revoked from anon. |
+| Authenticated executes function | ALLOW / narrow | Execute grant is limited to authenticated and must remain reviewed. |
+| Function search path drift | DENY | `search_path` must remain fixed to `public, auth`. |
+| Dynamic SQL appears | DENY | Function must remain free of dynamic SQL. |
+
+### Boundary
+
+- This matrix plans future local tests only.
+- No staging or production execution is allowed.
+- No reveal, Storage, Auth runtime, Supabase client runtime, app binding, APK/native, package change, or Dev Console work is authorized.
+- Any harness implementation, test data/user creation, or execution requires separate explicit GO.
+- Exact future GO for any harness execution: `GO: Run Phase 28E local controlled creation function harness only.`

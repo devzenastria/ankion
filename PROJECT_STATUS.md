@@ -3174,3 +3174,28 @@ Local apply result:
 
 Next required phase:
 - Phase 28D RLS/function test harness planning. Harness execution remains blocked until separate explicit GO.
+
+## Phase 28D - RLS / Function Test Harness Planning (2026-06-18)
+
+Status: PASS - planning/docs-only harness plan completed for the local controlled creation boundary. No DB command, SQL execution, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, app runtime integration, staging, production, Dev Console work, or commit was performed.
+
+Planned harness scope:
+- Local `supabase_db_ankion` only.
+- Function target: `public.create_owner_identity_foundation(text, text, text)`.
+- Table scope: `profiles_private` and `anonymous_identities` only.
+- No reveal, Storage, runtime integration, staging, or production.
+
+Planned actor/assertion coverage:
+- Unauthenticated caller rejection.
+- Authenticated owner A successful own foundation provisioning.
+- Owner B/non-owner cannot create for owner A.
+- `owner_user_id` spoofing is impossible because the function has no owner parameter.
+- Duplicate private profile and duplicate active anonymous identity handling.
+- Direct table INSERT/UPDATE/DELETE remains blocked.
+- Raw `profiles_private` read remains blocked.
+- System/safety/audit/reveal fields remain non-client-controlled.
+- Authenticated execute grant is narrow; anon execute remains denied.
+- Fixed `search_path` and no dynamic SQL remain required.
+
+Next recommended phase:
+- Phase 28E - Local RLS / Function Harness Dry Plan or Implementation Prep. Harness execution requires separate explicit GO.

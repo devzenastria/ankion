@@ -1686,3 +1686,20 @@ Before any apply:
 - Static SQL review is required.
 - RLS deny/allow tests must be prepared.
 - No DB command, RLS harness, test data/user creation, Auth/runtime, Supabase client runtime, Storage, Reveal, app binding, APK/native, staging, or production work may occur without separate approval.
+
+## Phase 28D - Controlled Creation Function Test Readiness Plan (2026-06-18)
+
+Result: PLANNED / NOT EXECUTED. The local controlled creation function now needs a dedicated harness plan before any test run. No DB command, SQL execution, RLS harness run, test data/user creation, Auth/runtime, Supabase client runtime, Storage, Reveal, app binding, APK/native, staging, production, Dev Console work, or commit occurred in Phase 28D.
+
+Readiness requirements before execution:
+- Exact explicit GO for harness implementation or execution.
+- Local-only target confirmation for `supabase_db_ankion`.
+- Transactional harness design with rollback or equivalent cleanup guarantee.
+- Controlled fake actor model for unauthenticated caller, owner A, owner B/non-owner, duplicate private profile, and duplicate active anonymous identity scenarios.
+- Assertions for unauthenticated rejection, owner-only creation, owner spoof prevention, duplicate handling, direct table INSERT/UPDATE/DELETE denial, raw `profiles_private` read denial, system/safety/audit/reveal field immutability, anon execute denial, authenticated execute scope, fixed `search_path`, and absence of dynamic SQL.
+- Output must avoid raw private row dumps and must report assertion counts only with safe labels.
+
+Phase 28E recommendation:
+- Phase 28E - Local RLS / Function Harness Dry Plan or Implementation Prep.
+- Tests must still not run unless explicit GO is given.
+- Exact future GO for any harness execution: `GO: Run Phase 28E local controlled creation function harness only.`
