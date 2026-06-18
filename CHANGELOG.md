@@ -3130,3 +3130,21 @@ Completed the final preflight before any possible local apply of the controlled 
 No DB command, migration apply, Supabase db push/reset/link, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase runtime, Storage, Reveal, app runtime integration, staging, production, Dev Console work, or commit was performed.
 
 ---
+
+## 2026-06-18 - Phase 28C Local Controlled Creation Boundary Migration Apply
+
+**Type:** Local DB Migration Apply  
+**Status:** Completed  
+
+Applied the controlled creation boundary migration to the local Supabase DB only:
+
+- Applied `supabase/migrations/20260618143000_create_owner_controlled_creation_boundary.sql` to local `supabase_db_ankion`.
+- Recorded `20260618143000 create_owner_controlled_creation_boundary` in local migration history.
+- Verified `public.create_owner_identity_foundation(text, text, text)` exists locally.
+- Verified `SECURITY DEFINER` and fixed `search_path=public, auth`.
+- Verified function arguments do not include `owner_user_id`; ownership remains derived from `auth.uid()`.
+- Verified no INSERT/UPDATE/DELETE RLS policies and no INSERT/UPDATE/DELETE grants were added for `anon` or `authenticated`.
+
+No staging, production, Supabase link, remote push, RLS harness, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, app runtime integration, Dev Console work, or commit was performed.
+
+---

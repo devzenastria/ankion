@@ -3158,3 +3158,19 @@ Preflight result:
 
 Future exact GO:
 `GO: Start Phase 28C local controlled creation boundary migration apply.`
+
+## Phase 28C - Local Controlled Creation Boundary Migration Apply (2026-06-18)
+
+Status: PASS - controlled creation boundary migration was applied to the local Supabase DB only. No staging, production, Supabase link, remote push, RLS harness, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, app runtime integration, Dev Console work, or commit was performed.
+
+Local apply result:
+- Applied `supabase/migrations/20260618143000_create_owner_controlled_creation_boundary.sql` to local `supabase_db_ankion`.
+- Local migration history now includes `20260618143000 create_owner_controlled_creation_boundary`.
+- `public.create_owner_identity_foundation(text, text, text)` exists locally with `SECURITY DEFINER`.
+- Function `search_path` is fixed to `public, auth`.
+- Function arguments do not include `owner_user_id`; ownership is derived from `auth.uid()`.
+- No INSERT/UPDATE/DELETE policies were added on `profiles_private` or `anonymous_identities`.
+- No INSERT/UPDATE/DELETE grants were added for `anon` or `authenticated`.
+
+Next required phase:
+- Phase 28D RLS/function test harness planning. Harness execution remains blocked until separate explicit GO.
