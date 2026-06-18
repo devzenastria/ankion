@@ -201,7 +201,7 @@ function getConnectionSideLabel(connection: VoiceConnection) {
     return "Bekle";
   }
 
-  return "Cevap";
+  return "Aç";
 }
 
 function getConnectionTab(connection: VoiceConnection): ChatTab {
@@ -260,7 +260,7 @@ function getVoiceComposerCopy(
   if (mode === "waiting") {
     return {
       sideLabel: "Bekle",
-      text: "Karşı tarafın yeni sesini bekle.",
+      text: "Yeni ses gelince devam et.",
       title: "Cevap bekleniyor",
     };
   }
@@ -268,15 +268,15 @@ function getVoiceComposerCopy(
   if (mode === "closed") {
     return {
       sideLabel: "Kapalı",
-      text: "Bu bağlantıda yeni ses gönderilemez.",
-      title: "Bu bağlantı kapalı",
+      text: "Yeni cevap yok.",
+      title: "Bu bağlantı şu an kapalı",
     };
   }
 
   if (connection.status === "Profil izni var") {
     return {
       sideLabel: "21 sn",
-      text: "Profil izni var · Sesli bağlantı sürer",
+      text: "Profil bu bağlantıda açık · Sesli bağlantı sürer",
       title: "Sese cevap ver",
     };
   }
@@ -284,14 +284,14 @@ function getVoiceComposerCopy(
   if (connection.status === "Profil açıldı") {
     return {
       sideLabel: "21 sn",
-      text: "Profil açık · Sesli konuşma devam eder",
+      text: "Profil bu bağlantıda açık · Sesli konuşma devam eder",
       title: "Sese cevap ver",
     };
   }
 
   return {
     sideLabel: "21 sn",
-    text: "21 sn anonim ses · Profil kapalı",
+    text: "21 sn anonim ses · Profil gizli",
     title: "Sese cevap ver",
   };
 }
@@ -302,21 +302,21 @@ function getThreadHeaderCopy(
 ) {
   if (mode === "waiting") {
     return {
-      text: "Karşı tarafın yeni sesini bekle.",
+      text: "Yeni ses gelince devam et.",
       title: "Cevap bekleniyor",
     };
   }
 
   if (mode === "closed") {
     return {
-      text: "Bu bağlantıda yeni ses gönderilemez.",
-      title: "Bağlantı kapalı",
+      text: "Yeni cevap yok.",
+      title: "Bu bağlantı şu an kapalı",
     };
   }
 
   if (connection.status === "Profil izni var") {
     return {
-      text: "Görünürlük bu bağlantıyla sınırlı.",
+      text: "Profil sadece bu bağlantıda görünür.",
       title: "Profil izni var",
     };
   }
@@ -329,8 +329,8 @@ function getThreadHeaderCopy(
   }
 
   return {
-    text: "Anonim sesle cevap verebilirsin.",
-    title: "Kimlik kapalı",
+    text: "Anonim sesle devam edebilirsin.",
+    title: "Profil gizli",
   };
 }
 
@@ -477,7 +477,7 @@ export default function ChatScreen() {
       [selectedConnection.id]: {
         ...reply,
         label: "Sesli cevap hazır",
-        text: "Karşılık gelirse sohbet burada devam eder.",
+        text: "Bu bağlantı sesle devam eder.",
       },
     }));
   }
@@ -580,7 +580,7 @@ export default function ChatScreen() {
 
           <View style={styles.threadHint}>
             <Text style={styles.threadHintText}>
-              Keşif ve Akıştan gelen sesler burada bağlantıya döner. Profil izni ayrı kalır.
+              Keşif ve Akıştan gelen sesler burada bağlantıya döner. Profil açma global değildir.
             </Text>
           </View>
 
@@ -634,11 +634,11 @@ export default function ChatScreen() {
             <View style={styles.revealCopy}>
               <Text style={styles.revealTitle}>Profil izni</Text>
               <Text style={styles.revealText}>
-                Profil yalnızca izin verilirse bu bağlantıda görünür.
+                Onay verilmeden gerçek profil görünmez.
               </Text>
             </View>
 
-            <Text style={styles.revealAction}>İzin iste</Text>
+            <Text style={styles.revealAction}>Onay iste</Text>
           </Pressable>
 
           {voiceComposerMode === "replyable" ? (
@@ -685,7 +685,7 @@ export default function ChatScreen() {
                 <View style={styles.composerCopy}>
                   <Text style={styles.mediaComposerTitle}>Kamera</Text>
                   <Text style={styles.mediaComposerText}>
-                    Fotoğraf / Video yerel taslak
+                    Yerel taslak; profil görünürlüğü değişmez
                   </Text>
                 </View>
                 <Text style={styles.holdText}>Taslak</Text>

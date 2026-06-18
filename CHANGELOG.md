@@ -16,6 +16,42 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-18 - Phase 26C Chat Empty and Edge State Clarity
+
+**Type:** Mobile UI Copy / Edge State Clarity  
+**Status:** Completed  
+
+Updated existing Chat edge-state copy without changing behavior:
+
+- Closed/passive selected connections now say the connection is currently closed and there is no new reply.
+- Anonymous replyable composer copy now says the profile is hidden.
+- Default thread header copy now reinforces voice continuation.
+- Reveal copy now states that the real profile is not visible without approval.
+- Camera draft copy now states that local drafts do not change profile visibility.
+
+No new empty-state UI branch was added because the current Chat list data does not expose a true empty-list render path.
+
+No Supabase, Auth, RLS, backend, package, env, APK, native, navigation, state-name, or composer behavior changes were made.
+
+---
+
+## 2026-06-18 - Phase 26B Chat Connection Experience Clarity
+
+**Type:** Mobile UI Copy / Product Flow Clarity  
+**Status:** Completed  
+
+Updated Chat copy to make connection states clearer without changing behavior:
+
+- Replyable connection list action now reads `Aç`.
+- Waiting state now explains the connection continues when a new voice arrives.
+- Closed state now says there is no new reply.
+- Profile/reveal copy now reinforces that profile visibility is approval-based and limited to the current connection.
+- Prepared voice reply copy now keeps voice as the main continuation action.
+
+No Supabase, Auth, RLS, backend, package, env, APK, native, navigation, state-name, or composer behavior changes were made.
+
+---
+
 ## 2026-05-24 — Initial Project Scaffold Created
 
 **Type:** Documentation / Project Structure  

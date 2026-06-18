@@ -16,10 +16,35 @@ ChatGPT / User / Codex-assisted
 
 # Current Phase
 
+## Phase 26C - Chat Empty and Edge State Clarity / UI-Copy Only (2026-06-18)
 
+Status: PASS - Chat empty and edge-state clarity improved with copy-only UI polish. No new empty-state UI branch was added because the current Chat list data does not expose a true empty-list render path.
 
+Changed surface:
+- Closed/passive composer and thread header copy now says the connection is currently closed and there is no new reply.
+- Anonymous replyable composer copy now says the profile is hidden.
+- Default thread header copy now keeps voice as the continuation action.
+- Reveal copy now states that the real profile is not visible without approval.
+- Local camera draft copy now states that a draft does not change profile visibility.
 
+Out of scope and not done: new screens, empty-state UI blocks, navigation changes, state-name changes, composer behavior changes, reveal/profile permission implementation, Supabase/Auth/RLS/backend/storage/package/env/APK/native changes, commits, push, deploy.
 
+Next safe step: Phase 26D may continue only as a low-risk UI/product clarity task after human approval. Backend, Supabase, Auth, and RLS remain NO-GO.
+
+## Phase 26B - Chat Connection Experience Clarity / UI-Copy Only (2026-06-18)
+
+Status: PASS - Chat connection experience clarity improved with copy-only UI polish. Waiting, replyable, closed, anonymous, and reveal-context states remain behaviorally unchanged.
+
+Changed surface:
+- Chat connection side label now uses `Aç` for replyable connections.
+- Waiting copy now says the connection continues when a new voice arrives.
+- Closed copy now states there is no new reply instead of implying a technical send failure.
+- Profile visibility copy now states visibility is limited to the current connection and requires approval.
+- Local prepared voice reply copy now reinforces that the connection continues through voice.
+
+Out of scope and not done: navigation changes, state-name changes, composer behavior changes, reveal/profile permission implementation, Supabase/Auth/RLS/backend/storage/package/env/APK/native changes, commits, push, deploy.
+
+Next safe step: Phase 26C may continue only as a low-risk UI/product clarity task after human approval. Real autonomous coding remains NO-GO.
 
 
 
