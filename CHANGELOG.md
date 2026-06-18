@@ -3114,3 +3114,19 @@ Prepared one narrow local migration candidate for the owner-controlled creation 
 No DB command, migration apply, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase runtime, Storage, Reveal, app runtime integration, staging, production, Dev Console work, or commit was performed.
 
 ---
+
+## 2026-06-18 - Phase 28B Local Apply Readiness Preflight
+
+**Type:** Backend Migration Apply Preflight / Readiness  
+**Status:** Completed  
+
+Completed the final preflight before any possible local apply of the controlled creation boundary migration:
+
+- Confirmed `supabase/config.toml` and the local Supabase folder structure exist.
+- Confirmed migration order: foundation migration, owner SELECT RLS migration, then the Phase 28A controlled creation boundary candidate.
+- Rechecked the Phase 28A migration candidate for `SECURITY DEFINER`, fixed `search_path`, `auth.uid()` ownership derivation, unauthenticated rejection, no dynamic SQL, no client `owner_user_id`, no broad write policy, and no raw profile read path.
+- Documented that Phase 28C local apply requires exact explicit GO: `GO: Start Phase 28C local controlled creation boundary migration apply.`
+
+No DB command, migration apply, Supabase db push/reset/link, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase runtime, Storage, Reveal, app runtime integration, staging, production, Dev Console work, or commit was performed.
+
+---

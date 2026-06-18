@@ -3145,3 +3145,16 @@ Implementation slice:
 
 Next required step:
 - Static human review and checkpoint verification before any local apply or RLS harness phase. Local apply remains blocked until separate explicit GO.
+
+## Phase 28B - Controlled Creation Boundary Local Apply Readiness Preflight (2026-06-18)
+
+Status: PASS - local apply readiness preflight completed without running DB commands. No local migration apply, Supabase db push/reset/link, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase runtime, Storage, Reveal, app runtime integration, staging, production, Dev Console work, or commit was performed.
+
+Preflight result:
+- Supabase local project structure is present, including `supabase/config.toml` and `supabase/migrations`.
+- The Phase 28A migration candidate is ordered after the foundation and owner SELECT policy migrations.
+- Static review found no broad INSERT policy, UPDATE/DELETE policy, raw `profiles_private` read path, unrelated schema change, dynamic SQL, or client-provided `owner_user_id`.
+- Phase 28C local apply remains blocked until exact explicit GO.
+
+Future exact GO:
+`GO: Start Phase 28C local controlled creation boundary migration apply.`
