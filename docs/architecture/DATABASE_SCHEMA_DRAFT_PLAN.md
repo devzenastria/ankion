@@ -1612,3 +1612,29 @@ Schema creation constraints:
 - No field may create public profile, user search, global profile, profile browsing, room/member-directory, or anonymous-to-real lookup behavior.
 
 No SQL, migration, DB command, runtime integration, Auth/Supabase client, Storage, Reveal, RPC/view/function/trigger, APK/native, staging, or production work is approved by this note.
+
+## Phase 28I - Conversation / Connection Primitive Schema Preflight (2026-06-18)
+
+Phase 28I selects the next backend slice after the controlled creation boundary: conversation / connection primitives.
+
+This remains planning-only. It does not create SQL, migrations, tables, indexes, policies, runtime integration, Auth/Supabase client code, Storage, Reveal, APK/native, staging, or production work.
+
+Future table candidates:
+- `conversations` or `connections` as the container for anonymous voice reply continuity.
+- Participant records or explicit participant columns linking to `anonymous_identities`.
+- Connection status such as pending, waiting, replyable, active, closed, blocked, or archived, subject to future enum review.
+- Reply eligibility state that can represent whether a new voice reply may continue the connection.
+- `created_at`, `updated_at`, and `deleted_at` or equivalent soft-delete fields.
+- Safety/moderation fields for limited, suspended, reported, or system-closed states.
+
+Schema boundaries:
+- Participant ownership must be derived through anonymous identities, not raw profile rows.
+- Conversation membership must not expose `owner_user_id`, `auth.users.id`, or raw `profiles_private` data to non-owners.
+- No global conversation list, public conversation graph, profile browsing, room/chat-room/member-directory model, or public profile lookup is approved.
+- Reveal remains separate; a conversation or connection does not itself make a real profile visible.
+
+Recommended next implementation phase:
+`Phase 29A - Conversation / Connection Primitive Migration Candidate`
+
+Exact next GO:
+`GO: Start Phase 29A conversation connection primitive migration candidate.`

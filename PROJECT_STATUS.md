@@ -3244,3 +3244,29 @@ Harness result:
 
 Next required phase:
 - Phase 28H checkpoint verification. Runtime integration, staging, production, reveal/storage, and app binding remain blocked.
+
+## Phase 28I - Next Backend Slice Selection / Conversation Primitive Preflight (2026-06-18)
+
+Status: PASS - docs-only next-slice selection completed. No backend implementation, SQL implementation, migration creation/editing, DB command, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, RPC/view/function/trigger runtime, staging, production, Dev Console work, or commit was performed.
+
+Phase 28A-28H completion summary:
+- `profiles_private` and `anonymous_identities` foundation exists with owner SELECT RLS.
+- Controlled creation function exists and has been applied locally.
+- Corrective crypto schema migration is applied locally.
+- Phase 28H controlled creation harness passed 27 total assertions, 27 passed, 0 failed.
+- Persistent fake auth/users/profile/anonymous data remaining after harness rollback: 0.
+- Direct broad INSERT/UPDATE/DELETE remains blocked.
+- Runtime/Auth/Supabase client, Storage, Reveal, APK/native, staging, and production remain NO-GO.
+
+Next backend slice decision:
+- Recommended next slice: connection/conversation primitives.
+- Rationale: this follows private profile and anonymous identity foundations, supports anonymous voice -> reply / connection, does not require Reveal yet, does not require public profile search, and keeps real profile visibility owner-approved and connection/context-bound.
+
+Conversation/connection primitive preflight:
+- Future planning should cover `conversations` or `connections`, participant/ownership boundaries, anonymous identity linkage, connection status, reply eligibility state, timestamps, soft delete, and safety/moderation flags.
+- RLS must remain participant-only for SELECT, with no global conversation list, no profile browsing, no cross-owner access, no raw `profiles_private` read, no reveal implication, and no direct broad write policy.
+
+Phase 29A recommendation:
+- Phase 29A - Conversation / Connection Primitive Migration Candidate.
+- Scope must be local source/migration candidate only: no DB apply, no runtime, no Auth integration, no Storage, no Reveal, no APK/native, no staging, and no production.
+- Exact next GO: `GO: Start Phase 29A conversation connection primitive migration candidate.`

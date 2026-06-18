@@ -3219,3 +3219,20 @@ Reran the local-only controlled creation function harness after the corrective c
 No staging, production, remote Supabase command, migration creation/edit/apply, RLS policy edit, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, app runtime integration, Dev Console work, or commit was performed.
 
 ---
+
+## 2026-06-18 - Phase 28I Next Backend Slice Selection
+
+**Type:** Backend Planning / Conversation Primitive Preflight  
+**Status:** Completed  
+
+Selected the next backend slice after the controlled creation boundary checkpoint:
+
+- Summarized Phase 28A-28H as complete for local controlled creation: creation boundary exists locally, corrective crypto schema fix is applied locally, and Phase 28H passed 27/27 assertions with persistent fake data remaining at 0.
+- Recommended the next slice as connection/conversation primitives because it follows `profiles_private` and `anonymous_identities`, supports anonymous voice reply/connection continuity, does not require Reveal yet, does not require public profile search, and preserves owner-approved context boundaries.
+- Documented future table candidates at planning level: `conversations` or `connections`, participants, anonymous identity linkage, connection status, reply eligibility state, timestamps, soft delete, and safety/moderation flags.
+- Documented RLS preflight: participant-only SELECT, no global conversation list, no profile browsing, no cross-owner access, no raw `profiles_private` read, no reveal implication, and no direct broad write policy.
+- Recommended Phase 29A as a narrow conversation/connection primitive migration candidate phase.
+
+No backend implementation, SQL implementation, migration creation/editing, DB command, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, RPC/view/function/trigger runtime, staging, production, Dev Console work, or commit was performed.
+
+---

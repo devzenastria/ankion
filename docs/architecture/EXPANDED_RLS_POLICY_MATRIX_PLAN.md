@@ -2588,3 +2588,37 @@ Status: PASS - planning-only matrix update for the local controlled creation fun
 - No reveal, Storage, Auth runtime, Supabase client runtime, app binding, APK/native, package change, or Dev Console work is authorized.
 - Any harness implementation, test data/user creation, or execution requires separate explicit GO.
 - Exact future GO for any harness execution: `GO: Run Phase 28E local controlled creation function harness only.`
+
+## Phase 28I - Conversation / Connection Primitive RLS Preflight (2026-06-18)
+
+Status: PASS - planning-only RLS preflight for the next backend slice. No SQL, migration, DB command, RLS harness, test data/user, runtime integration, package/env/APK/native, staging, or production work was performed.
+
+### Future Conversation / Connection RLS Direction
+
+| Area | Phase 28I direction | Required future mechanism |
+|---|---|---|
+| Participant SELECT | Participant-only | Authenticated user must own one participant anonymous identity. |
+| Global conversation list | FORBIDDEN | No public or authenticated-wide conversation graph. |
+| Cross-owner access | DENY | Non-participants must see zero rows or receive permission denial. |
+| Raw private profile read | DENY | Conversation membership never grants raw `profiles_private` access. |
+| Reveal implication | DENY | Conversation status does not equal profile visibility. |
+| Direct broad write policy | BLOCKED | Creation/update paths require a separate controlled boundary and tests. |
+| Room/chat-room/member-directory model | FORBIDDEN | No member directory, room participant browsing, or global profile discovery. |
+
+### Future Assertion Candidates
+
+- Owner/participant can select only their own conversation/connection rows.
+- Non-participant cannot select conversation/connection rows.
+- Public/anon cannot select conversation/connection rows.
+- Conversation participants cannot raw-select `profiles_private` unless a separate reveal-safe DTO boundary is approved later.
+- Reply eligibility cannot be manipulated through broad client writes.
+- Connection status cannot be used as a real-profile reveal signal.
+- Search/browse/global conversation and room/member-directory paths remain denied.
+- Monetization cannot bypass connection, reveal, consent, or identity boundaries.
+
+### Anti-Abuse Carryover
+
+- Android/client signals remain untrusted.
+- Fake microphone, replay/pre-recorded voice, repeated upload/replay, local storage tampering, live-session manipulation, and connection/reply manipulation remain future server-side concerns.
+- Rate limits and abuse scoring are required later before runtime acceptance.
+- Reveal/consent manipulation remains blocked.

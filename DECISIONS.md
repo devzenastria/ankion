@@ -2638,3 +2638,21 @@ Phase 28A requires a separate explicit GO and must preserve deny-by-default post
 
 **Do Not:**  
 Do not combine creation boundary work with Auth runtime, Supabase runtime, Storage, Reveal, RPC/view/function/trigger, voice upload runtime, APK/native, staging, production, public profile/search/browse/global profile behavior, room/member-directory behavior, or monetization-based identity/reveal/consent bypass.
+
+## DEC-125 - Phase 29A Should Target Conversation / Connection Primitives Next
+
+**Status:** Approved Direction  
+**Date:** 2026-06-18  
+**Scope:** Backend / Security / RLS / Product Flow
+
+**Decision:**  
+After Phase 28A-28H completed the local controlled creation boundary and passed the local function harness, the next backend implementation candidate should be Phase 29A: a narrow conversation / connection primitive migration candidate.
+
+**Reason:**  
+Connection/conversation primitives are the next dependency after `profiles_private` and `anonymous_identities`. They support the ANKION core flow of anonymous voice -> reply / connection without requiring Reveal, public profile search, profile browsing, or runtime app integration.
+
+**Impact:**  
+Future Phase 29A may plan or draft only the local source/migration candidate for conversation/connection primitives. It should define participant boundaries through anonymous identities, connection status, reply eligibility, timestamps, soft delete, and safety/moderation flags. RLS planning must remain participant-only and deny global conversation graphs.
+
+**Do Not:**  
+Do not add profile search, user search, public profile, global profile opening, profile browsing, room/chat-room/member-directory behavior, raw `profiles_private` read access, reveal implication, broad direct write policies, Auth/Supabase runtime, Storage, Reveal, APK/native, staging, or production in Phase 29A.

@@ -1091,6 +1091,36 @@ Rules:
 - Owner-safe DTOs and reveal-safe DTOs must remain separate.
 - Auth/session boundary is a prerequisite for executable RLS.
 
+## Phase 28I - Conversation / Connection Primitive Data/RLS Preflight (2026-06-18)
+
+Phase 28I records the next planned backend slice after the local controlled creation boundary passed harness verification.
+
+Next slice:
+- Conversation / connection primitives.
+
+Why next:
+- They follow the now-validated `profiles_private` and `anonymous_identities` creation foundation.
+- They support anonymous voice -> reply / connection.
+- They do not require Reveal, Storage, public profile search, user search, profile browsing, or runtime app binding.
+- They preserve the rule that real profile visibility remains owner-approved and connection/context-bound only.
+
+Future data/RLS boundaries:
+- SELECT must be owner/participant-only through authenticated ownership of a participant anonymous identity.
+- No global conversation list or public conversation graph.
+- No cross-owner conversation access.
+- No raw `profiles_private` read path.
+- No reveal implication from conversation membership alone.
+- No direct broad write policy.
+- No room/chat-room/member-directory model.
+
+Anti-abuse carryover:
+- Android/client signals remain untrusted.
+- Fake microphone, replay/pre-recorded voice, repeated upload/replay, local storage tampering, live-session manipulation, and connection/reply manipulation remain future server-side concerns.
+- Rate limits and abuse scoring are required later before runtime acceptance.
+- Reveal, identity, consent, and monetization bypass remain blocked.
+
+No SQL, migration creation/editing, DB command, RLS harness, test data/user, runtime integration, Storage, Reveal, APK/native, staging, or production work is approved by this note.
+
 ## Phase 24R - RLS Policy Implementation Readiness / No-Apply Policy Plan (2026-06-16)
 
 Result: PASS - RLS policy implementation readiness documented. No policies implemented.

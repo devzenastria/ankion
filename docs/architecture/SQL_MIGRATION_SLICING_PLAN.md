@@ -2650,3 +2650,28 @@ Still blocked:
 - RLS harness execution.
 - Test data/user creation.
 - Auth/runtime, Supabase client runtime, Storage, Reveal, app binding, APK/native, staging, and production.
+
+## Phase 28I - Phase 29A Conversation / Connection Primitive Migration Preflight (2026-06-18)
+
+Status: PASS - docs-only migration slicing preflight. No SQL implementation, migration creation/editing, DB command, RLS harness, test data/user, runtime integration, package/env/APK/native, staging, or production work was performed.
+
+Phase 29A recommended candidate slice:
+- Name: Phase 29A - Conversation / Connection Primitive Migration Candidate.
+- Scope: local source/migration candidate only.
+- Candidate tables: `conversations` or `connections`, plus participant representation only if required by the chosen minimal schema.
+- Candidate fields: anonymous identity participants, connection status, reply eligibility state, `created_at`, `updated_at`, `deleted_at`, and safety/moderation flags.
+
+Migration boundary:
+- Must depend on the existing `anonymous_identities` foundation.
+- Must not touch `profiles_private` except through explicit no-raw-read documentation.
+- Must not implement voice messages, Storage, Reveal, profile visibility grants, runtime app binding, Auth/Supabase client integration, APK/native, staging, or production.
+- Must not add broad direct write policy.
+- Must not create global conversation lists, public profile search, user search, profile browsing, room/chat-room/member-directory behavior, or real-profile reveal behavior.
+
+Future apply/test gates:
+- Any Phase 29A migration candidate requires static SQL review before local apply.
+- Local apply requires a separate explicit DB-mutation GO.
+- RLS/function harness execution requires a separate explicit harness GO.
+
+Exact next GO:
+`GO: Start Phase 29A conversation connection primitive migration candidate.`

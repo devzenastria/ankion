@@ -1703,3 +1703,39 @@ Phase 28E recommendation:
 - Phase 28E - Local RLS / Function Harness Dry Plan or Implementation Prep.
 - Tests must still not run unless explicit GO is given.
 - Exact future GO for any harness execution: `GO: Run Phase 28E local controlled creation function harness only.`
+
+## Phase 28I - Next Backend Slice Readiness Decision (2026-06-18)
+
+Result: PASS - docs-only next backend slice selection. No backend implementation, SQL implementation, migration creation/editing, DB command, RLS harness, test data/user, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, RPC/view/function/trigger runtime, staging, or production work occurred.
+
+Controlled creation boundary status:
+- `profiles_private` and `anonymous_identities` foundation exists.
+- Owner SELECT RLS policies exist.
+- Controlled creation function exists locally.
+- Corrective crypto schema migration is applied locally.
+- Phase 28H harness passed 27/27 assertions with persistent fake data remaining at 0.
+
+Next readiness decision:
+- Recommended next slice: connection/conversation primitives.
+- Reason: this is the next dependency after profile/anonymous identity creation, supports anonymous voice reply / connection continuity, and does not require Reveal, Storage, public profile search, user search, profile browsing, or runtime integration.
+
+Phase 29A constraints:
+- Local source/migration candidate only.
+- No DB apply.
+- No runtime.
+- No Auth integration.
+- No Supabase client integration.
+- No Storage.
+- No Reveal.
+- No APK/native.
+- No staging/production.
+
+Readiness guardrails:
+- RLS must be participant-only and deny global conversation graph access.
+- No raw `profiles_private` read path.
+- No reveal implication from conversation status or reply eligibility.
+- No direct broad write policy.
+- Anti-abuse planning must carry forward untrusted Android/client signals, fake mic/replay/live manipulation, repeated upload/replay, local storage tampering, connection/reply manipulation, rate limits, and abuse scoring.
+
+Exact next GO:
+`GO: Start Phase 29A conversation connection primitive migration candidate.`
