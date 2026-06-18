@@ -1,0 +1,48 @@
+{
+  "tasks": [
+    {
+      "id": "SUBAGENT-SAMPLE-COPY-001",
+      "status": "PENDING",
+      "agentType": "PRODUCT_COPY_AGENT",
+      "title": "Sample copy-only Discover polish",
+      "riskLevel": "LOW",
+      "description": "Copy-only polish for existing visible Turkish Discover text. Do not change behavior, navigation, state, styles, or data.",
+      "allowedFiles": ["apps/mobile/app/discover.tsx"],
+      "requiresHumanApproval": true,
+      "approvedByHuman": false
+    },
+    {
+      "id": "SUBAGENT-SAMPLE-DOCS-001",
+      "status": "PENDING",
+      "agentType": "DOCS_SYNC_AGENT",
+      "title": "Sample docs sync after completed work",
+      "riskLevel": "LOW",
+      "description": "Update existing project tracking docs after completed implementation. Do not create new docs unless explicitly approved.",
+      "allowedFiles": ["PROJECT_STATUS.md", "CHANGELOG.md", "DECISIONS.md", "FILE_MAP.md"],
+      "requiresHumanApproval": true,
+      "approvedByHuman": false
+    },
+    {
+      "id": "SUBAGENT-SAMPLE-RISK-001",
+      "status": "PENDING",
+      "agentType": "RISK_GATE_AGENT",
+      "title": "Sample risk gate review",
+      "riskLevel": "LOW",
+      "description": "Review a proposed task and produce GO / NO-GO notes only. Do not modify app source.",
+      "allowedFiles": ["tools/autodev/reports/*", "tools/autodev/state/*"],
+      "requiresHumanApproval": true,
+      "approvedByHuman": false
+    },
+    {
+      "id": "SUBAGENT-SAMPLE-BLOCKED-RLS-001",
+      "status": "PENDING",
+      "agentType": "RISK_GATE_AGENT",
+      "title": "Sample blocked RLS task",
+      "riskLevel": "HIGH",
+      "description": "Create Supabase RLS policies and migrations.",
+      "allowedFiles": ["supabase/migrations/0001_sample.sql"],
+      "requiresHumanApproval": true,
+      "approvedByHuman": false
+    }
+  ]
+}

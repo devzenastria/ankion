@@ -102,3 +102,52 @@ Git calismadan otonom kodlama bloklu kalir. Git PATH uzerinde yoksa AUTODEV diff
 
 Git ve diff review PASS oldugunda LATEST_HANDOFF.md artik temiz durumu raporlarla uzlastirir: yasakli dosyalar, paket/env/Supabase/Auth/RLS/APK/native alanlari ve app source durumu temiz diff icin NO olur. Git PATH karari Git calisirken PENDING tutulmaz. Real autonomous coding yine kullanicinin ilk LOW-risk coding task onayina kadar NO-GO durumundadir.
 
+## SUBAGENT v1
+
+SUBAGENT v1, AUTODEV uzerinde calisan guvenli bir gorev yonlendirici, risk siniflandirici ve Codex prompt ureticisidir. ANKION app source dosyalarini kendisi degistirmez ve urun ozelligi kodlamaz. Amaci, onerilen dar kapsamli gorevi dogru ajan tipine baglamak, riski siniflandirmak, HIGH riskleri otomatik bloklamak ve insan onayina sunulacak promptu uretmektir.
+
+SUBAGENT v1 sunlari yapar:
+
+- `tools/autodev/subagent-queue.sample.json` veya verilen kuyruktan en fazla bir uygun `PENDING` gorev secer.
+- `subagent-risk-gate.ps1` ile LOW / MEDIUM / HIGH risk siniflandirmasi yapar.
+- LOW riskli uygun gorevler icin `tools/autodev/prompts/` altina Codex promptu uretir.
+- MEDIUM riskli gorevlerde `approvedByHuman: true` yoksa prompt uretmez.
+- HIGH riskli gorevleri otomatik bloklar.
+- Raporlari `tools/autodev/reports/` altina yazar.
+- Her durumda insan onayi gerektirir.
+
+SUBAGENT v1 sunlari yapmaz:
+
+- Codex'i recursive calistirmaz.
+- App source, package, lockfile, env, Supabase, Auth, RLS, backend runtime, native Android/iOS veya APK alani degistirmez.
+- Commit, push, deploy, publish veya release yapmaz.
+- Paket kurmaz ve secret olusturmaz.
+- Gercek otonom kodlama yapmaz.
+
+### Ajan tipleri
+
+- `PRODUCT_COPY_AGENT`: Sadece mevcut metin/copy duzeltmesi. LOW risk, tek app screen dosyasi.
+- `UI_POLISH_AGENT`: Kucuk UI polish. LOW veya MEDIUM risk, MEDIUM icin acik insan onayi gerekir.
+- `TYPECHECK_FIX_AGENT`: TypeScript/typecheck hatasi duzeltmesi. Hata ciktisi zorunludur; genis refactor yasaktir.
+- `DOCS_SYNC_AGENT`: Tamamlanmis islerden sonra mevcut dokumanlari gunceller. Yeni dokuman olusturmaz.
+- `RISK_GATE_AGENT`: Gorev onerisine GO / NO-GO degerlendirmesi yapar.
+- `HANDOFF_AGENT`: ChatGPT incelemesi icin rapor/handoff ozeti uretir.
+
+### Risk seviyeleri
+
+- `LOW`: copy-only, tek dosya, davranis yok, package/backend/native yok.
+- `MEDIUM`: kucuk UI yapisi veya typecheck fix, en fazla 3 dosya, insan onayi gerekir.
+- `HIGH`: Supabase, Auth, RLS, package/lockfile, APK/native, payment, monetization, genis refactor, data model, production/deploy veya secret dokunan isler. HIGH otomatik bloklanir.
+
+HIGH risk otomatik bloklanir cunku bu alanlar ANKION gizlilik, guvenlik, veri modeli, release ve geri donusu zor operasyon sinirlarina dokunur. Bu isler sadece ayrica planlanmis, insan tarafindan onaylanmis ve daraltmistirilmis sureclerle ele alinabilir.
+
+Gercek otonom kodlama kapali kalir: `realAutonomousCodingEnabled: false`, `recursiveCodexEnabled: false`, `requireHumanApproval: true`. SUBAGENT v1 yalnizca prompt ve rapor uretir; uygulama kodunu kendisi degistirmez.
+
+### SUBAGENT v1 calistirma
+
+```powershell
+cd C:\ankion
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\autodev\subagent-router.ps1 -TaskQueuePath .\tools\autodev\subagent-queue.sample.json
+```
+
+Beklenen sonuc: LOW sample icin prompt uretilir, HIGH RLS sample bloklu raporlanir, insan onayi zorunlu kalir.

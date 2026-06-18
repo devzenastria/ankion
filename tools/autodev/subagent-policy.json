@@ -1,0 +1,136 @@
+{
+  "version": "1.0.0",
+  "maxTasksPerRun": 1,
+  "realAutonomousCodingEnabled": false,
+  "recursiveCodexEnabled": false,
+  "requireHumanApproval": true,
+  "highRiskBlocked": true,
+  "allowedAgents": [
+    {
+      "type": "PRODUCT_COPY_AGENT",
+      "purpose": "Copy-only product text polish.",
+      "allowedRiskLevels": ["LOW"],
+      "maxFiles": 1
+    },
+    {
+      "type": "UI_POLISH_AGENT",
+      "purpose": "Small visual polish in one screen or one shared component.",
+      "allowedRiskLevels": ["LOW", "MEDIUM"],
+      "maxFiles": 3
+    },
+    {
+      "type": "TYPECHECK_FIX_AGENT",
+      "purpose": "Fix TypeScript/typecheck errors with exact error output.",
+      "allowedRiskLevels": ["LOW", "MEDIUM"],
+      "maxFiles": 3
+    },
+    {
+      "type": "DOCS_SYNC_AGENT",
+      "purpose": "Update existing docs after completed implementation.",
+      "allowedRiskLevels": ["LOW"],
+      "maxFiles": 4
+    },
+    {
+      "type": "RISK_GATE_AGENT",
+      "purpose": "Review a proposed task and decide GO / NO-GO.",
+      "allowedRiskLevels": ["LOW", "MEDIUM", "HIGH"],
+      "maxFiles": 2
+    },
+    {
+      "type": "HANDOFF_AGENT",
+      "purpose": "Generate summary for ChatGPT review.",
+      "allowedRiskLevels": ["LOW"],
+      "maxFiles": 2
+    }
+  ],
+  "riskRules": {
+    "LOW": [
+      "copy-only",
+      "one file",
+      "no behavior change",
+      "no package change",
+      "no backend/Auth/RLS/Supabase",
+      "no native/APK"
+    ],
+    "MEDIUM": [
+      "small UI structure or typecheck fix",
+      "max 3 files",
+      "no package/backend/native",
+      "requires explicit human approval before execution"
+    ],
+    "HIGH": [
+      "Supabase",
+      "Auth",
+      "RLS",
+      "package/lockfile",
+      "APK/native",
+      "payment",
+      "monetization implementation",
+      "broad refactor",
+      "data model",
+      "production/deploy",
+      "anything touching secrets"
+    ]
+  },
+  "forbiddenPathPatterns": [
+    "package.json",
+    "pnpm-lock.yaml",
+    ".env",
+    ".env.*",
+    "supabase/*",
+    "supabase/migrations/*",
+    "apps/mobile/android/*",
+    "android/*",
+    "ios/*",
+    "app.json",
+    "eas.json",
+    ".github/*",
+    "**/build/*",
+    "**/dist/*",
+    "**/.expo/*",
+    "**/node_modules/*"
+  ],
+  "protectedTaskTextPatterns": [
+    "apk",
+    "gradle",
+    "adb",
+    "emulator",
+    "supabase",
+    "auth",
+    "rls",
+    "package.json",
+    "pnpm-lock",
+    "deploy",
+    "push",
+    "release",
+    "publish",
+    "commit",
+    "eas",
+    "android",
+    "ios",
+    "payment",
+    "monetization",
+    "storage",
+    "dependencies",
+    "secret",
+    "production"
+  ],
+  "validationCommands": [
+    "corepack pnpm --filter @ankion/mobile typecheck",
+    "corepack pnpm --filter @ankion/web typecheck",
+    "corepack pnpm --filter @ankion/web build"
+  ],
+  "productRules": [
+    "ANKION is an anonymous voice-first mobile app.",
+    "No public profile browsing.",
+    "No user search.",
+    "No global profile discovery.",
+    "No dating, swipe, or profile-browsing behavior.",
+    "No room or chat-room direction.",
+    "Anonymous identity and real profile must remain strictly separated.",
+    "Real profile is visible only if the owner approves it.",
+    "Real profile visibility must be context-based.",
+    "Make it work now, fix later is forbidden.",
+    "Safety, privacy, Auth, RLS, and monetization boundaries must not be changed automatically."
+  ]
+}
