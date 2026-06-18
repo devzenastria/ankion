@@ -576,3 +576,19 @@ Android/voice/live anti-abuse planning:
 - Server-side verification, rate limits, abuse scoring, voice freshness/liveness boundaries, replay detection, and upload nonce/session binding are required before voice/reveal/runtime acceptance.
 
 Phase boundary: no SQL, migration, DB command, runtime integration, Auth/Supabase client, Storage, Reveal, RPC/view/function/trigger, test data/user, staging, or production work is approved by this note.
+
+## Phase 27C - Creation Preflight Separation Guard (2026-06-18)
+
+Phase 27C preflight keeps creation from becoming identity exposure.
+
+Creation guardrails:
+- `profiles_private` creation is real-profile infrastructure, not public profile creation.
+- `anonymous_identities` creation is anonymous interaction infrastructure, not a searchable profile or global directory.
+- `owner_user_id`, `auth_user_id`, `profile_private_id`, real profile fields, device/IP metadata, verification internals, raw storage paths, and anonymous-to-real correlation data remain forbidden in non-owner outputs.
+- Anonymous label, visual seed, and voice presence defaults must be non-identifying and must not encode real profile attributes.
+- Rotation/reactivation behavior is deferred and must not be smuggled into first creation implementation.
+
+Reveal guardrails:
+- Reveal remains owner-approved and connection/context-bound.
+- Reveal must never grant raw `profiles_private` table read access.
+- Real profile visibility must not depend on Android client checks, fake liveness claims, payment state, or UI state.

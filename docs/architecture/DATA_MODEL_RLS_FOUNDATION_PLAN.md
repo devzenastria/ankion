@@ -1499,3 +1499,61 @@ Separate explicit human GO remains required for:
 - Auth/Supabase runtime integration.
 - RLS harness execution or test data/user creation.
 - Storage, Reveal, RPC/view/function/trigger, staging, or production.
+
+## Phase 27C - Creation Path Implementation Preflight / Checklist (2026-06-18)
+
+Status: PASS - docs-only preflight/checklist. No SQL, migration, DB command, RLS harness, test data/user, Auth/runtime, Supabase runtime, Storage, Reveal, RPC/view/function/trigger, package/env/APK/native, staging, or production work was performed.
+
+### Phase 28A Candidate Implementation Boundary
+
+Recommended first backend slice: Phase 28A - Controlled Creation Boundary Implementation Slice.
+
+The narrowest acceptable target is the owner-controlled creation boundary prerequisites for `profiles_private` and `anonymous_identities`. Phase 28A should not include Auth runtime, Supabase client runtime, Storage, Reveal, app binding, voice upload runtime, APK/native, staging, or production.
+
+Safe target options for Phase 28A, in order of preference:
+1. non-executable implementation draft/checklist for controlled creation boundary SQL and tests.
+2. a narrowly scoped local-only migration draft only if separately approved.
+3. local-only executable migration creation only after another explicit GO and static review.
+
+### profiles_private Creation Preflight
+
+Requirements before any implementation:
+- Owner-bound creation only.
+- `owner_user_id` must be derived from trusted server/session context, never trusted from client payload.
+- Client must not set safety, status, audit, verification, visibility, moderation, soft-delete, or system fields.
+- Safe defaults must initialize profile status, visibility default, safety state, verification summary, timestamps, and soft-delete fields.
+- Duplicate private profile creation must be prevented by owner uniqueness and idempotent provisioning semantics.
+- Soft delete/reactivation must be a separate explicit design; creation must not silently restore or duplicate soft-deleted rows.
+- RLS `WITH CHECK` for any direct fallback must require `auth.uid() = owner_user_id`, but RLS alone is not enough to protect field mutability.
+- Tests must pass before apply: owner own-row create, owner spoof denial, duplicate denial, non-owner denial, unauthenticated denial, denied-field mutation denial, and raw reveal read denial.
+
+### anonymous_identities Creation Preflight
+
+Requirements before any implementation:
+- Owner-bound internally, anonymous-facing externally.
+- No real profile leakage through owner linkage, label, visual seed, voice presence, status, or DTO output.
+- No public/global lookup, profile search, user search, anonymous identity search, browse, room/member-directory, or global directory behavior.
+- V1 one-active-identity-per-owner rule must be enforced.
+- Rotation/history remains deferred to a separate explicit phase.
+- Safety/status/rotation/audit defaults must be server-owned.
+- Anonymous label, visual seed, and voice presence defaults must be safe and non-identifying.
+- RLS `WITH CHECK` for any direct fallback must require `auth.uid() = owner_user_id`, but controlled creation remains preferred.
+- Tests must pass before apply: owner own identity create, owner spoof denial, duplicate active identity denial, non-owner denial, unauthenticated denial, denied-field mutation denial, anonymous-to-real correlation denial, and global directory/search denial.
+
+### Field Mutability Matrix Preflight
+
+| Category | profiles_private examples | anonymous_identities examples | Rule |
+|---|---|---|---|
+| Client-provided fields | chosen display name, short bio, optional owner-safe profile preferences | optional anonymous label preference if allowed later | Allowed only through strict allowlist and validation. |
+| Server/default-only fields | id, created_at, updated_at, default visibility/status values | id, created_at, updated_at, default active/status values | Client must not set directly. |
+| Immutable ownership fields | owner_user_id | owner_user_id | Derived from trusted context and never reassigned. |
+| Safety/moderation fields | safety_state, moderation flags | safety state, disabled/archive status | Server/moderation only. |
+| Audit fields | created_at, updated_at, deleted_at, audit metadata | created_at, updated_at, deleted_at, rotation/audit metadata | Server only. |
+| Reveal/visibility fields | profile_visibility_default, reveal-safe projection eligibility | none that exposes real profile | Must not grant raw profile reads. |
+| Future verification fields | verification_summary_state | voice/safety summary if any | Server-owned; client signal is untrusted. |
+
+### Android / Voice / Live Anti-Abuse Preflight
+
+Before voice/reveal/runtime acceptance, future plans must handle untrusted client signals, fake microphone input, replay/pre-recorded voice, repeated upload/replay, local storage tampering, live-session manipulation, speed/volume/device metadata abuse, root/emulator/hook checks as weak risk signals only, server-side verification, rate limits, abuse scoring, voice freshness/liveness, upload nonce/session binding, and replay detection.
+
+Real profile visibility must never depend only on client-side checks. Monetization must never bypass identity, reveal, consent, or anti-abuse controls.

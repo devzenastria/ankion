@@ -3110,3 +3110,24 @@ Android/voice/live anti-abuse planning added:
 - Monetization must never bypass identity, reveal, consent, or anti-abuse boundaries.
 
 Next safe step: Phase 27C - docs-only creation path implementation preflight/checklist, or a checkpoint commit after human review. Backend implementation remains NO-GO until separate explicit approval.
+
+## Phase 27C - Creation Path Implementation Preflight / Checklist (2026-06-18)
+
+Status: PASS - docs-only implementation preflight/checklist completed for the future owner-controlled creation path. No backend implementation, SQL implementation, migration creation/editing, DB command, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase runtime, Storage, Reveal, RPC/view/function/trigger, staging, production, Dev Console work, or commit was performed.
+
+Phase 28A candidate implementation boundary:
+- Recommended first backend implementation slice: create a non-executable or executable local-only migration draft for the narrow controlled creation boundary prerequisites, limited to `profiles_private` and `anonymous_identities` owner-controlled creation planning artifacts only if separately approved.
+- Safest first implementation target: controlled creation boundary skeleton/design artifact before any runtime integration. If implementation begins, it must not include Auth runtime, Supabase client runtime, Storage, Reveal, app binding, staging, or production.
+- Why safest: Phase 25E validated owner SELECT only; write/creation remains intentionally denied. A narrow creation preflight reduces risk around `owner_user_id` spoofing, duplicate rows, system/safety field mutation, unsafe defaults, and anonymous-to-real correlation.
+
+Phase 28A remains blocked from:
+- Auth/runtime integration.
+- Supabase client runtime.
+- Storage/Reveal/RPC/view/function/trigger implementation unless separately approved.
+- APK/native, staging, production.
+- Any broad INSERT, broad UPDATE, raw reveal SELECT, profile search, user search, public profile, global profile opening, profile browsing, room/member-directory, or monetization bypass.
+
+Required exact future GO for Phase 28A:
+`GO: Start Phase 28A controlled creation boundary implementation slice.`
+
+Additional exact GO gates remain required for migration creation/editing, local migration apply, RLS harness execution, test data/users, package/dependency changes, Auth/runtime, Supabase runtime, Storage, Reveal, RPC/view/function/trigger, APK/native, staging, and production.

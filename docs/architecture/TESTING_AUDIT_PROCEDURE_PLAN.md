@@ -2022,3 +2022,26 @@ Future execution gates:
 - Any test data/user creation requires separate explicit human GO.
 - Any local DB mutation requires backup/checkpoint and explicit human GO.
 - Staging and production remain NO-GO.
+
+## Phase 27C - Creation Boundary Test Checklist (2026-06-18)
+
+Status: PASS - docs-only test checklist. No tests were run. No RLS harness was run. No test data/users were created.
+
+Before any apply or runtime binding, future tests must include:
+
+1. `authenticated_owner_a` can create only a `profiles_private` row whose owner is owner_a.
+2. `authenticated_owner_a` cannot create `profiles_private` for owner_b.
+3. `authenticated_owner_a` cannot create a duplicate private profile.
+4. `authenticated_owner_a` cannot set `profiles_private` safety/status/audit/system/reveal fields.
+5. `authenticated_owner_a` can create only an `anonymous_identities` row whose owner is owner_a.
+6. `authenticated_owner_a` cannot create anonymous identity for owner_b.
+7. `authenticated_owner_a` cannot create a duplicate active anonymous identity.
+8. `authenticated_owner_a` cannot set anonymous identity safety/status/rotation/audit/system fields.
+9. `authenticated_non_owner_b` cannot select, insert, update, or infer owner_a raw rows.
+10. `unauthenticated_user` cannot create or read private/profile/anonymous raw rows.
+11. `reveal_recipient_b_for_context_x` cannot raw-select `profiles_private`.
+12. Public/search/browse/global profile, anonymous directory, room/member-directory, and monetization-bypass labels remain denied.
+13. Android/voice/live inputs are treated as untrusted and cannot by themselves unlock profile visibility.
+14. Fake microphone, replay/pre-recorded voice, repeated upload/replay, local storage tampering, live-session manipulation, and device metadata abuse have server-side mitigation plans before runtime.
+
+Future RLS harness changes or execution require separate explicit human GO.

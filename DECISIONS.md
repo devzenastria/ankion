@@ -2620,3 +2620,21 @@ Future implementation must decide a safe creation boundary before any write poli
 
 **Do Not:**  
 Do not create broad INSERT policies. Do not let real profile visibility depend only on Android/client-side checks. Do not expose raw `profiles_private` rows to reveal recipients. Do not create user/profile search, public profile browsing, global profile opening, room/member-directory behavior, or monetization-based identity/reveal/consent bypass.
+
+## DEC-124 - Phase 28A Must Start With Narrow Controlled Creation Boundary Slice
+
+**Status:** Approved  
+**Date:** 2026-06-18  
+**Scope:** Backend / Security / RLS / Process
+
+**Decision:**  
+The next possible backend implementation phase, Phase 28A, must be narrow and must target only the owner-controlled creation boundary prerequisites for `profiles_private` and `anonymous_identities`. It must not include Auth/runtime integration, Supabase client runtime, Storage, Reveal, app binding, APK/native, staging, production, or broad write policies.
+
+**Reason:**  
+Phase 25E validated owner-bound SELECT only. Creation and writes are still denied. The safest next backend slice is to establish the minimal creation boundary shape and preconditions before any broad INSERT, UPDATE, runtime, or reveal work can exist.
+
+**Impact:**  
+Phase 28A requires a separate explicit GO and must preserve deny-by-default posture. Any direct INSERT path is conditional fallback only after strict `WITH CHECK`, field mutability matrix, deny tests, anti-abuse checks, and duplicate prevention are approved.
+
+**Do Not:**  
+Do not combine creation boundary work with Auth runtime, Supabase runtime, Storage, Reveal, RPC/view/function/trigger, voice upload runtime, APK/native, staging, production, public profile/search/browse/global profile behavior, room/member-directory behavior, or monetization-based identity/reveal/consent bypass.

@@ -2613,3 +2613,18 @@ Phase 24 closure decision:
 - Auth/runtime/app integration remains NO-GO.
 - Staging and production remain NO-GO.
 - Phase 25 may begin in a new chat with a handoff prompt.
+
+## Phase 27C - Phase 28A Migration Slice Preflight (2026-06-18)
+
+Status: PASS - docs-only slicing preflight. No migration file was created or edited. No SQL was implemented. No DB command was run.
+
+Phase 28A candidate slice:
+- Controlled creation boundary for `profiles_private` and `anonymous_identities` only.
+- No conversations, voice messages, reveal requests, profile visibility grants, Storage/media, reports, notifications, payments, subscriptions, Auth runtime, Supabase runtime, app binding, APK/native, staging, or production.
+
+Migration/risk boundary:
+- Direct broad INSERT remains blocked.
+- Controlled service/RPC boundary is preferred later.
+- Direct INSERT is a conditional fallback only after explicit approval, strict `WITH CHECK`, field mutability matrix, deny tests, duplicate prevention, and abuse controls.
+- Any executable migration creation requires a separate explicit GO and static review before local apply.
+- Local apply requires another explicit GO after migration static audit.

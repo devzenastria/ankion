@@ -2525,3 +2525,34 @@ Status: PASS - docs-only matrix update. No executable SQL, migration edit, DB co
 ### Required Anti-Abuse Preconditions
 
 Before write policy or controlled boundary implementation, future tests/plans must cover creation spam, duplicate provisioning, Android manipulation, fake microphone input, replay/pre-recorded voice, repeated upload/replay, live-session manipulation, local storage tampering, speed/volume/device metadata abuse, server-side verification, rate limits, abuse scoring, voice freshness/liveness, replay detection, upload nonce/session binding, moderation manipulation, consent manipulation, and reveal manipulation.
+
+## Phase 27C - Creation Path Preflight Matrix (2026-06-18)
+
+Status: PASS - docs-only matrix preflight. No SQL, migration, DB command, RLS harness, test data/user, runtime, package/env/APK/native, staging, or production work was performed.
+
+### Future RLS / WITH CHECK Preconditions
+
+| Table | Future operation | Minimum precondition | Phase 27C status |
+|---|---|---|---|
+| profiles_private | INSERT via controlled boundary | owner from trusted context, unique owner row, server defaults, field allowlist, abuse checks | PLANNED / NOT IMPLEMENTED |
+| profiles_private | Direct INSERT fallback | strict `WITH CHECK (auth.uid() = owner_user_id)`, field mutability protection, deny tests | CONDITIONAL / NOT PREFERRED |
+| profiles_private | UPDATE | owner-only fields allowlist; owner_user_id and system/safety/audit fields immutable | BLOCKED |
+| anonymous_identities | INSERT via controlled boundary | owner from trusted context, one active identity, safe defaults, no real-profile linkage | PLANNED / NOT IMPLEMENTED |
+| anonymous_identities | Direct INSERT fallback | strict `WITH CHECK (auth.uid() = owner_user_id)`, one-active rule, field mutability protection, deny tests | CONDITIONAL / NOT PREFERRED |
+| anonymous_identities | UPDATE/rotation | separate rotation/safety design | BLOCKED |
+
+### Required Future Assertions
+
+- Owner can create only own `profiles_private` row.
+- Owner cannot spoof `owner_user_id` for `profiles_private`.
+- Owner cannot create duplicate `profiles_private` row.
+- Owner can create only own `anonymous_identities` row.
+- Owner cannot spoof `owner_user_id` for `anonymous_identities`.
+- Owner cannot create duplicate active anonymous identity.
+- Anonymous identity cannot expose or join to `profiles_private` for non-owner clients.
+- Non-owner cannot select/update/insert either raw table.
+- Unauthenticated user cannot create/read private rows.
+- Denied fields cannot be client-mutated.
+- Reveal does not grant raw private profile read.
+- Public/search/browse/global profile and room/member-directory paths remain denied.
+- Monetization does not bypass identity/reveal/consent.

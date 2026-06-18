@@ -1597,3 +1597,18 @@ The specification preserves the Phase 24E schema decisions for:
 - `anonymous_identities`
 
 Phase 24I does not change the planned fields, does not add executable SQL, does not create migrations, and does not authorize RLS/Auth/Storage/Supabase runtime implementation.
+
+## Phase 27C - Creation Path Schema Preflight (2026-06-18)
+
+Phase 27C does not change the planned schema fields. It adds creation-path preflight rules for existing `profiles_private` and `anonymous_identities` planning.
+
+Schema creation constraints:
+- `profiles_private.owner_user_id` remains internal, immutable, and server/session-derived.
+- `profiles_private` must enforce one private profile per Auth user before creation is implemented.
+- `anonymous_identities.owner_user_id` remains internal, immutable, and server/session-derived.
+- `anonymous_identities` must enforce one active anonymous identity per Auth user for V1.
+- Anonymous identity defaults for label, visual seed, and voice presence must be non-identifying.
+- Soft delete/reactivation and anonymous identity rotation remain deferred unless separately approved.
+- No field may create public profile, user search, global profile, profile browsing, room/member-directory, or anonymous-to-real lookup behavior.
+
+No SQL, migration, DB command, runtime integration, Auth/Supabase client, Storage, Reveal, RPC/view/function/trigger, APK/native, staging, or production work is approved by this note.

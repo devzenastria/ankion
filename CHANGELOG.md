@@ -3078,3 +3078,21 @@ Documented the owner-controlled creation path decision for `profiles_private` an
 No backend implementation, SQL implementation, migration creation/editing, DB command, RLS harness run, package/env/APK/native work, Auth/Supabase runtime, Storage, Reveal, RPC/view/function/trigger, staging, production, or Dev Console work was performed.
 
 ---
+
+## 2026-06-18 - Phase 27C Creation Path Implementation Preflight Checklist
+
+**Type:** Backend Planning / Implementation Preflight / Security  
+**Status:** Completed  
+
+Prepared the docs-only preflight/checklist for the first possible controlled backend implementation slice:
+
+- Defined the Phase 28A candidate implementation boundary.
+- Recommended the first backend slice remain narrow and focused on controlled creation boundary prerequisites for `profiles_private` and `anonymous_identities`.
+- Documented `profiles_private` creation preflight: owner-bound creation only, `owner_user_id` spoof prevention, safe defaults, duplicate prevention, soft-delete/reactivation boundary, field mutability constraints, RLS `WITH CHECK` preconditions, and tests before apply.
+- Documented `anonymous_identities` creation preflight: owner-bound but anonymous-facing, no real profile leakage, no public/global lookup/search, one active identity rule, rotation/safety defaults, anonymous label/visual/voice defaults, RLS `WITH CHECK` preconditions, and tests before apply.
+- Added field mutability categories and future test assertions.
+- Reconfirmed Android/voice/live anti-abuse preconditions and explicit GO gates.
+
+No backend implementation, SQL implementation, migration creation/editing, DB command, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase runtime, Storage, Reveal, RPC/view/function/trigger, staging, production, Dev Console work, or commit was performed.
+
+---

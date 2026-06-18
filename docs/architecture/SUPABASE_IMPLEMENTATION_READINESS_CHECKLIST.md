@@ -1629,3 +1629,38 @@ Creation implementation remains NOT READY until:
 - Android/voice/live anti-abuse controls are planned: untrusted client signals, weak root/emulator/hook signals, fake microphone input, replay/pre-recorded voice, repeated upload/replay, local storage tampering, live-session manipulation, speed/volume/device metadata abuse, server-side verification, rate limits, abuse scoring, freshness/liveness, replay detection, and upload nonce/session binding.
 
 Future explicit-GO gates remain required for migration creation/editing, local migration apply, DB mutation, RLS/write policy implementation, controlled function/RPC/service boundary implementation, Auth/Supabase runtime integration, RLS harness execution, test data/user creation, Storage, Reveal, RPC/view/function/trigger, staging, and production.
+
+## Phase 27C - Implementation Preflight Readiness Checklist (2026-06-18)
+
+Result: PASS - docs-only readiness checklist. No implementation, SQL, migration creation/editing, DB command, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase runtime, Storage, Reveal, RPC/view/function/trigger, staging, or production work occurred.
+
+Phase 28A recommendation:
+- Name: Phase 28A - Controlled Creation Boundary Implementation Slice.
+- Scope: narrow local backend slice for `profiles_private` and `anonymous_identities` creation boundary only.
+- Must not include: Auth runtime, Supabase client runtime, Storage, Reveal, RPC/view/function/trigger unless separately approved, voice upload runtime, app binding, APK/native, staging, production.
+- Preferred first artifact: controlled creation boundary skeleton or static implementation draft with field mutability and RLS `WITH CHECK` preconditions, followed by separate static review.
+
+Phase 28A cannot start without exact human GO:
+`GO: Start Phase 28A controlled creation boundary implementation slice.`
+
+Separate exact GO remains required for:
+- migration creation/edit.
+- local migration apply.
+- RLS harness run.
+- test data/users.
+- package/dependency change.
+- Auth/runtime.
+- Supabase runtime.
+- Storage.
+- Reveal.
+- RPC/view/function/trigger.
+- APK/native.
+- staging/production.
+
+Readiness blockers before implementation:
+- field mutability matrix must be accepted.
+- duplicate prevention strategy must be accepted.
+- owner spoof prevention must be accepted.
+- server/default-only fields must be defined.
+- Android/voice/live anti-abuse preconditions must remain in scope.
+- deny/allow tests must be defined before apply.
