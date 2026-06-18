@@ -107,7 +107,7 @@ export default function FeedScreen() {
       mode === "voice"
         ? {
             ...nextDraft,
-            text: "Anonim ses taslağı hazır. Profil kapalı kalır.",
+            text: "Anonim ses taslağı hazır. Profilin kapalı kalır.",
           }
         : nextDraft,
     );
@@ -163,7 +163,7 @@ export default function FeedScreen() {
           <Text style={styles.sectionTitle}>Bugünün anları</Text>
         </View>
         <Text style={styles.sectionText}>
-          Yakalanan anonim anlar burada akar.
+          Anonim sesler ve anlar burada akar.
         </Text>
       </View>
 
@@ -242,7 +242,7 @@ export default function FeedScreen() {
                 accessibilityRole="button"
                 onPress={() => openVoiceThread(persona.threadId)}
               >
-                <Text style={styles.answerButton}>Yanıtla</Text>
+                <Text style={styles.answerButton}>Sese yanıt ver</Text>
               </Pressable>
             </View>
           );
@@ -299,9 +299,9 @@ export default function FeedScreen() {
                   <ContentTypeIcon type="voice" tone="soft" />
                 </View>
                 <View style={styles.sheetOptionCopy}>
-                  <Text style={styles.sheetOptionTitle}>Ses bırak</Text>
+                  <Text style={styles.sheetOptionTitle}>Anonim ses bırak</Text>
                   <Text style={styles.sheetOptionText}>
-                    21 saniyeye kadar kısa anonim ses.
+                    21 saniyeye kadar profil kapalı ses.
                   </Text>
                 </View>
               </Pressable>
@@ -321,9 +321,9 @@ export default function FeedScreen() {
                   <ContentTypeIcon type="photo" tone="soft" />
                 </View>
                 <View style={styles.sheetOptionCopy}>
-                  <Text style={styles.sheetOptionTitle}>Kamera</Text>
+                  <Text style={styles.sheetOptionTitle}>Kamera ile an bırak</Text>
                   <Text style={styles.sheetOptionText}>
-                    Dokun fotoğraf, basılı tut video. Galeri akışta yok.
+                    Fotoğraf veya kısa video taslağı oluştur. Galeri akışta yok.
                   </Text>
                 </View>
               </Pressable>
