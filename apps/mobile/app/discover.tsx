@@ -104,7 +104,7 @@ export default function DiscoverScreen() {
   function prepareDiscoverDraft(sourceId?: string) {
     setLocalDraft({
       ...createLocalDiscoverDraftPreview(sourceId),
-      text: "Sesli yaklaşım hazır. Profil izni olmadan kimlik kapalı kalır.",
+      text: "Anonim ses taslağı hazır. Profil izni olmadan kimlik kapalı kalır.",
     });
   }
 
@@ -117,7 +117,7 @@ export default function DiscoverScreen() {
       <View style={styles.searchBox}>
         <Text style={styles.searchIcon}>⌕</Text>
         <TextInput
-          placeholder="Ses veya konu ara"
+          placeholder="Anonim ses veya konu ara"
           placeholderTextColor="#746b80"
           value={query}
           onChangeText={setQuery}
@@ -161,7 +161,7 @@ export default function DiscoverScreen() {
               pressed && styles.localActionPressed,
             ]}
           >
-            <Text style={styles.localActionText}>Ses bırak</Text>
+            <Text style={styles.localActionText}>Anonim ses bırak</Text>
           </Pressable>
         </View>
       </View>
@@ -228,7 +228,7 @@ export default function DiscoverScreen() {
               accessibilityRole="button"
               onPress={() => openVoiceThread(persona.threadId)}
             >
-              <Text style={styles.voiceAction}>Yanıtla</Text>
+              <Text style={styles.voiceAction}>Sese yanıt ver</Text>
             </Pressable>
           </View>
         ))}
@@ -245,7 +245,7 @@ export default function DiscoverScreen() {
         <View style={styles.randomCopy}>
           <Text style={styles.randomTitle}>Rastgele anonim ses</Text>
           <Text style={styles.randomText}>
-            Kimlik kapalı kalır. Merak edersen cevap ver.
+            Kimlik kapalı kalır. Merak edersen sesle cevap ver.
           </Text>
         </View>
         <Text style={styles.randomAction}>Başlat</Text>
