@@ -16,6 +16,23 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-18 - Phase 27A Backend SubAgent Operating Model
+
+**Type:** Backend Planning / Process Guardrail  
+**Status:** Completed  
+
+Defined the backend SubAgent operating model before backend implementation resumes:
+
+- Recorded the current backend/RLS checkpoint: foundation migration exists, owner-bound SELECT RLS exists, Phase 25E local harness passed 24/24 assertions, rollback left persistent fake data at 0, and staging/production remain NO-GO.
+- Defined SubAgent levels 0-5 from read-only analysis through staging/production NO-GO.
+- Added explicit human GO gates for migrations, local apply, harness execution, test data/users, package/dependency changes, Auth/Supabase runtime, Storage, Reveal, RPC/view/function/trigger, staging, and production.
+- Recommended Phase 27B as planning-only owner-controlled creation path review for `profiles_private` and `anonymous_identities`.
+- Defined milestone handoff expectations and deferred phone/mobile notification automation to a separate planning phase if needed.
+
+No backend implementation, migration edit, Supabase command, DB mutation, package/env/APK/native, app runtime, Auth, Storage, Reveal, RPC/view/function/trigger, staging, or production work was performed.
+
+---
+
 ## 2026-06-18 - Phase 26D Feed-to-Chat Reply Handoff Copy Clarity
 
 **Type:** Mobile UI Copy / Flow Handoff Clarity  

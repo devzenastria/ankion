@@ -1916,3 +1916,80 @@ No SELECT * or broad protected/user row inspection was performed.
 - Harness hash and migration hashes remain unchanged.
 
 Phase 25E validates the local owner-bound SELECT RLS foundation only. It does not approve staging, production, app/Auth/runtime, reveal, storage/backend, RPC/view/function/trigger, or write-policy work.
+
+## Phase 27A - Backend SubAgent Operating Model / Planning Only (2026-06-18)
+
+Status: PASS - planning-only operating model added for future backend SubAgent work. This phase does not approve backend implementation, SQL, migration changes, Supabase commands, DB mutation, Auth/runtime, Storage, Reveal, RPC/view/function/trigger, test data/users, staging, or production.
+
+### Current Backend/RLS Checkpoint
+
+- `profiles_private` and `anonymous_identities` foundation migration exists.
+- Owner-bound SELECT RLS policies exist for authenticated owner reads only.
+- Local owner-select RLS harness executed PASS in Phase 25E.
+- Phase 25E recorded 24 total assertions, 24 passed, 0 failed.
+- Rollback verification recorded fake auth/users/profile/anonymous rows remaining at 0.
+- No staging or production apply has been approved.
+- Auth/runtime/reveal/storage/RPC/view/function/trigger/write-policy work remains blocked.
+
+### Backend SubAgent Permission Levels
+
+Level 0 - Read-only analysis:
+- Allowed: inspect docs, source structure, migrations, and test plans; summarize risks; propose phase plans.
+- Forbidden: code changes, migration changes, DB changes, command execution that mutates state.
+
+Level 1 - Draft-only artifact:
+- Allowed only after explicit request: draft SQL/test/docs artifacts for review.
+- Forbidden: apply, run, mutate, generate test users/data in a database, or treat draft as approved execution.
+
+Level 2 - Local execution with explicit GO:
+- Allowed only after human GO: run approved local-only scripts or harnesses, preferably rollback-safe.
+- Forbidden: remote, staging, production, unapproved data creation, or silent continuation into the next gate.
+
+Level 3 - Local DB mutation with explicit GO:
+- Allowed only after human GO and backup/checkpoint: apply an approved local migration or approved local mutation.
+- Forbidden: staging, production, remote DB work, migration repair/reset/link/push unless separately approved.
+
+Level 4 - Runtime integration:
+- Blocked until separate approval. Includes app Supabase/Auth client integration, session management, Storage, Reveal, and backend runtime integration.
+
+Level 5 - Staging/production:
+- NO-GO until a later explicit readiness review and human approval.
+
+### Mandatory GO Gates
+
+Explicit human GO is required before:
+- Creating a migration file.
+- Editing a migration file.
+- Applying a local migration.
+- Running an RLS harness.
+- Creating test data or test users.
+- Adding a package or dependency.
+- Implementing Auth runtime integration.
+- Implementing Supabase client runtime integration.
+- Implementing Storage.
+- Implementing Reveal.
+- Creating or changing RPC/view/function/trigger artifacts.
+- Applying anything to staging.
+- Applying anything to production.
+
+### Recommended Next Backend Slice
+
+Phase 27B should be planning-only for the owner-controlled creation path for `profiles_private` and `anonymous_identities`.
+
+Phase 27B should compare:
+- Direct owner INSERT policy later.
+- Controlled function/RPC later.
+- Service boundary later.
+
+Phase 27B must not execute SQL, create or edit migrations, add runtime integration, create users/data, or change package/env/native files.
+
+This is the safest next slice because Phase 25E validated owner SELECT only, while INSERT/creation remains intentionally denied and unresolved. Planning the creation boundary before writing policy SQL reduces risk around owner_user_id spoofing, safety/system field mutation, duplicate row creation, and anonymous identity / real profile separation.
+
+### Notification And Handoff Model
+
+- SubAgent cannot silently proceed across GO gates.
+- Every backend phase must return PASS, FAIL, or PARTIAL.
+- Every backend phase must report files changed, validation run, forbidden actions avoided, and remaining risks.
+- Codex status/output is the primary checkpoint until a notification path is designed.
+- Phone/mobile notification must not be assumed as guaranteed.
+- If notification automation is desired later, create a separate planning phase before implementation.

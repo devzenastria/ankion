@@ -16,6 +16,33 @@ ChatGPT / User / Codex-assisted
 
 # Current Phase
 
+## Phase 27A - Backend SubAgent Operating Model / Planning Only (2026-06-18)
+
+Status: PASS - backend SubAgent operating model documented as planning-only. No backend implementation, migration edits, Supabase commands, DB mutation, Auth/runtime, Storage, Reveal, RPC/view/function/trigger, package/env/APK/native, app runtime, staging, or production work was performed.
+
+Current backend/RLS checkpoint:
+- `profiles_private` and `anonymous_identities` foundation migration exists.
+- Owner-bound SELECT RLS migration exists and has been applied locally only.
+- Local owner-select RLS harness executed PASS in Phase 25E.
+- Phase 25E recorded 24/24 assertions passed.
+- Transaction rollback verification recorded fake auth/users/profile/anonymous rows remaining at 0.
+- Staging and production remain NO-GO.
+- Auth/runtime/reveal/storage/RPC/view/function/trigger/write-policy work remains NO-GO.
+
+Backend SubAgent operating model:
+- Level 0: read-only analysis only; inspect docs/source/migrations and summarize risks.
+- Level 1: draft-only artifact after explicit request; no execution or DB mutation.
+- Level 2: local execution only after explicit human GO; rollback-safe harnesses/scripts only.
+- Level 3: local DB mutation only after explicit human GO and backup/checkpoint; staging/production forbidden.
+- Level 4: runtime integration remains blocked until separate approval.
+- Level 5: staging/production remains NO-GO until a later readiness review.
+
+Mandatory GO gates now required for migration creation/editing, local migration apply, RLS harness execution, test data/users, package/dependency changes, Auth runtime, Supabase client runtime, Storage, Reveal, RPC/view/function/trigger, staging apply, and production apply.
+
+Next recommended backend slice: Phase 27B - owner-controlled creation path planning for `profiles_private` and `anonymous_identities`. This should compare direct owner INSERT policy, controlled function/RPC later, and service boundary later, with no SQL execution and no runtime integration.
+
+Notification/handoff model: SubAgent cannot silently cross GO gates; every backend phase must report PASS/FAIL/PARTIAL, files changed, validation, and forbidden-action confirmation. Phone/mobile notification is not assumed; notification automation requires a separate planning phase.
+
 ## Phase 26D - Feed-to-Chat Reply Handoff Copy Clarity / UI-Copy Only (2026-06-18)
 
 Status: PASS - Feed, Discover, Home, and Chat handoff copy now explains anonymous voice reply and connection continuation more clearly. Behavior, routes, state names, and composer logic remain unchanged.

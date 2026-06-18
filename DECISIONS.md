@@ -45,6 +45,33 @@ Each decision should use this format:
 
 # Approved Decisions
 
+## DEC-027 - Backend SubAgent Operating Model
+
+**Status:** Approved  
+**Date:** 2026-06-18  
+**Scope:** Process / Backend / Security / Testing
+
+**Decision:**  
+Backend SubAgent work must use explicit permission levels:
+
+- Level 0: read-only analysis only.
+- Level 1: draft-only artifact after explicit request; no execution.
+- Level 2: local execution only after explicit human GO.
+- Level 3: local DB mutation only after explicit human GO and backup/checkpoint.
+- Level 4: runtime integration blocked until separate approval.
+- Level 5: staging/production NO-GO until later readiness review.
+
+**Reason:**  
+Backend, Auth, RLS, reveal, storage, and runtime work can create privacy or security drift if a tool crosses from planning into execution without a clear gate.
+
+**Impact:**  
+Creating or editing migrations, applying local migrations, running RLS harnesses, creating test data/users, adding packages, integrating Auth/Supabase runtime, implementing Storage, implementing Reveal, creating RPC/view/function/trigger artifacts, and staging/production operations all require explicit human GO at the relevant phase.
+
+**Do Not:**  
+Do not let Codex/SubAgent silently proceed across a GO gate. Do not run remote/staging/production commands. Do not implement backend/runtime/Auth/RLS/Reveal/Storage without a separate approved task.
+
+---
+
 ## DEC-001 — ankion Product Core
 
 **Status:** Approved  
