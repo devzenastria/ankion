@@ -201,7 +201,7 @@ function getConnectionSideLabel(connection: VoiceConnection) {
     return "Bekle";
   }
 
-  return "Aç";
+  return "Cevap";
 }
 
 function getConnectionTab(connection: VoiceConnection): ChatTab {
@@ -260,7 +260,7 @@ function getVoiceComposerCopy(
   if (mode === "waiting") {
     return {
       sideLabel: "Bekle",
-      text: "Yeni ses gelince devam et.",
+      text: "Karşı tarafın yeni sesini bekle.",
       title: "Cevap bekleniyor",
     };
   }
@@ -268,7 +268,7 @@ function getVoiceComposerCopy(
   if (mode === "closed") {
     return {
       sideLabel: "Kapalı",
-      text: "Yeni ses cevabı gönderilemez.",
+      text: "Bu bağlantıda yeni ses gönderilemez.",
       title: "Bu bağlantı kapalı",
     };
   }
@@ -291,7 +291,7 @@ function getVoiceComposerCopy(
 
   return {
     sideLabel: "21 sn",
-    text: "21 sn anonim cevap · Profil kapalı",
+    text: "21 sn anonim ses · Profil kapalı",
     title: "Sese cevap ver",
   };
 }
@@ -302,14 +302,14 @@ function getThreadHeaderCopy(
 ) {
   if (mode === "waiting") {
     return {
-      text: "Yeni ses gelince devam et.",
+      text: "Karşı tarafın yeni sesini bekle.",
       title: "Cevap bekleniyor",
     };
   }
 
   if (mode === "closed") {
     return {
-      text: "Yeni ses cevabı gönderilemez.",
+      text: "Bu bağlantıda yeni ses gönderilemez.",
       title: "Bağlantı kapalı",
     };
   }
