@@ -3253,3 +3253,24 @@ Prepared one local source migration candidate for connection/conversation primit
 No commit was created in Phase 29A.
 
 ---
+
+## 2026-06-19 - Phase 29B Conversation / Connection Primitive Local Apply Readiness Preflight
+
+**Type:** Backend Readiness / Local Apply Preflight  
+**Status:** Completed  
+
+Completed local apply readiness checks for `supabase/migrations/20260618190000_create_conversation_connection_primitives.sql`:
+
+- Confirmed migration candidate exists and follows the controlled creation boundary migrations.
+- Confirmed `public.connections` and `public.connection_participants` are the only new primitive tables.
+- Confirmed links are to `public.anonymous_identities` only.
+- Confirmed no `profiles_private` FK/read path, voice messages, Storage, Reveal, runtime, profile/user search, global browsing, or room/chat-room model.
+- Confirmed RLS is enabled on both candidate tables.
+- Confirmed no `CREATE POLICY`, broad direct write policy, broad table grant, or global list policy.
+- Confirmed `supabase/config.toml` and `supabase/migrations` exist for future local-only apply readiness.
+
+Documented exact future GO: `GO: Start Phase 29C local conversation connection primitive migration apply.`
+
+No DB command, SQL execution, local migration apply, Supabase db push/reset/link, RLS harness, test execution, test data/user, runtime integration, Storage, Reveal, APK/native, package/dependency, staging, production, Dev Console work, or commit was performed.
+
+---

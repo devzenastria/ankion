@@ -1760,3 +1760,32 @@ Readiness checks:
 
 Next required review:
 - Static SQL review must check naming, constraints, indexes, RLS deny-by-default posture, grants, lack of `profiles_private` exposure, and absence of room/chat-room/search/browse behavior before any checkpoint or local apply decision.
+
+## Phase 29B - Conversation / Connection Primitive Local Apply Readiness (2026-06-19)
+
+Result: PASS - readiness/preflight completed. No DB command, SQL execution, migration apply, Supabase db push/reset/link, RLS harness, test execution, test data/user, Auth runtime, Supabase client runtime, Storage, Reveal, RPC/view/function/trigger runtime, APK/native, package/dependency, staging, production, Dev Console, or commit work occurred.
+
+Local project presence:
+- `supabase/config.toml` exists.
+- `supabase/migrations` exists.
+- Target migration exists: `supabase/migrations/20260618190000_create_conversation_connection_primitives.sql`.
+
+Apply readiness checks:
+- Candidate creates only `public.connections` and `public.connection_participants`.
+- Candidate links only to `public.anonymous_identities`.
+- Candidate does not reference or expose `profiles_private`.
+- Candidate includes status, reply eligibility, lifecycle, participant state, safety/moderation, timestamps, and soft-delete fields.
+- RLS is enabled on both new tables.
+- No `CREATE POLICY`, broad write policy, broad table grant, public/global conversation list, profile/user search, public profile traversal, room/chat-room model, Storage, Reveal, or runtime path exists.
+
+Future Phase 29D/29E verification targets after any approved local apply:
+- tables exist locally.
+- RLS enabled on both tables.
+- no unexpected policies or grants added.
+- anonymous identity foreign keys valid.
+- status and soft-delete constraints valid.
+- no `profiles_private` read path.
+- no global listing behavior.
+
+Exact next DB-mutation GO:
+`GO: Start Phase 29C local conversation connection primitive migration apply.`

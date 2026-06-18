@@ -2701,3 +2701,32 @@ Explicitly not included:
 - no runtime/Auth/Supabase client integration.
 
 Next required gate: static SQL review before any checkpoint or local apply decision.
+
+## Phase 29B - Conversation / Connection Primitive Local Apply Readiness Preflight (2026-06-19)
+
+Result: PASS - local apply readiness/preflight completed. No DB command, SQL execution, local migration apply, Supabase db push/reset/link, RLS harness, test execution, test data/user, runtime integration, Storage, Reveal, APK/native, package/dependency, staging, or production work occurred.
+
+Target migration:
+`supabase/migrations/20260618190000_create_conversation_connection_primitives.sql`
+
+Preflight checks:
+- File exists.
+- Migration order follows the controlled creation boundary migrations.
+- Scope is limited to conversation / connection primitives.
+- `public.connections` and `public.connection_participants` are present.
+- Foreign keys target `public.anonymous_identities` only.
+- No `profiles_private` FK/read path exists.
+- No `voice_messages`, Storage, Reveal, runtime integration, profile/user search, global browsing, or room/chat-room model exists.
+- RLS is enabled on both new tables.
+- No `CREATE POLICY`, broad direct INSERT/UPDATE/DELETE policy, broad grant, or global conversation list policy exists.
+
+Future local-only apply command notes, not run in Phase 29B:
+- Preferred later path: use Supabase CLI local migration apply only if the local target is confirmed and no remote link/push is involved.
+- Fallback later path if CLI is unavailable: use local Docker container `supabase_db_ankion` with `docker cp` and `docker exec ... psql -f ...`, then record local migration history only after successful local apply.
+
+Rollback/checkpoint expectation:
+- A clean checkpoint must exist before Phase 29C.
+- If local apply fails, stop and report the exact error; do not edit the migration without separate GO.
+
+Exact next GO:
+`GO: Start Phase 29C local conversation connection primitive migration apply.`

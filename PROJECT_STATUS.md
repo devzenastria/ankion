@@ -3287,3 +3287,23 @@ Candidate scope:
 - Adds no voice message, media storage, reveal, public profile, user search, profile browsing, global conversation browsing, room/chat-room, RPC/view/function/trigger runtime, or app binding behavior.
 
 Next safe step: Phase 29A static SQL review/checkpoint may run after human review. Local DB apply remains blocked until a separate explicit DB-mutation GO.
+
+## Phase 29B - Conversation / Connection Primitive Local Apply Readiness Preflight (2026-06-19)
+
+Status: PASS - local apply readiness/preflight completed for `supabase/migrations/20260618190000_create_conversation_connection_primitives.sql`. No DB command, SQL execution, local migration apply, Supabase db push/reset/link, RLS harness, test execution, test data/user, runtime/Auth/Supabase client integration, Storage, Reveal, voice upload/storage, APK/native, package/dependency, staging, production, Dev Console, or commit work occurred.
+
+Readiness result:
+- Migration file exists and is ordered after the controlled creation boundary migrations.
+- Candidate scope remains limited to `public.connections` and `public.connection_participants`.
+- Candidate links only to `public.anonymous_identities`.
+- No `profiles_private` FK/read path, voice message table, Storage, Reveal, runtime integration, profile/user search, global browsing, or room/chat-room model is present.
+- RLS is enabled on both new tables.
+- No `CREATE POLICY`, broad INSERT/UPDATE/DELETE policy, broad table grant, or global conversation list policy is present.
+- `supabase/config.toml` and `supabase/migrations` exist for local-only apply readiness.
+
+Documented future local-only apply path, not run in Phase 29B:
+- Supabase CLI path if available later: apply the pending local migration only against the local project.
+- Docker + psql fallback if CLI is unavailable later: copy `supabase/migrations/20260618190000_create_conversation_connection_primitives.sql` into the local `supabase_db_ankion` container and execute it with local `psql`, then record local migration history only after successful apply.
+
+Exact next GO for DB mutation:
+`GO: Start Phase 29C local conversation connection primitive migration apply.`
