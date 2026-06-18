@@ -58,6 +58,17 @@ corepack pnpm --filter @ankion/web build
 - Codex promptlari: `tools/autodev/prompts/`
 - Yerel durum yer tutuculari: `tools/autodev/state/`
 
+## Gorev ilerleme durumu
+
+`tools/autodev/task-queue.json` icindeki her gorev `status` alani tasir:
+
+- `PENDING`: AUTODEV tarafindan secilebilir.
+- `COMPLETED`: Tamamlanmis gorev; tekrar prompt uretilmez.
+- `BLOCKED`: Bloklu gorev; tekrar prompt uretilmez.
+- `SKIPPED`: Bilerek atlanan gorev; tekrar prompt uretilmez.
+
+`run-autodev.ps1` yalnizca ilk `PENDING` gorev icin prompt uretir. Tum gorevler tamamlanmis, bloklu veya atlanmis ise tekrar prompt uretmez, durumu raporlar ve yine insan onayi gerektirir.
+
 ## Insan onayi
 
 Her sonuc insan onayi gerektirir. MEDIUM riskli gorevler kodlamadan once insan onayi gerektirir; HIGH riskli gorevler otomatik reddedilir. AUTODEV raporu gecse bile kabul, devam, restore, merge veya release karari otomatik degildir.

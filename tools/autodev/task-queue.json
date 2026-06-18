@@ -2,6 +2,7 @@
   "tasks": [
     {
       "id": "AUTO-WORKDAY-CHAT-COPY-001",
+      "status": "COMPLETED",
       "title": "Clarify Chat composer and connection copy",
       "mode": "coding-prompt-only",
       "description": "Copy-only polish for the existing Chat composer/header labels and visible connection copy for waiting, replyable, and closed modes. Target only existing copy returned by getVoiceComposerCopy, getThreadHeaderCopy, getConnectionSideLabel, and nearby visible helper text. Do not change logic. Do not change state names. Do not change navigation. Do not change composer behavior.",
@@ -47,6 +48,7 @@
     },
     {
       "id": "AUTO-WORKDAY-FEED-COPY-001",
+      "status": "PENDING",
       "title": "Clarify Feed share and moment copy",
       "mode": "coding-prompt-only",
       "description": "Copy-only polish for existing Feed share-sheet option text, local draft text, section intro text, moment metadata, and answer button copy. Do not change draft behavior. Do not change camera behavior. Do not change filters. Do not change navigation.",
@@ -92,6 +94,7 @@
     },
     {
       "id": "AUTO-WORKDAY-DISCOVER-COPY-001",
+      "status": "PENDING",
       "title": "Clarify Discover anonymous voice copy",
       "mode": "coding-prompt-only",
       "description": "Copy-only polish for existing Discover search placeholder, topic/section labels, local draft text, voice metadata, random anonymous voice card, and voice action copy. Do not add new search behavior. Do not add profile browsing. Do not add dating/swipe behavior. Do not change navigation.",

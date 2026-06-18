@@ -32,6 +32,13 @@ function Get-ChangedFileCountFromDiffReview {
   }
   return $count
 }
+function Get-AppSourceModifiedFromDiffReview {
+  param([string]$DiffText)
+  if ([string]::IsNullOrWhiteSpace($DiffText)) { return "UNKNOWN" }
+  if ($DiffText -match "\[APP_SOURCE\]") { return "YES" }
+  if ($DiffText -match "(?m)^Diff review result:\s*PASS\s*$") { return "NO" }
+  return "UNKNOWN"
+}
 
 function Write-JsonFile {
   param([string]$Path, [object]$Value)
@@ -51,10 +58,36 @@ function Write-JsonArrayFile {
     $array | ConvertTo-Json -Depth 8 | Set-Content -Path $Path -Encoding UTF8
   }
 }
+function Add-StandardGitToPath {
+  $env:GIT_CONFIG_NOSYSTEM = "true"
+  $gitCmd = Get-Command git -ErrorAction SilentlyContinue
+  if ($null -ne $gitCmd) { return }
+  $standardGitCmd = "C:\Program Files\Git\cmd"
+  if (Test-Path (Join-Path $standardGitCmd "git.exe")) {
+    $env:Path = "$standardGitCmd;$env:Path"
+  }
+}
+function Get-TaskStatus {
+  param([object]$Task)
+  $status = [string]$Task.status
+  if ([string]::IsNullOrWhiteSpace($status)) { return "PENDING" }
+  return $status.ToUpperInvariant()
+}
+function Format-TaskList {
+  param([object[]]$Tasks)
+  if ($Tasks.Count -eq 0) { return @("- None") }
+  $items = New-Object System.Collections.Generic.List[string]
+  foreach ($task in $Tasks) {
+    $items.Add("- $($task.id): $($task.title)")
+  }
+  return $items
+}
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 Set-Location $repoRoot
+Add-StandardGitToPath
 $policyPath = Join-Path $repoRoot "tools\autodev\policy.json"
+$taskQueuePath = Join-Path $repoRoot "tools\autodev\task-queue.json"
 $reportsDir = Join-Path $repoRoot "tools\autodev\reports"
 $promptsDir = Join-Path $repoRoot "tools\autodev\prompts"
 $stateDir = Join-Path $repoRoot "tools\autodev\state"
@@ -64,6 +97,18 @@ $version = "UNKNOWN"
 if (Test-Path $policyPath) {
   try { $version = (Get-Content $policyPath -Raw | ConvertFrom-Json).version } catch { $version = "UNKNOWN" }
 }
+
+$tasks = @()
+if (Test-Path $taskQueuePath) {
+  try { $tasks = @((Get-Content $taskQueuePath -Raw | ConvertFrom-Json).tasks) } catch { $tasks = @() }
+}
+$completedTasks = @($tasks | Where-Object { (Get-TaskStatus -Task $_) -eq "COMPLETED" })
+$pendingTasks = @($tasks | Where-Object { (Get-TaskStatus -Task $_) -eq "PENDING" })
+$blockedTasks = @($tasks | Where-Object { (Get-TaskStatus -Task $_) -eq "BLOCKED" })
+$skippedTasks = @($tasks | Where-Object { (Get-TaskStatus -Task $_) -eq "SKIPPED" })
+$selectedTask = if ($pendingTasks.Count -gt 0) { $pendingTasks[0] } else { $null }
+$selectedTaskLabel = if ($null -ne $selectedTask) { "$($selectedTask.id): $($selectedTask.title)" } else { "NONE" }
+$safeNextTask = if ($null -ne $selectedTask) { "$($selectedTask.id): $($selectedTask.title)" } else { "NONE - no pending tasks" }
 
 $latestRunReportPath = Get-LatestFilePath -Directory $reportsDir -Filter "AUTODEV_RUN_*.txt"
 $latestValidationReportPath = Get-LatestFilePath -Directory $reportsDir -Filter "AUTODEV_VALIDATE_*.txt"
@@ -93,7 +138,7 @@ $gitAvailable = ($null -ne $gitCommand) -or $diffReviewGitAvailable -eq "YES" -o
 if ($diffReviewReportResult -eq "PASS") { $diffReviewResult = "PASS" }
 if ($guardResult -eq "PASS" -and $diffReviewForbidden -eq "NO") { $forbiddenFilesTouched = "NO" }
 
-$appSourceModified = "UNKNOWN"
+$appSourceModified = Get-AppSourceModifiedFromDiffReview -DiffText $diffText
 if ($gitAvailable -and $diffReviewResult -eq "PASS" -and $changedFileCount -eq 0) {
   $forbiddenFilesTouched = "NO"
   $protectedFilesTouched = "NO"
@@ -107,7 +152,7 @@ $cleanPass = ($gitAvailable -and $validationResult -eq "PASS" -and $guardResult 
 $currentMode = "SYNC_ONLY"
 $currentStatus = if ($cleanPass) { "DRY_RUN_READY_FOR_HUMAN_REVIEW" } elseif ($gitAvailable) { "NEEDS_HUMAN_REVIEW" } else { "BLOCKED" }
 $stopReason = if ($gitAvailable) { "HUMAN_APPROVAL_REQUIRED" } else { "Git unavailable on PATH" }
-$safeNextAction = if ($cleanPass) { "Review LATEST_HANDOFF.md and approve or reject the first LOW-risk coding task." } elseif ($gitAvailable) { "Review latest AUTODEV reports and resolve any failed status before coding." } else { "Install Git for Windows or add Git to PATH, then rerun preflight." }
+$safeNextAction = if ($cleanPass -and $null -ne $selectedTask) { "Review LATEST_HANDOFF.md and approve or reject the next LOW-risk coding task: $safeNextTask." } elseif ($cleanPass) { "No pending tasks remain. Review LATEST_HANDOFF.md and decide whether to add or unblock a task." } elseif ($gitAvailable) { "Review latest AUTODEV reports and resolve any failed status before coding." } else { "Install Git for Windows or add Git to PATH, then rerun preflight." }
 $finalRecommendation = if ($cleanPass) { "AUTODEV DRY-RUN READY. REAL AUTONOMOUS CODING STILL REQUIRES HUMAN APPROVAL." } elseif ($gitAvailable) { "REVIEW REPORTS BEFORE ANY AUTONOMOUS CODING." } else { "DO NOT ENABLE AUTONOMOUS CODING. FIX GIT PATH FIRST." }
 
 $heartbeat = [ordered]@{
@@ -154,7 +199,7 @@ Write-JsonArrayFile -Path (Join-Path $stateDir "decisions.json") -Items $decisio
 
 $handoffPath = Join-Path $stateDir "LATEST_HANDOFF.md"
 $lines = New-Object System.Collections.Generic.List[string]
-$lines.Add("# ANKION AUTODEV v2.2 Latest Handoff")
+$lines.Add("# ANKION AUTODEV v2.5 Latest Handoff")
 $lines.Add("")
 $lines.Add("AUTODEV version: $version")
 $lines.Add("Timestamp: $(Get-Date -Format o)")
@@ -168,6 +213,22 @@ $lines.Add("Latest run report: $latestRunReportPath")
 $lines.Add("Latest validation report: $latestValidationReportPath")
 $lines.Add("Latest diff review report: $latestDiffReviewReportPath")
 $lines.Add("Latest generated prompt: $latestPromptPath")
+$lines.Add("")
+$lines.Add("## Task Queue")
+$lines.Add("Current selected task: $selectedTaskLabel")
+$lines.Add("Safe next task: $safeNextTask")
+$lines.Add("")
+$lines.Add("Completed tasks:")
+foreach ($line in (Format-TaskList -Tasks $completedTasks)) { $lines.Add($line) }
+$lines.Add("")
+$lines.Add("Pending tasks:")
+foreach ($line in (Format-TaskList -Tasks $pendingTasks)) { $lines.Add($line) }
+$lines.Add("")
+$lines.Add("Blocked tasks:")
+foreach ($line in (Format-TaskList -Tasks $blockedTasks)) { $lines.Add($line) }
+$lines.Add("")
+$lines.Add("Skipped tasks:")
+foreach ($line in (Format-TaskList -Tasks $skippedTasks)) { $lines.Add($line) }
 $lines.Add("")
 $lines.Add("## Latest Results")
 $lines.Add("Validation result: $validationResult")
