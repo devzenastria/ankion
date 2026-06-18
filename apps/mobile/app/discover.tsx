@@ -228,7 +228,7 @@ export default function DiscoverScreen() {
               accessibilityRole="button"
               onPress={() => openVoiceThread(persona.threadId)}
             >
-              <Text style={styles.voiceAction}>Sese yanıt ver</Text>
+              <Text style={styles.voiceAction}>Chat'te yanıtla</Text>
             </Pressable>
           </View>
         ))}
@@ -245,10 +245,10 @@ export default function DiscoverScreen() {
         <View style={styles.randomCopy}>
           <Text style={styles.randomTitle}>Rastgele anonim ses</Text>
           <Text style={styles.randomText}>
-            Kimlik kapalı kalır. Merak edersen sesle cevap ver.
+            Kimlik kapalı kalır. Merak edersen Chat'te sesle devam et.
           </Text>
         </View>
-        <Text style={styles.randomAction}>Başlat</Text>
+        <Text style={styles.randomAction}>Chat'e geç</Text>
       </Pressable>
     </ScreenContainer>
   );

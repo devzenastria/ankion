@@ -580,7 +580,7 @@ export default function ChatScreen() {
 
           <View style={styles.threadHint}>
             <Text style={styles.threadHintText}>
-              Ses cevapları bağlantıyı sürdürür. Profil izni ayrı kalır.
+              Keşif ve Akıştan gelen sesler burada bağlantıya döner. Profil izni ayrı kalır.
             </Text>
           </View>
 
@@ -817,9 +817,9 @@ export default function ChatScreen() {
           </View>
 
           <View style={styles.infoRow}>
-            <Text style={styles.infoTitle}>Önce ses, sonra profil</Text>
+            <Text style={styles.infoTitle}>Keşiften sohbete</Text>
             <Text style={styles.infoText}>
-              Bağlantılar anonim başlar. Profil yalnızca ilgili bağlantıda izinle görünür.
+              Keşif ve Akıştan gelen sesler burada devam eder. Profil yalnızca ilgili bağlantıda izinle görünür.
             </Text>
           </View>
         </>

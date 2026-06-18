@@ -242,7 +242,7 @@ export default function FeedScreen() {
                 accessibilityRole="button"
                 onPress={() => openVoiceThread(persona.threadId)}
               >
-                <Text style={styles.answerButton}>Sese yanıt ver</Text>
+                <Text style={styles.answerButton}>Chat'te yanıtla</Text>
               </Pressable>
             </View>
           );
