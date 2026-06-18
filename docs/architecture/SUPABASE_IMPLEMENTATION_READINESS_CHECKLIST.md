@@ -1664,3 +1664,25 @@ Readiness blockers before implementation:
 - server/default-only fields must be defined.
 - Android/voice/live anti-abuse preconditions must remain in scope.
 - deny/allow tests must be defined before apply.
+
+## Phase 28A - Controlled Creation Boundary Candidate Review Checklist (2026-06-18)
+
+Result: READY FOR HUMAN REVIEW - one local migration candidate exists, but it has not been applied.
+
+Checklist:
+- `profiles_private` owner creation derives `owner_user_id` from `auth.uid()`.
+- `anonymous_identities` owner creation derives `owner_user_id` from `auth.uid()`.
+- Client input cannot set owner, safety, status, verification, rotation, audit, soft-delete, reveal, or system fields.
+- Direct broad INSERT remains blocked.
+- No broad INSERT/UPDATE/DELETE table grants were added.
+- No direct INSERT/UPDATE/DELETE RLS policies were added.
+- Duplicate private profile creation remains constrained by `profiles_private_owner_user_id_key`.
+- Duplicate active anonymous identity creation remains constrained by `anonymous_identities_one_active_per_owner_idx`.
+- Reveal still cannot grant raw `profiles_private` reads.
+- Monetization still cannot bypass identity, reveal, or consent.
+
+Before any apply:
+- Separate explicit GO is required.
+- Static SQL review is required.
+- RLS deny/allow tests must be prepared.
+- No DB command, RLS harness, test data/user creation, Auth/runtime, Supabase client runtime, Storage, Reveal, app binding, APK/native, staging, or production work may occur without separate approval.

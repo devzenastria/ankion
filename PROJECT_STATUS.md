@@ -3131,3 +3131,17 @@ Required exact future GO for Phase 28A:
 `GO: Start Phase 28A controlled creation boundary implementation slice.`
 
 Additional exact GO gates remain required for migration creation/editing, local migration apply, RLS harness execution, test data/users, package/dependency changes, Auth/runtime, Supabase runtime, Storage, Reveal, RPC/view/function/trigger, APK/native, staging, and production.
+
+## Phase 28A - Controlled Creation Boundary Implementation Slice (2026-06-18)
+
+Status: PASS - narrow local migration candidate prepared for owner-controlled creation. One new migration file was created for static review only. No DB command, local migration apply, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase runtime, Storage, Reveal, app runtime integration, staging, production, Dev Console work, or commit was performed.
+
+Implementation slice:
+- Added a controlled `security definer` creation boundary candidate for provisioning the first `profiles_private` row and active `anonymous_identities` row for the authenticated owner.
+- Ownership is derived from `auth.uid()` inside the database function; the caller cannot provide `owner_user_id`.
+- Direct broad table INSERT remains blocked; no broad INSERT/UPDATE/DELETE grants or direct write policies were added.
+- Client-controlled inputs are limited to optional profile display fields. Status, safety, verification, visibility, rotation, audit, soft-delete, reveal, and system fields remain server/default-controlled.
+- Duplicate private profiles and duplicate active anonymous identities rely on the existing unique constraints/indexes.
+
+Next required step:
+- Static human review and checkpoint verification before any local apply or RLS harness phase. Local apply remains blocked until separate explicit GO.

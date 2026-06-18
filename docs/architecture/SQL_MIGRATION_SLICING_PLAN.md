@@ -2628,3 +2628,25 @@ Migration/risk boundary:
 - Direct INSERT is a conditional fallback only after explicit approval, strict `WITH CHECK`, field mutability matrix, deny tests, duplicate prevention, and abuse controls.
 - Any executable migration creation requires a separate explicit GO and static review before local apply.
 - Local apply requires another explicit GO after migration static audit.
+
+## Phase 28A - Controlled Creation Boundary Migration Candidate (2026-06-18)
+
+Status: PREPARED FOR STATIC REVIEW. One new local migration candidate was created for the narrow owner-controlled creation boundary. It was not applied.
+
+Migration candidate:
+- `supabase/migrations/20260618143000_create_owner_controlled_creation_boundary.sql`
+
+Boundary:
+- Scope is limited to initial provisioning of `profiles_private` and `anonymous_identities`.
+- Ownership is derived from `auth.uid()` inside the controlled boundary.
+- The caller cannot supply `owner_user_id`.
+- Direct broad INSERT remains blocked; no direct broad INSERT/UPDATE/DELETE grants or direct write policies are introduced.
+- The caller cannot set status, safety, verification, rotation, audit, soft-delete, reveal, or system fields.
+- Duplicate prevention relies on the existing `profiles_private_owner_user_id_key` constraint and `anonymous_identities_one_active_per_owner_idx` index.
+
+Still blocked:
+- Local migration apply.
+- DB command.
+- RLS harness execution.
+- Test data/user creation.
+- Auth/runtime, Supabase client runtime, Storage, Reveal, app binding, APK/native, staging, and production.

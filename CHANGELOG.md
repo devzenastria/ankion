@@ -3096,3 +3096,21 @@ Prepared the docs-only preflight/checklist for the first possible controlled bac
 No backend implementation, SQL implementation, migration creation/editing, DB command, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase runtime, Storage, Reveal, RPC/view/function/trigger, staging, production, Dev Console work, or commit was performed.
 
 ---
+
+## 2026-06-18 - Phase 28A Controlled Creation Boundary Implementation Slice
+
+**Type:** Backend Migration Candidate / Local Static Review  
+**Status:** Completed for human review  
+
+Prepared one narrow local migration candidate for the owner-controlled creation boundary:
+
+- Added `create_owner_identity_foundation(...)` as a controlled authenticated-owner provisioning boundary.
+- The database function derives ownership from `auth.uid()` and does not accept `owner_user_id` from the client.
+- No direct broad INSERT policy or broad table write grant was added.
+- Client inputs are limited to optional profile display fields; safety/status/audit/system/reveal fields remain unavailable to the caller.
+- Existing duplicate-prevention constraints remain the guard for one private profile and one active anonymous identity.
+- Soft-deleted profile reactivation remains out of scope and requires separate approval.
+
+No DB command, migration apply, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase runtime, Storage, Reveal, app runtime integration, staging, production, Dev Console work, or commit was performed.
+
+---
