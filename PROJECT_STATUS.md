@@ -3211,3 +3211,20 @@ Fix candidate:
 
 Next required step:
 - Phase 28F static SQL review before any local apply or harness retry.
+
+## Phase 28G - Local Corrective Migration Apply (2026-06-18)
+
+Status: PASS - corrective crypto schema migration was applied to the local Supabase DB only. No staging, production, remote Supabase command, RLS harness rerun, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, app runtime integration, Dev Console work, or commit was performed.
+
+Local apply result:
+- Applied `supabase/migrations/20260618170000_fix_controlled_creation_crypto_schema.sql` to local `supabase_db_ankion`.
+- Docker + psql local-only apply path was used: the migration was copied into the local Docker container and applied with `docker exec ... psql -f ...`.
+- Local migration history now includes `20260618170000 fix_controlled_creation_crypto_schema`.
+- `public.create_owner_identity_foundation(text, text, text)` exists locally with `SECURITY DEFINER`.
+- Function `search_path` remains fixed to `public, auth`.
+- Function arguments do not include `owner_user_id`; ownership remains derived from `auth.uid()`.
+- Function definition now uses `extensions.gen_random_bytes(8)` and has no unqualified `gen_random_bytes(8)` call.
+- No INSERT/UPDATE/DELETE policies or direct table write grants were added for `anon` or `authenticated`.
+
+Next required phase:
+- Phase 28G checkpoint verification. Harness rerun remains blocked until separate explicit GO.

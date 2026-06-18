@@ -3180,3 +3180,23 @@ Prepared a corrective migration candidate after Phase 28E found that `gen_random
 No DB command, migration apply, SQL execution, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, app runtime integration, staging, production, Dev Console work, or commit was performed.
 
 ---
+
+## 2026-06-18 - Phase 28G Local Corrective Migration Apply
+
+**Type:** Local DB Migration Apply / Corrective Fix  
+**Status:** Completed  
+
+Applied the corrective crypto schema migration to the local Supabase DB only:
+
+- Applied `supabase/migrations/20260618170000_fix_controlled_creation_crypto_schema.sql` to local `supabase_db_ankion`.
+- Used the Docker + psql local-only apply path: copied the migration into the local Docker container and applied it with `docker exec ... psql -f ...`.
+- Recorded `20260618170000 fix_controlled_creation_crypto_schema` in local migration history.
+- Verified `public.create_owner_identity_foundation(text, text, text)` exists locally.
+- Verified `SECURITY DEFINER` and fixed `search_path=public, auth`.
+- Verified function arguments do not include `owner_user_id`; ownership remains derived from `auth.uid()`.
+- Verified the function definition uses `extensions.gen_random_bytes(8)` and does not contain an unqualified `gen_random_bytes(8)` call.
+- Verified no INSERT/UPDATE/DELETE RLS policies and no INSERT/UPDATE/DELETE grants were added for `anon` or `authenticated`.
+
+No staging, production, remote Supabase command, RLS harness rerun, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, app runtime integration, Dev Console work, or commit was performed.
+
+---
