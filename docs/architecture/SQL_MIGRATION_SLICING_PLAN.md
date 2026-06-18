@@ -2730,3 +2730,23 @@ Rollback/checkpoint expectation:
 
 Exact next GO:
 `GO: Start Phase 29C local conversation connection primitive migration apply.`
+
+## Phase 29D - Conversation Primitive Unsafe Grants Corrective Migration Candidate (2026-06-19)
+
+Result: PASS - exactly one corrective migration candidate was created. No DB command, SQL execution, local migration apply, Supabase db push/reset/link, RLS harness, test execution, test data/user, runtime integration, Storage, Reveal, APK/native, package/dependency, staging, or production work occurred.
+
+Corrective migration:
+`supabase/migrations/20260619103000_revoke_connection_primitive_unsafe_grants.sql`
+
+Corrective scope:
+- Targets `public.connections`.
+- Targets `public.connection_participants`.
+- Revokes all table privileges from `anon` and `authenticated`.
+- Explicitly revokes all table privileges from `public`.
+- Adds no `CREATE POLICY`.
+- Adds no `GRANT`.
+- Does not edit `supabase/migrations/20260618190000_create_conversation_connection_primitives.sql`.
+- Does not touch `profiles_private`.
+- Does not introduce voice messages, Storage, Reveal, runtime objects, or schema redesign.
+
+Next required gate: static SQL review before any checkpoint or local corrective apply decision.

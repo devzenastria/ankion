@@ -3307,3 +3307,20 @@ Documented future local-only apply path, not run in Phase 29B:
 
 Exact next GO for DB mutation:
 `GO: Start Phase 29C local conversation connection primitive migration apply.`
+
+## Phase 29D - Conversation Primitive Unsafe Grants Corrective Migration Candidate (2026-06-19)
+
+Status: PASS - corrective local migration candidate prepared after Phase 29C post-apply verification found unsafe non-DML table privileges on `public.connections` and `public.connection_participants`. No DB command, SQL execution, local migration apply, Supabase db push/reset/link, RLS harness, test execution, test data/user, runtime/Auth/Supabase client integration, Storage, Reveal, voice upload/storage, APK/native, package/dependency, staging, production, Dev Console, or commit work occurred.
+
+Created corrective migration candidate:
+- `supabase/migrations/20260619103000_revoke_connection_primitive_unsafe_grants.sql`
+
+Corrective scope:
+- Targets only `public.connections` and `public.connection_participants`.
+- Revokes all table privileges from `anon` and `authenticated`.
+- Also explicitly revokes all table privileges from `public`.
+- Adds no `CREATE POLICY`.
+- Adds no `GRANT`.
+- Adds no `profiles_private` FK/read path, voice message table, Storage, Reveal, runtime object, or schema redesign.
+
+Next safe step: Phase 29D static SQL review can run after human review. Local corrective apply remains blocked until separate explicit DB-mutation GO.

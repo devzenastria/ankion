@@ -1789,3 +1789,27 @@ Future Phase 29D/29E verification targets after any approved local apply:
 
 Exact next DB-mutation GO:
 `GO: Start Phase 29C local conversation connection primitive migration apply.`
+
+## Phase 29D - Conversation Primitive Unsafe Grants Corrective Readiness (2026-06-19)
+
+Result: PASS - local corrective migration candidate prepared. No DB command, SQL execution, migration apply, Supabase db push/reset/link, RLS harness, test execution, test data/user, Auth runtime, Supabase client runtime, Storage, Reveal, RPC/view/function/trigger runtime, APK/native, package/dependency, staging, production, Dev Console, or commit work occurred.
+
+Reason:
+- Phase 29C post-apply verification found `TRUNCATE`, `REFERENCES`, and `TRIGGER` privileges for `anon` and `authenticated` on `public.connections` and `public.connection_participants`.
+- `TRUNCATE` is not RLS-filtered and must be removed before Phase 29C can be checkpointed as PASS.
+
+Created candidate:
+- `supabase/migrations/20260619103000_revoke_connection_primitive_unsafe_grants.sql`
+
+Readiness checks:
+- exactly one new corrective migration candidate was created.
+- original Phase 29A migration was not edited.
+- candidate targets only `public.connections` and `public.connection_participants`.
+- candidate revokes all table privileges from `anon`, `authenticated`, and `public`.
+- candidate adds no `CREATE POLICY`.
+- candidate adds no `GRANT`.
+- candidate does not touch `profiles_private`.
+- candidate does not introduce voice messages, Storage, Reveal, runtime, APK/native, staging, or production.
+
+Next required review:
+- Static SQL review must confirm the revoke-only scope before any checkpoint or local corrective apply decision.

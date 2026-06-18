@@ -3274,3 +3274,19 @@ Documented exact future GO: `GO: Start Phase 29C local conversation connection p
 No DB command, SQL execution, local migration apply, Supabase db push/reset/link, RLS harness, test execution, test data/user, runtime integration, Storage, Reveal, APK/native, package/dependency, staging, production, Dev Console work, or commit was performed.
 
 ---
+
+## 2026-06-19 - Phase 29D Conversation Primitive Unsafe Grants Corrective Candidate
+
+**Type:** Backend Corrective Migration Candidate / Grants  
+**Status:** Completed  
+
+Prepared one corrective migration candidate after Phase 29C local apply exposed unsafe non-DML privileges:
+
+- Added `supabase/migrations/20260619103000_revoke_connection_primitive_unsafe_grants.sql`.
+- Candidate targets only `public.connections` and `public.connection_participants`.
+- Candidate revokes all table privileges from `anon`, `authenticated`, and `public`.
+- Candidate adds no `CREATE POLICY`, no `GRANT`, no table redesign, no `profiles_private` path, no voice messages, no Storage, no Reveal, and no runtime integration.
+
+No DB command, SQL execution, local migration apply, RLS harness, test execution, test data/user, package/env/APK/native work, staging, production, Dev Console work, or commit was performed.
+
+---
