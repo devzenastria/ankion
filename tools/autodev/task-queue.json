@@ -48,7 +48,7 @@
     },
     {
       "id": "AUTO-WORKDAY-FEED-COPY-001",
-      "status": "PENDING",
+      "status": "COMPLETED",
       "title": "Clarify Feed share and moment copy",
       "mode": "coding-prompt-only",
       "description": "Copy-only polish for existing Feed share-sheet option text, local draft text, section intro text, moment metadata, and answer button copy. Do not change draft behavior. Do not change camera behavior. Do not change filters. Do not change navigation.",
