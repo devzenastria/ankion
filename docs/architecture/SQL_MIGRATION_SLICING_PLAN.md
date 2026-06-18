@@ -2675,3 +2675,29 @@ Future apply/test gates:
 
 Exact next GO:
 `GO: Start Phase 29A conversation connection primitive migration candidate.`
+
+## Phase 29A - Conversation / Connection Primitive Migration Candidate Created (2026-06-18)
+
+Result: PASS - exactly one new migration candidate was created:
+
+`supabase/migrations/20260618190000_create_conversation_connection_primitives.sql`
+
+Candidate contents:
+- creates `public.connections`.
+- creates `public.connection_participants`.
+- adds check constraints for connection, reply, lifecycle, participant, safety, and moderation states.
+- adds indexes for anonymous identity and connection lookup.
+- enables RLS on both new tables.
+
+Explicitly not included:
+- no DB apply.
+- no RLS policy creation.
+- no table grants.
+- no voice message table.
+- no Storage/media table.
+- no Reveal table or reveal permission logic.
+- no raw `profiles_private` read path.
+- no public/global search or room/chat-room model.
+- no runtime/Auth/Supabase client integration.
+
+Next required gate: static SQL review before any checkpoint or local apply decision.

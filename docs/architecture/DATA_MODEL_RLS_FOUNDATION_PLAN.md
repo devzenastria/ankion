@@ -1587,3 +1587,21 @@ Requirements before any implementation:
 Before voice/reveal/runtime acceptance, future plans must handle untrusted client signals, fake microphone input, replay/pre-recorded voice, repeated upload/replay, local storage tampering, live-session manipulation, speed/volume/device metadata abuse, root/emulator/hook checks as weak risk signals only, server-side verification, rate limits, abuse scoring, voice freshness/liveness, upload nonce/session binding, and replay detection.
 
 Real profile visibility must never depend only on client-side checks. Monetization must never bypass identity, reveal, consent, or anti-abuse controls.
+
+## Phase 29A - Conversation / Connection Primitive Data Boundary Candidate (2026-06-18)
+
+Result: PASS - a narrow migration candidate now models connection primitives without applying them to any DB.
+
+Data boundary:
+- `connections` represents anonymous voice reply / connection continuity.
+- `connection_participants` represents the participant boundary for anonymous identities inside a connection.
+- The candidate depends on `anonymous_identities` and does not depend on `profiles_private`.
+- Connection status and reply eligibility are server-owned future states and do not imply real profile reveal.
+- Safety/moderation fields are present for future server-side enforcement and must not rely on client-only Android/device signals.
+
+RLS boundary:
+- RLS is enabled deny-by-default.
+- No policies are created in Phase 29A.
+- Future SELECT must be participant-only.
+- Future write access must use a controlled boundary and must not trust client-supplied owner IDs.
+- No raw `profiles_private` read, public/global conversation list, profile/user search, room/chat-room model, or reveal shortcut is introduced.

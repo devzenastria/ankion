@@ -2656,3 +2656,22 @@ Future Phase 29A may plan or draft only the local source/migration candidate for
 
 **Do Not:**  
 Do not add profile search, user search, public profile, global profile opening, profile browsing, room/chat-room/member-directory behavior, raw `profiles_private` read access, reveal implication, broad direct write policies, Auth/Supabase runtime, Storage, Reveal, APK/native, staging, or production in Phase 29A.
+
+## DEC-126 - Phase 29A Conversation Primitive Candidate Uses Anonymous Identity Boundary Only
+
+**Status:** Approved Candidate Direction  
+**Date:** 2026-06-18  
+**Scope:** Backend / Security / RLS / Product Flow
+
+**Decision:**  
+The Phase 29A migration candidate may introduce `connections` and `connection_participants` as the first connection/conversation primitives, but it must link participants through `anonymous_identities` only. It must not reference `profiles_private`, implement Reveal, create voice message/media storage tables, or add runtime integration.
+
+**Reason:**  
+This preserves ANKION's anonymous voice-first flow while preparing the future anonymous voice -> reply / connection backend surface. The candidate keeps real profile visibility owner-approved and context-bound for later phases.
+
+**Guardrails:**  
+- RLS stays deny-by-default until a future explicit policy phase.
+- No direct broad write policies or grants are added.
+- No public/global conversation list is introduced.
+- No profile search, user search, public profile, profile browsing, room/chat-room, or member-directory behavior is introduced.
+- Connection/reply status must not imply Reveal or raw private profile visibility.

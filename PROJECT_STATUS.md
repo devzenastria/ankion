@@ -3270,3 +3270,20 @@ Phase 29A recommendation:
 - Phase 29A - Conversation / Connection Primitive Migration Candidate.
 - Scope must be local source/migration candidate only: no DB apply, no runtime, no Auth integration, no Storage, no Reveal, no APK/native, no staging, and no production.
 - Exact next GO: `GO: Start Phase 29A conversation connection primitive migration candidate.`
+
+## Phase 29A - Conversation / Connection Primitive Migration Candidate (2026-06-18)
+
+Status: PASS - one narrow local migration candidate was prepared for conversation / connection primitives. No DB command, SQL execution, local migration apply, RLS harness, test data/user, runtime/Auth/Supabase client integration, Storage, Reveal, voice upload/storage, APK/native, package/dependency, staging, production, Dev Console, or commit work occurred.
+
+Created migration candidate:
+- `supabase/migrations/20260618190000_create_conversation_connection_primitives.sql`
+
+Candidate scope:
+- Adds `public.connections` and `public.connection_participants` as anonymous voice reply / connection continuity primitives.
+- Links only to `public.anonymous_identities`; it does not reference or expose `public.profiles_private`.
+- Enables RLS on both new tables as deny-by-default.
+- Adds no direct broad INSERT, UPDATE, DELETE, or SELECT policies.
+- Adds no table grants.
+- Adds no voice message, media storage, reveal, public profile, user search, profile browsing, global conversation browsing, room/chat-room, RPC/view/function/trigger runtime, or app binding behavior.
+
+Next safe step: Phase 29A static SQL review/checkpoint may run after human review. Local DB apply remains blocked until a separate explicit DB-mutation GO.

@@ -1638,3 +1638,23 @@ Recommended next implementation phase:
 
 Exact next GO:
 `GO: Start Phase 29A conversation connection primitive migration candidate.`
+
+## Phase 29A - Conversation / Connection Primitive Candidate Schema (2026-06-18)
+
+Result: PASS - one local migration candidate was created. No DB apply, SQL execution, runtime integration, Auth/Supabase client integration, Storage, Reveal, APK/native, package/dependency, staging, or production work occurred.
+
+Candidate tables:
+- `public.connections`
+- `public.connection_participants`
+
+Schema boundary:
+- Connections link `initiator_anonymous_identity_id` and optional `responder_anonymous_identity_id` to `public.anonymous_identities`.
+- Participants link `connection_id` to an `anonymous_identity_id`.
+- Status fields include connection status, reply eligibility, lifecycle, participant reply state, and safety/moderation flags.
+- Timestamps and soft delete fields are present for future lifecycle handling.
+- No `profiles_private` foreign key, reveal grant field, public handle, search key, room identifier, member directory field, voice message payload, media path, or storage reference was added.
+
+RLS posture:
+- RLS is enabled on both tables.
+- No RLS policies or table grants are added in this phase.
+- Future policies must be participant-only and deny global graph/list access.

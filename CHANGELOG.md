@@ -3236,3 +3236,20 @@ Selected the next backend slice after the controlled creation boundary checkpoin
 No backend implementation, SQL implementation, migration creation/editing, DB command, RLS harness run, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, RPC/view/function/trigger runtime, staging, production, Dev Console work, or commit was performed.
 
 ---
+
+## 2026-06-18 - Phase 29A Conversation / Connection Primitive Migration Candidate
+
+**Type:** Backend Migration Candidate / Conversation Primitive  
+**Status:** Completed  
+
+Prepared one local source migration candidate for connection/conversation primitives:
+
+- Added `supabase/migrations/20260618190000_create_conversation_connection_primitives.sql`.
+- Candidate introduces `connections` and `connection_participants`.
+- Candidate links through anonymous identities only and does not reference `profiles_private`.
+- RLS is enabled on the new tables, but no direct broad policies or table grants were added.
+- Voice messages, Storage, Reveal, public/global profile access, user/profile search, room/chat-room behavior, runtime integration, DB apply, harness execution, staging, and production remain out of scope.
+
+No commit was created in Phase 29A.
+
+---

@@ -1739,3 +1739,24 @@ Readiness guardrails:
 
 Exact next GO:
 `GO: Start Phase 29A conversation connection primitive migration candidate.`
+
+## Phase 29A - Conversation / Connection Primitive Candidate Readiness (2026-06-18)
+
+Result: PASS - local source migration candidate prepared. No DB command, SQL execution, migration apply, RLS harness, test data/user, Auth runtime, Supabase client runtime, Storage, Reveal, RPC/view/function/trigger runtime, APK/native, package/dependency, staging, production, Dev Console, or commit work occurred.
+
+Created candidate:
+- `supabase/migrations/20260618190000_create_conversation_connection_primitives.sql`
+
+Readiness checks:
+- exactly one new migration candidate was created.
+- existing applied migrations were not edited.
+- candidate introduces connection primitives only.
+- candidate links to anonymous identities only.
+- candidate does not reference or expose `profiles_private`.
+- candidate enables RLS on new tables.
+- candidate creates no broad direct INSERT/UPDATE/DELETE policy.
+- candidate creates no broad table grants.
+- candidate does not implement voice messages, Storage, Reveal, runtime, APK/native, staging, or production.
+
+Next required review:
+- Static SQL review must check naming, constraints, indexes, RLS deny-by-default posture, grants, lack of `profiles_private` exposure, and absence of room/chat-room/search/browse behavior before any checkpoint or local apply decision.

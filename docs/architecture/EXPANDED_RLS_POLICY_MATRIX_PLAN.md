@@ -2622,3 +2622,27 @@ Status: PASS - planning-only RLS preflight for the next backend slice. No SQL, m
 - Fake microphone, replay/pre-recorded voice, repeated upload/replay, local storage tampering, live-session manipulation, and connection/reply manipulation remain future server-side concerns.
 - Rate limits and abuse scoring are required later before runtime acceptance.
 - Reveal/consent manipulation remains blocked.
+
+## Phase 29A - Conversation / Connection Primitive RLS Candidate Notes (2026-06-18)
+
+Result: PASS - candidate migration enables RLS on `connections` and `connection_participants` but creates no policies and no table grants.
+
+Future policy matrix additions, not executed in Phase 29A:
+
+| Surface | Future posture |
+| --- | --- |
+| unauthenticated SELECT connections | DENY |
+| authenticated non-participant SELECT connection | DENY |
+| authenticated participant SELECT connection | ALLOW only through participant ownership boundary |
+| authenticated non-participant SELECT connection_participants | DENY |
+| public/global conversation list | DENY / forbidden |
+| profile/user search through connection tables | DENY / forbidden |
+| raw profiles_private read through connection context | DENY / forbidden |
+| reveal implication from reply eligibility | DENY / forbidden |
+| direct broad INSERT/UPDATE/DELETE on connection tables | DENY until a controlled boundary is separately approved |
+
+Future harness requirements:
+- verify no broad policies or grants exist by default.
+- verify participant-only SELECT before any runtime binding.
+- verify closed, blocked, frozen, deleted, and non-participant states deny unsafe continuation.
+- verify no test output exposes raw private profile data.
