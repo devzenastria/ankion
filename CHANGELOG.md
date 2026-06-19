@@ -3419,6 +3419,26 @@ No RLS harness, test execution, test data/user creation, runtime integration, AP
 
 ---
 
+## 2026-06-19 - Phase 29L Connection Participant RLS Verification Planning
+
+**Type:** Backend RLS Testing Plan / Docs Only  
+**Status:** Completed  
+
+Prepared a docs-only verification plan for participant-bound SELECT RLS on:
+
+- `public.connections`
+- `public.connection_participants`
+
+The plan defines future positive participant SELECT cases, negative non-participant denial cases, same-connection visibility, cross-connection isolation, `owner_user_id` to anonymous identity linkage assumptions, connection participant visibility boundaries, leak-prevention expectations, and anti-abuse carryover for instant-reply and voice-reply manipulation.
+
+Execution remains blocked until a later explicit GO. The exact future DB/RLS harness GO is:
+
+`GO: Run Phase 29M local connection participant RLS verification harness only.`
+
+No DB command, SQL execution, migration apply, RLS harness, test execution, test user/data creation, source/runtime change, package/env/APK/native change, staging, production, Dev Console work, or commit was performed.
+
+---
+
 ## 2026-06-19 - Phase 29J Connection Primitive RLS Policy Local Apply Readiness Preflight
 
 **Type:** Backend Readiness / Local RLS Apply Preflight  

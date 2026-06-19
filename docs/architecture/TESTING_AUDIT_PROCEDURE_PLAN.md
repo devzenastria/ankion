@@ -2318,3 +2318,76 @@ Execution boundary:
 
 Exact future GO:
 `GO: Start Phase 29K local connection participant select RLS policy apply.`
+
+## Phase 29L - Connection Participant RLS Verification Plan (2026-06-19)
+
+Status: PASS - docs-only planning for future participant-bound SELECT RLS verification. No DB command, SQL execution, local migration apply, Supabase db push/reset/link, RLS harness run, test execution, test data/user creation, source/runtime change, package/env/APK/native change, staging, production, Dev Console work, or commit occurred.
+
+### Verification Target
+
+- Local-only target for a future approved execution phase: `supabase_db_ankion`.
+- Tables under test later: `public.connections` and `public.connection_participants`.
+- Policies under test later:
+  1. `connections_participant_select_own`.
+  2. `connection_participants_participant_select_same_connection`.
+- No raw `profiles_private` row contents may be selected, printed, or inferred in test output.
+- No Reveal, Storage, voice upload/storage, runtime integration, APK/native, staging, or production behavior is part of this verification plan.
+
+### Future Actor Model
+
+1. unauthenticated caller.
+2. authenticated participant A, owning an active anonymous identity attached to connection X.
+3. authenticated participant B, owning another active anonymous identity attached to connection X.
+4. authenticated non-participant C, owning an active anonymous identity not attached to connection X.
+5. authenticated participant D, attached to unrelated connection Y only.
+6. blocked/frozen/deleted future actor or connection state.
+
+### Positive Participant SELECT Cases
+
+1. participant A can select their eligible `public.connections` row for connection X.
+2. participant B can select the same eligible `public.connections` row for connection X.
+3. participant A can select `public.connection_participants` rows only for connection X.
+4. participant B can select `public.connection_participants` rows only for connection X.
+5. same-connection participant visibility exposes anonymous participant context only; it does not expose real profile fields or imply Reveal.
+
+### Negative Denial Cases
+
+1. unauthenticated caller cannot select `public.connections`.
+2. unauthenticated caller cannot select `public.connection_participants`.
+3. authenticated non-participant C cannot select connection X.
+4. authenticated non-participant C cannot select participant rows for connection X.
+5. participant A cannot select unrelated connection Y.
+6. participant D cannot select connection X.
+7. global list attempts must return no rows outside the caller's participant-bound contexts.
+8. direct INSERT, UPDATE, DELETE, or `WITH CHECK` write paths remain absent.
+9. anon and PUBLIC remain without SELECT grants.
+10. raw `profiles_private` reads remain denied and must not appear in output.
+
+### Linkage And Isolation Assumptions
+
+- Participant access depends on `public.anonymous_identities.owner_user_id = auth.uid()`.
+- The owned anonymous identity must be active, not deleted, and attached through `public.connection_participants`.
+- Ownership of any anonymous identity is insufficient unless that identity participates in the specific connection.
+- Cross-connection isolation must prove connection X and connection Y do not leak rows to each other.
+- `connection_participants` visibility boundaries must remain same-connection only and must not reveal unrelated participants.
+- `public.connection_participants` visibility is same-connection scoped and must not become a participant directory, room roster, profile search, or user search surface.
+
+### Leak Prevention Expectations
+
+- Do not print raw `profiles_private` rows, real names, private profile ids, owner ids beyond pass/fail metadata, or any private profile field.
+- Do not expose a global conversation graph, participant graph, profile browsing path, public profile path, room/chat-room model, or reveal shortcut.
+- Test reports should use assertion names, PASS/FAIL counts, and synthetic actor labels only.
+- Persistent fake data must be cleaned if a later execution phase creates it; final persistent fake data must be 0.
+
+### Anti-Abuse Carryover
+
+- Instant-reply manipulation checks are future server-side controls: repeated reply attempts, forged reply eligibility, stale connection state, and local storage tampering must be considered later.
+- Voice-reply manipulation checks are future server-side controls: fake microphone, replayed/pre-recorded audio, live-session manipulation, repeated upload, and nonce/session binding risks must be considered later.
+- Android-specific runtime/device caution remains future work only: root/emulator/hook signals are weak risk signals, client attestation cannot be trusted alone, and real profile visibility must never depend only on device-side checks.
+- Rate limits, abuse scoring, server-side session binding, and reveal/consent manipulation defenses remain required later.
+
+### Execution Gate
+
+Phase 29L does not run verification. Any DB execution, RLS harness work, test users, or test data require a later explicit GO:
+
+`GO: Run Phase 29M local connection participant RLS verification harness only.`

@@ -3489,3 +3489,25 @@ Apply result:
 - No `profiles_private` FK/read path, `voice_messages`, Storage, Reveal, runtime object, staging, or production behavior was introduced.
 
 Next safe step: Phase 29K checkpoint verification can run after human review.
+
+## Phase 29L - Connection Participant RLS Verification Planning (2026-06-19)
+
+Status: PASS - docs-only verification plan prepared for participant-bound SELECT RLS on `public.connections` and `public.connection_participants`. No DB command, SQL execution, local migration apply, Supabase db push/reset/link, RLS harness, test execution, test data/user creation, source/runtime change, package/env/APK/native change, staging, production, Dev Console work, or commit occurred.
+
+Verification planning scope:
+- Future verification target is local-only participant SELECT behavior after the Phase 29K apply.
+- Positive cases must prove authenticated participant A and participant B can read only their shared eligible connection context.
+- Negative cases must prove unauthenticated callers, authenticated non-participants, unrelated participants, global list attempts, and raw `profiles_private` access remain denied.
+- Same-connection participant visibility is allowed only inside the relevant connection context and must not imply Reveal or real profile visibility.
+- Cross-connection isolation must prove ownership of another anonymous identity is not enough to read unrelated connection rows.
+- Owner linkage assumptions depend on `public.anonymous_identities.owner_user_id = auth.uid()` and matching active rows in `public.connection_participants`.
+- Leak prevention requires no raw private profile output, no public/global browsing, no profile/user search, and no room/chat-room behavior.
+
+Future anti-abuse carryover:
+- Instant-reply and voice-reply manipulation, replay, repeated upload, local storage tampering, and connection/reply state abuse remain future server-side controls.
+- Android root/emulator/hook/client signals remain untrusted risk signals only and must not determine real profile visibility.
+
+Exact future DB/RLS harness GO required before execution:
+`GO: Run Phase 29M local connection participant RLS verification harness only.`
+
+Next safe step: Phase 29L checkpoint verification can run after human review.
