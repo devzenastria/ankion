@@ -3391,3 +3391,37 @@ Assertion result:
 
 Next required phase:
 - Phase 29G checkpoint verification. Any future participant-only SELECT policy, data test, runtime integration, Storage, Reveal, APK/native, staging, or production work remains blocked until separate explicit GO.
+
+## Phase 29H - Connection Primitive RLS Policy Preflight (2026-06-19)
+
+Status: PASS - docs-only participant-only RLS policy preflight completed. No DB command, SQL execution, migration creation/editing, local migration apply, Supabase db push/reset/link, RLS policy implementation, RLS harness, test execution, test data/user, runtime/Auth/Supabase client integration, Storage, Reveal, voice upload/storage, APK/native, package/dependency, staging, production, Dev Console, or commit work occurred.
+
+Participant-only SELECT goal:
+- Future SELECT policy for `public.connections` and `public.connection_participants` must allow only authenticated participants whose owned anonymous identity is attached to the relevant connection.
+- No global conversation list, public browsing, profile search, user search, public profile traversal, room/chat-room model, raw `profiles_private` read, or reveal implication is allowed.
+- Future write access remains blocked; no direct broad write policy is approved.
+
+Future actor model:
+- unauthenticated caller.
+- authenticated participant A.
+- authenticated participant B.
+- authenticated non-participant.
+- anonymous identity owner.
+- blocked/frozen future actor state.
+
+Future deny cases:
+- unauthenticated cannot read.
+- non-participant cannot read.
+- participant cannot read unrelated connection.
+- no global list query.
+- no `profiles_private` read.
+- no direct write policy.
+
+Anti-abuse carryover:
+- Android client signals remain untrusted.
+- connection/reply manipulation risk remains a future server-side control.
+- rate limits and abuse scoring are required later.
+- reveal/consent manipulation remains blocked.
+
+Exact next GO:
+`GO: Start Phase 29I connection primitive RLS policy migration candidate.`

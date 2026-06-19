@@ -2229,3 +2229,42 @@ Result:
 - Required status/lifecycle/reply eligibility, participant role/state, safety/moderation, timestamp, and soft-delete metadata exists.
 - No voice/reveal/storage/runtime/listing/search/room object was introduced.
 - Persistent fake data remaining from Phase 29G: 0, because no fake data was created.
+
+## Phase 29H - Connection Primitive RLS Policy Test Preflight (2026-06-19)
+
+Status: PASS - planning-only test preflight for future participant-only SELECT policies. No DB command, SQL execution, RLS policy implementation, RLS harness run, test execution, test data/user creation, migration creation/editing, runtime integration, Storage, Reveal, APK/native, package/dependency, staging, or production work occurred.
+
+### Future Actor Model
+
+1. unauthenticated caller.
+2. authenticated participant A.
+3. authenticated participant B.
+4. authenticated non-participant.
+5. anonymous identity owner.
+6. blocked/frozen future actor state.
+
+### Future Deny / Allow Assertions
+
+1. unauthenticated caller cannot read `public.connections`.
+2. unauthenticated caller cannot read `public.connection_participants`.
+3. authenticated participant A can read only their own eligible connection.
+4. authenticated participant B can read only the same eligible connection.
+5. authenticated non-participant cannot read connection rows.
+6. authenticated non-participant cannot read participant rows.
+7. participant cannot read an unrelated connection.
+8. global list query is denied or returns zero rows.
+9. no raw `profiles_private` read is granted through connection context.
+10. no direct INSERT, UPDATE, or DELETE policy is introduced.
+11. blocked/frozen future actor state prevents unsafe continuation.
+12. connection status or reply eligibility does not imply Reveal.
+
+### Execution Boundary
+
+- Phase 29H does not run tests.
+- Future Phase 29I may only prepare a migration candidate after explicit GO.
+- Any local RLS harness execution requires a later separate explicit GO.
+- Test output must not print raw private profile row contents.
+- Persistent fake data must remain 0 in any future execution phase.
+
+Exact future GO:
+`GO: Start Phase 29I connection primitive RLS policy migration candidate.`

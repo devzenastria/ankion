@@ -3347,3 +3347,25 @@ Metadata assertions: 32 total, 32 passed, 0 failed. No test users/data were crea
 No staging, production, remote Supabase command, migration creation/edit/apply, RLS harness, test execution requiring fake rows, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, app runtime integration, Dev Console work, or commit was performed.
 
 ---
+
+## 2026-06-19 - Phase 29H Connection Primitive RLS Policy Preflight
+
+**Type:** Backend RLS Planning / Participant-Only Access  
+**Status:** Completed  
+
+Planned the participant-only SELECT boundary for future connection primitive RLS policies:
+
+- Future SELECT must be limited to authenticated participants through ownership of a linked anonymous identity.
+- `public.connections` and `public.connection_participants` must not expose a global conversation list.
+- Public browsing, profile search, user search, public profile traversal, room/chat-room behavior, raw `profiles_private` reads, and reveal implication remain blocked.
+- Future actor model covers unauthenticated caller, authenticated participant A, authenticated participant B, authenticated non-participant, anonymous identity owner, and blocked/frozen future actor state.
+- Future deny cases cover unauthenticated reads, non-participant reads, unrelated connection reads by a participant, global list queries, raw `profiles_private` reads, and direct write policy attempts.
+- Android client signals remain untrusted; connection/reply manipulation, rate limits, abuse scoring, and reveal/consent manipulation remain future server-side safety concerns.
+
+Recommended next phase: Phase 29I - Connection Primitive RLS Policy Migration Candidate.
+
+Exact future GO: `GO: Start Phase 29I connection primitive RLS policy migration candidate.`
+
+No DB command, SQL execution, migration creation/editing, local migration apply, RLS policy implementation, RLS harness, test execution, test data/user, runtime integration, Storage, Reveal, voice upload/storage, APK/native, package/dependency, staging, production, Dev Console work, or commit was performed.
+
+---

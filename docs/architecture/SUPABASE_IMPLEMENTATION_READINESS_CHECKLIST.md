@@ -1839,3 +1839,42 @@ RLS boundary:
 
 Exact future GO:
 `GO: Run Phase 29G local connection primitive metadata verification only.`
+
+## Phase 29H - Connection Primitive RLS Policy Preflight Readiness (2026-06-19)
+
+Result: PASS - docs-only readiness note for future participant-only SELECT RLS policy work. No DB command, SQL execution, migration creation/editing, local migration apply, Supabase db push/reset/link, RLS policy implementation, RLS harness, test execution, test data/user, Auth runtime, Supabase client runtime, Storage, Reveal, voice upload/storage, APK/native, package/dependency, staging, production, Dev Console work, or commit occurred.
+
+Readiness scope:
+- Future policy target tables are `public.connections` and `public.connection_participants`.
+- Future SELECT policy must be participant-only through ownership of a linked anonymous identity.
+- Current deny-by-default posture remains the baseline until a reviewed migration candidate exists.
+- No global conversation list, public browsing, profile search, user search, public profile traversal, room/chat-room model, raw `profiles_private` read, or reveal implication is allowed.
+- No direct broad write policy is approved.
+
+Future actor model:
+- unauthenticated caller.
+- authenticated participant A.
+- authenticated participant B.
+- authenticated non-participant.
+- anonymous identity owner.
+- blocked/frozen future actor state.
+
+Future deny-case summary:
+- unauthenticated cannot read.
+- non-participant cannot read.
+- participant cannot read unrelated connection.
+- no global list query.
+- no `profiles_private` read.
+- no direct write policy.
+
+Anti-abuse carryover:
+- Android client signals remain untrusted.
+- Connection/reply manipulation risk remains.
+- Rate limits and abuse scoring are required later.
+- Reveal/consent manipulation remains blocked.
+
+Recommended next phase:
+- Phase 29I - Connection Primitive RLS Policy Migration Candidate.
+
+Exact next GO:
+`GO: Start Phase 29I connection primitive RLS policy migration candidate.`

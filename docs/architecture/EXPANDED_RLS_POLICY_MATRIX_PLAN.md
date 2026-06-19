@@ -2675,3 +2675,43 @@ Product boundaries remain unchanged:
 - Anonymous identity and real profile remain separated.
 - Reveal remains untouched and does not grant raw `profiles_private` access.
 - Monetization cannot bypass identity, reveal, or consent.
+
+## Phase 29H - Connection Primitive Participant-Only SELECT Preflight (2026-06-19)
+
+Result: PASS - planning-only RLS preflight for future participant-only SELECT policies. No DB command, SQL execution, migration creation/editing, local migration apply, RLS policy implementation, RLS harness, test execution, test data/user, runtime integration, package/env/APK/native, staging, or production work was performed.
+
+### Future Participant-Only SELECT Matrix
+
+| Actor / case | Future expected result | Boundary |
+| --- | --- | --- |
+| unauthenticated caller | DENY | No anonymous or public connection read. |
+| authenticated participant A | ALLOW own connection only | Caller owns a linked participant anonymous identity. |
+| authenticated participant B | ALLOW same connection only | Caller owns the other linked participant anonymous identity. |
+| authenticated non-participant | DENY | No cross-owner or relationship graph access. |
+| anonymous identity owner not attached to the connection | DENY | Ownership of any anonymous identity is not enough. |
+| blocked/frozen future actor state | DENY or limited by future safety state | Unsafe continuation must be blocked before runtime. |
+| global conversation list query | DENY / forbidden | No global listing or browsing policy. |
+| raw `profiles_private` read through connection context | DENY / forbidden | Connection membership never grants raw profile read. |
+| direct INSERT/UPDATE/DELETE policy | BLOCKED | Write boundary requires separate controlled design. |
+
+### Future Test Assertion Candidates
+
+- Unauthenticated caller cannot read `public.connections` or `public.connection_participants`.
+- Participant A can read only the connection where their owned anonymous identity participates.
+- Participant B can read only the same eligible connection context.
+- Non-participant cannot read the connection or participant rows.
+- A participant cannot read an unrelated connection.
+- Global list queries produce denial or zero rows.
+- No policy exposes `profiles_private` or implies Reveal.
+- No direct write policy is introduced in the SELECT policy phase.
+- Blocked/frozen future states deny unsafe continuation.
+
+### Anti-Abuse Carryover
+
+- Android client signals remain untrusted.
+- Connection/reply manipulation risk remains a future server-side control.
+- Rate limits and abuse scoring are required later.
+- Reveal and consent manipulation remain blocked.
+
+Exact next GO:
+`GO: Start Phase 29I connection primitive RLS policy migration candidate.`

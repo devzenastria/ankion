@@ -2675,3 +2675,21 @@ This preserves ANKION's anonymous voice-first flow while preparing the future an
 - No public/global conversation list is introduced.
 - No profile search, user search, public profile, profile browsing, room/chat-room, or member-directory behavior is introduced.
 - Connection/reply status must not imply Reveal or raw private profile visibility.
+
+## DEC-127 - Connection Primitive Participant-Only SELECT Boundary
+
+**Status:** Approved Direction  
+**Date:** 2026-06-19  
+**Scope:** Backend / Security / RLS / Product Flow
+
+**Decision:**  
+Future RLS SELECT access for `public.connections` and `public.connection_participants` must be participant-only. A caller may read a connection only when authenticated and when the caller owns an anonymous identity that is a participant in that specific connection.
+
+**Reason:**  
+Connection membership is sensitive relationship metadata. The policy must support anonymous voice reply / connection continuity without creating a global conversation graph, profile/user search, public browsing, room/chat-room behavior, raw `profiles_private` access, or reveal implication.
+
+**Impact:**  
+Phase 29I may prepare a narrow RLS policy migration candidate for participant-only SELECT. It must preserve deny-by-default for unauthenticated users, authenticated non-participants, unrelated connections, global list queries, raw `profiles_private` reads, and direct write policies.
+
+**Do Not:**  
+Do not add broad SELECT, INSERT, UPDATE, or DELETE policies. Do not expose raw `profiles_private`. Do not treat connection status, reply eligibility, monetization, or client-side Android signals as reveal/consent approval.
