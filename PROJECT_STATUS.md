@@ -3425,3 +3425,22 @@ Anti-abuse carryover:
 
 Exact next GO:
 `GO: Start Phase 29I connection primitive RLS policy migration candidate.`
+
+## Phase 29I - Connection Primitive RLS Policy Migration Candidate (2026-06-19)
+
+Status: PASS - one narrow local source migration candidate was prepared for participant-only SELECT RLS policies. No DB command, SQL execution, local migration apply, Supabase db push/reset/link, RLS harness, test execution, test data/user, runtime/Auth/Supabase client integration, Storage, Reveal, voice upload/storage, RPC/view/function/trigger runtime, APK/native, package/dependency, staging, production, Dev Console, or commit work occurred.
+
+Created migration candidate:
+- `supabase/migrations/20260619123000_create_connection_participant_select_rls_policies.sql`
+
+Candidate scope:
+- Adds participant-only SELECT policies for `public.connections` and `public.connection_participants`.
+- Uses `auth.uid()` ownership through `public.anonymous_identities.owner_user_id`.
+- Requires a matching active participant row in `public.connection_participants`.
+- Grants SELECT only to `authenticated` so RLS can evaluate the participant predicates.
+- Adds no anon or PUBLIC grant.
+- Adds no INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, or TRIGGER grant.
+- Adds no direct write policy and no `WITH CHECK`.
+- Adds no `profiles_private` FK/read path, global conversation list policy, profile/user search, room/chat-room model, Reveal, Storage, voice message table, function, view, trigger, runtime, APK/native, staging, or production behavior.
+
+Next safe step: Phase 29I static SQL review can run after human review.

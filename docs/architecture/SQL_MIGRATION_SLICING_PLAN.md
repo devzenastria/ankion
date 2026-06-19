@@ -2750,3 +2750,28 @@ Corrective scope:
 - Does not introduce voice messages, Storage, Reveal, runtime objects, or schema redesign.
 
 Next required gate: static SQL review before any checkpoint or local corrective apply decision.
+
+## Phase 29I - Connection Primitive RLS Policy Migration Candidate (2026-06-19)
+
+Result: PASS - exactly one new local source migration candidate was created for participant-only SELECT RLS policies. No DB command, SQL execution, local migration apply, Supabase db push/reset/link, RLS harness, test execution, test data/user, runtime integration, Storage, Reveal, APK/native, package/dependency, staging, or production work occurred.
+
+Migration candidate:
+`supabase/migrations/20260619123000_create_connection_participant_select_rls_policies.sql`
+
+Candidate contents:
+- grants `SELECT` on `public.connections` to `authenticated` only.
+- grants `SELECT` on `public.connection_participants` to `authenticated` only.
+- creates participant-only SELECT policy for `public.connections`.
+- creates participant-only SELECT policy for `public.connection_participants`.
+- uses `auth.uid()` ownership through `public.anonymous_identities.owner_user_id`.
+- requires matching active participant rows in `public.connection_participants`.
+
+Explicitly not included:
+- no anon or PUBLIC grant.
+- no direct INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, or TRIGGER grant.
+- no direct write policy and no `WITH CHECK`.
+- no global conversation list policy.
+- no `profiles_private` FK/read path.
+- no voice messages, Storage, Reveal, runtime function/view/trigger, APK/native, staging, or production.
+
+Next required gate: static SQL review before any checkpoint or local apply decision.

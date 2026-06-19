@@ -1878,3 +1878,24 @@ Recommended next phase:
 
 Exact next GO:
 `GO: Start Phase 29I connection primitive RLS policy migration candidate.`
+
+## Phase 29I - Connection Primitive RLS Policy Candidate Readiness (2026-06-19)
+
+Result: PASS - one local source migration candidate was prepared for future static review. No DB command, SQL execution, local migration apply, Supabase db push/reset/link, RLS harness, test execution, test data/user, Auth runtime, Supabase client runtime, Storage, Reveal, voice upload/storage, RPC/view/function/trigger runtime, APK/native, package/dependency, staging, production, Dev Console work, or commit occurred.
+
+Candidate:
+- `supabase/migrations/20260619123000_create_connection_participant_select_rls_policies.sql`
+
+Readiness checks:
+- Candidate targets only `public.connections` and `public.connection_participants`.
+- Candidate adds SELECT policies only.
+- Candidate uses `auth.uid()` through `public.anonymous_identities.owner_user_id`.
+- Candidate requires a matching `public.connection_participants` row for the current user.
+- Candidate grants SELECT only to `authenticated`, paired with participant-only RLS.
+- Candidate adds no anon or PUBLIC grant.
+- Candidate adds no INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, or TRIGGER grant.
+- Candidate adds no direct write policy and no `WITH CHECK`.
+- Candidate adds no raw `profiles_private` path, voice message table, Storage, Reveal, function, view, trigger, runtime object, global list, profile/user search, public browsing, room/chat-room model, staging, or production behavior.
+
+Next required gate:
+- Phase 29I static SQL review before checkpoint or local apply decision.

@@ -3369,3 +3369,25 @@ Exact future GO: `GO: Start Phase 29I connection primitive RLS policy migration 
 No DB command, SQL execution, migration creation/editing, local migration apply, RLS policy implementation, RLS harness, test execution, test data/user, runtime integration, Storage, Reveal, voice upload/storage, APK/native, package/dependency, staging, production, Dev Console work, or commit was performed.
 
 ---
+
+## 2026-06-19 - Phase 29I Connection Primitive RLS Policy Migration Candidate
+
+**Type:** Backend RLS Migration Candidate / Participant-Only SELECT  
+**Status:** Completed  
+
+Prepared one local source migration candidate:
+
+- `supabase/migrations/20260619123000_create_connection_participant_select_rls_policies.sql`
+
+Candidate behavior:
+
+- Adds participant-only SELECT policies for `public.connections` and `public.connection_participants`.
+- Uses `auth.uid()` through `public.anonymous_identities.owner_user_id` and a matching `public.connection_participants` row.
+- Adds SELECT grants only to `authenticated`, paired with participant-only RLS predicates.
+- Adds no anon or PUBLIC grant.
+- Adds no direct INSERT/UPDATE/DELETE policy, no `WITH CHECK`, and no broad table grant.
+- Adds no `profiles_private` FK/read path, global conversation list, public browsing, profile/user search, room/chat-room model, Reveal, Storage, voice upload/storage, runtime function/view/trigger, APK/native, staging, or production behavior.
+
+No DB command, SQL execution, local migration apply, RLS harness, test execution, test data/user, runtime integration, package/dependency change, Dev Console work, or commit was performed.
+
+---

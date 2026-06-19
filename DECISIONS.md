@@ -2693,3 +2693,22 @@ Phase 29I may prepare a narrow RLS policy migration candidate for participant-on
 
 **Do Not:**  
 Do not add broad SELECT, INSERT, UPDATE, or DELETE policies. Do not expose raw `profiles_private`. Do not treat connection status, reply eligibility, monetization, or client-side Android signals as reveal/consent approval.
+
+## DEC-128 - Phase 29I Participant SELECT Candidate Requires Authenticated Grant Plus RLS Predicate
+
+**Status:** Approved Candidate Direction  
+**Date:** 2026-06-19  
+**Scope:** Backend / Security / RLS / Product Flow
+
+**Decision:**  
+The Phase 29I migration candidate may grant `SELECT` on `public.connections` and `public.connection_participants` to `authenticated` only when paired with participant-only RLS predicates. The policy predicate must derive access from `auth.uid()` owning a linked `public.anonymous_identities` row that participates in the same connection.
+
+**Reason:**  
+Post-Phase 29E grants are fully revoked. A narrow authenticated `SELECT` grant is required for RLS to evaluate participant-only reads, but it must not become a global conversation list or broad authenticated read because RLS predicates remain the access boundary.
+
+**Guardrails:**  
+- No anon or PUBLIC grant.
+- No INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, or TRIGGER grant.
+- No direct write policy or `WITH CHECK`.
+- No raw `profiles_private` path.
+- No reveal, profile search, user search, public browsing, room/chat-room model, Storage, voice upload/storage, runtime function/view/trigger, staging, or production behavior.

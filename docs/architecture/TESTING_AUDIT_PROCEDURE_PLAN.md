@@ -2268,3 +2268,26 @@ Status: PASS - planning-only test preflight for future participant-only SELECT p
 
 Exact future GO:
 `GO: Start Phase 29I connection primitive RLS policy migration candidate.`
+
+## Phase 29I - Connection Primitive RLS Candidate Test Planning Note (2026-06-19)
+
+Status: PASS - local source migration candidate prepared for future participant-only SELECT tests. No DB command, SQL execution, local migration apply, RLS harness run, test execution, test data/user creation, runtime integration, Storage, Reveal, APK/native, package/dependency, staging, or production work occurred.
+
+Candidate under review:
+- `supabase/migrations/20260619123000_create_connection_participant_select_rls_policies.sql`
+
+Future test expectations after static review and approved local apply:
+1. unauthenticated caller cannot select `public.connections`.
+2. unauthenticated caller cannot select `public.connection_participants`.
+3. authenticated participant A can select only their own eligible connection.
+4. authenticated participant B can select the same eligible connection.
+5. authenticated non-participant cannot select connection rows.
+6. authenticated non-participant cannot select participant rows.
+7. participant cannot select unrelated connection rows.
+8. blocked/frozen/deleted connection or participant state does not open visibility.
+9. no global list query returns unrelated rows.
+10. no raw `profiles_private` read is granted.
+11. no INSERT, UPDATE, DELETE, or `WITH CHECK` write path exists.
+12. anon and PUBLIC remain without SELECT grants.
+
+Any execution of these assertions requires a later explicit harness GO. Persistent fake data must remain 0 in any future execution phase.

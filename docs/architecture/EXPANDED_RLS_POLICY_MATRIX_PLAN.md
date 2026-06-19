@@ -2715,3 +2715,27 @@ Result: PASS - planning-only RLS preflight for future participant-only SELECT po
 
 Exact next GO:
 `GO: Start Phase 29I connection primitive RLS policy migration candidate.`
+
+## Phase 29I - Connection Primitive Participant SELECT Candidate Matrix (2026-06-19)
+
+Result: PASS - one local source migration candidate was prepared for participant-only SELECT RLS policies. No DB command, SQL execution, local migration apply, RLS harness, test execution, test data/user, runtime integration, package/env/APK/native, staging, or production work was performed.
+
+Candidate migration:
+- `supabase/migrations/20260619123000_create_connection_participant_select_rls_policies.sql`
+
+### Candidate Policy Matrix
+
+| Surface | Candidate posture |
+| --- | --- |
+| `public.connections` SELECT | `authenticated` only, participant-owned anonymous identity required by RLS. |
+| `public.connection_participants` SELECT | `authenticated` only, caller must be a participant in the same connection. |
+| unauthenticated / anon | DENY; no anon SELECT grant. |
+| PUBLIC | DENY; no PUBLIC grant. |
+| authenticated non-participant | DENY by participant-only predicate. |
+| participant unrelated connection | DENY by matching connection predicate. |
+| blocked/frozen/deleted state | DENY by candidate state filters. |
+| global conversation list | DENY / forbidden; no broad policy. |
+| direct write policies | BLOCKED; no INSERT/UPDATE/DELETE policy or `WITH CHECK`. |
+| raw `profiles_private` access | DENY / forbidden; no reference or read path. |
+
+The candidate keeps anonymous identity and real profile separation intact. Reveal, Storage, voice messages, profile/user search, public profile browsing, room/chat-room behavior, and runtime integration remain out of scope.
