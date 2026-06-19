@@ -16,6 +16,34 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-19 - Phase 30B Owner-Controlled Creation Migration Planning
+
+**Type:** Backend Migration Planning / Owner Creation Boundary / Docs Only
+**Status:** Completed
+
+Prepared a docs-only future migration plan for owner-controlled creation of:
+
+- `public.profiles_private`
+- `public.anonymous_identities`
+
+Planning outcome:
+
+- Future migration should keep a controlled authenticated RPC/function boundary, not broad direct table INSERT.
+- The planned boundary must derive `owner_user_id` from `auth.uid()` and must not accept client-supplied owner IDs.
+- Preferred future function names are `public.create_my_private_profile(...)` and `public.create_my_anonymous_identity(...)`, with an optional compatibility wrapper around the existing `public.create_owner_identity_foundation(text, text, text)` shape only if a later static review approves it.
+- Duplicate private profile prevention must continue to rely on `profiles_private_owner_user_id_key` plus safe conflict handling.
+- Duplicate active anonymous identity prevention must continue to rely on `anonymous_identities_one_active_per_owner_idx` plus safe conflict handling.
+- `SECURITY DEFINER`, fixed `search_path`, schema-qualified references, no dynamic SQL, narrow return shape, explicit EXECUTE revoke/grant posture, no service-role dependency, and no broad table grants are required.
+- Future face verification remains separate from owner-controlled creation. A later provider direction may use a managed IDV SDK such as `@veriff/react-native-sdk`, but ANKION should store only verification result fields and must not store raw face images, selfie video, ID media, or biometric embeddings.
+
+No DB command, psql, Docker DB command, Supabase CLI execution, SQL execution, migration creation/editing/apply, RLS harness execution, auth simulation, test user/data creation, source/runtime change, package/env/APK/native change, staging, production, git add, commit, or push was performed.
+
+Exact next GO:
+
+`GO: Create Phase 30B docs checkpoint commit only.`
+
+---
+
 ## 2026-06-19 - Phase 30A Owner-Controlled Creation Path Planning
 
 **Type:** Backend Planning / RLS Creation Boundary / Docs Only  

@@ -2694,3 +2694,41 @@ Execution boundary:
 
 Exact next GO:
 `GO: Create Phase 30A docs checkpoint commit only.`
+
+## Phase 30B - Owner-Controlled Creation Migration Verification Planning (2026-06-19)
+
+Status: PASS - docs-only verification planning completed for a future owner-controlled creation migration. No DB command, SQL execution, migration creation/editing/apply, RLS harness, auth simulation, test execution, test user/data creation, source/runtime change, package/env/APK/native change, staging, or production occurred.
+
+Future verification target:
+- `public.create_my_private_profile(...)`
+- `public.create_my_anonymous_identity(...)`
+- Any retained `public.create_owner_identity_foundation(text, text, text)` wrapper only if it remains owner-derived and narrow.
+
+Required future assertions:
+1. `auth.uid()` simulation works for owner A, owner B, and unauthenticated/null context.
+2. Owner A can create or receive only owner A `profiles_private`.
+3. Owner A cannot create or target owner B `profiles_private`.
+4. Duplicate private profile creation is denied or safely idempotent.
+5. Owner A can create or receive only owner A active `anonymous_identities` row.
+6. Owner A cannot create or target owner B anonymous identity.
+7. Duplicate active anonymous identity creation is denied or safely idempotent.
+8. Unauthenticated caller cannot invoke creation.
+9. Direct table INSERT/UPDATE/DELETE remains denied.
+10. Client cannot set owner, safety, status, verification, rotation, audit, deleted, reveal, or system fields.
+11. Return payload does not reveal other users, private profile rows, anonymous-to-real linkage, or cross-user existence.
+12. Transaction rollback or deterministic cleanup completes and persistent test data remains 0.
+
+Security verification:
+- Confirm `SECURITY DEFINER` owner assumptions, fixed `search_path`, schema-qualified references, no dynamic SQL, no service-role dependency, explicit EXECUTE revoke/grant posture, and no broad table grants.
+- Confirm authenticated EXECUTE does not create an unacceptable RPC probing surface because functions have no target-user or target-row parameter and return only caller-owned status.
+
+Abuse and Android verification carryover:
+- Instant-reply manipulation, voice-reply manipulation, local UI permission, Android device/root/emulator/hook signals, and monetization state must not grant creation or reveal permission.
+- Identity farming and repeated creation attempts require later rate limits and abuse scoring.
+
+Face verification note:
+- Future face/ID verification tests are separate from owner-controlled creation tests.
+- If a managed IDV SDK such as `@veriff/react-native-sdk` is later used, tests must confirm ANKION stores only verification result fields and not raw face images, selfie video, ID media, or biometric embeddings.
+
+Exact next GO:
+`GO: Create Phase 30B docs checkpoint commit only.`

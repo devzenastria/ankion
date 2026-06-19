@@ -611,3 +611,27 @@ Privacy and abuse requirements:
 
 Exact next GO:
 `GO: Create Phase 30A docs checkpoint commit only.`
+
+## Phase 30B - Creation Migration Separation Plan (2026-06-19)
+
+Phase 30B keeps owner-controlled creation migration planning docs-only. It does not create or edit SQL migrations, execute DB commands, run a harness, create users/data, or touch runtime/Auth/APK/native work.
+
+Separation requirements for the future migration:
+- `profiles_private` creation must remain real-profile infrastructure for the current authenticated owner only.
+- `anonymous_identities` creation must remain anonymous-facing infrastructure for the current authenticated owner only.
+- The future boundary must derive owner linkage from `auth.uid()` and must not accept `owner_user_id`, target user IDs, target profile IDs, target anonymous identity IDs, or anonymous-to-real correlation fields from the client.
+- The planned functions `public.create_my_private_profile(...)` and `public.create_my_anonymous_identity(...)` must not return raw real profile rows, owner IDs, private profile data, or cross-user existence signals.
+- Duplicate private profiles and duplicate active anonymous identities must remain blocked or safely idempotent through existing constraints and controlled conflict handling.
+
+Leak prevention:
+- Anonymous labels, visual seeds, and voice presence values must remain non-identifying.
+- Creation output must not enable profile search, user search, public profile opening, global anonymous browsing, identity hijacking, or cross-user linkage inference.
+- Reveal remains separate, owner-approved, and connection/context-bound; creation must not imply Reveal.
+
+Future face verification note:
+- Face/ID verification is separate from anonymous identity and private profile creation.
+- A later managed IDV SDK direction such as `@veriff/react-native-sdk` may be evaluated only in a runtime/device phase.
+- ANKION should store only verification result fields and must not store raw face images, selfie video, ID media, or biometric embeddings.
+
+Exact next GO:
+`GO: Create Phase 30B docs checkpoint commit only.`

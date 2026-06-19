@@ -2940,3 +2940,44 @@ Abuse carryover: instant-reply and voice-reply manipulation, Android local-state
 
 Exact next GO:
 `GO: Create Phase 30A docs checkpoint commit only.`
+
+## Phase 30B - Owner-Controlled Creation Migration Planning Matrix (2026-06-19)
+
+Result: PASS - docs-only migration planning completed. No DB command, SQL execution, migration creation/editing/apply, RLS harness, auth simulation, test data/user creation, runtime integration, package/env/APK/native work, staging, or production occurred.
+
+Preferred future boundary: controlled authenticated functions `public.create_my_private_profile(...)` and `public.create_my_anonymous_identity(...)`. The existing `public.create_owner_identity_foundation(text, text, text)` may be retained only as a reviewed compatibility wrapper.
+
+| Scenario | Planned result | Required future mechanism |
+| --- | --- | --- |
+| Authenticated owner creates own private profile | ALLOW | Function derives `owner_user_id = auth.uid()` and validates only approved profile fields. |
+| Authenticated owner spoofs `owner_user_id` | DENY / impossible | Function signature has no owner argument and ignores any client owner field. |
+| Authenticated owner creates profile for another user | DENY | No target-user parameter; conflict and lookup are scoped to `auth.uid()`. |
+| Duplicate private profile creation | DENY / safely idempotent | `profiles_private_owner_user_id_key` plus controlled conflict handling. |
+| Authenticated owner creates own anonymous identity | ALLOW | Function derives owner from `auth.uid()` and uses safe non-identifying defaults or allowlisted fields. |
+| Duplicate active anonymous identity | DENY / safely idempotent | `anonymous_identities_one_active_per_owner_idx` plus controlled conflict handling. |
+| Anonymous identity hijack or cross-user linkage | DENY | No target identity or owner parameter; no cross-user lookup output. |
+| Unauthenticated creation | DENY | `auth.uid()` null guard and no anon/PUBLIC EXECUTE or table write. |
+| Direct table INSERT/UPDATE/DELETE | DENY | No broad write grants and no direct write policies in this planned migration. |
+| RPC probing for another user's existence | DENY | Return shape must avoid target IDs and must not expose cross-user profile/identity existence. |
+| Public profile/user search or global browsing | DENY | No profile search, user search, public profile, global anonymous directory, or raw `profiles_private` read path. |
+
+SECURITY DEFINER and grant requirements:
+- Fixed `search_path`, schema-qualified references, no dynamic SQL, no service-role dependency, and boolean/status/id-only narrow returns.
+- Revoke EXECUTE from `public` and `anon`; grant EXECUTE to `authenticated` only for reviewed creation functions.
+- Do not grant table INSERT/UPDATE/DELETE/TRUNCATE/REFERENCES/TRIGGER to `anon`, `authenticated`, or PUBLIC.
+
+Future verification assertions:
+- `auth.uid()` simulation.
+- owner positive creation.
+- spoofed owner denial.
+- duplicate private profile prevention.
+- duplicate active anonymous identity prevention.
+- unauthenticated denial.
+- direct table write denial.
+- cross-user inference denial.
+- rollback/cleanup and persistent test data remaining 0.
+
+Abuse carryover: instant-reply manipulation, voice-reply manipulation, Android local state, device signals, identity farming, and monetization state must not bypass owner creation, identity separation, reveal consent, or abuse controls.
+
+Next required GO:
+`GO: Create Phase 30B docs checkpoint commit only.`

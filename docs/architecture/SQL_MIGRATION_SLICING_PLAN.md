@@ -2702,6 +2702,49 @@ Explicitly not included:
 
 Next required gate: static SQL review before any checkpoint or local apply decision.
 
+## Phase 30B - Owner-Controlled Creation Migration Planning Only (2026-06-19)
+
+Result: PASS - docs-only migration planning completed. No migration file was created or edited. No DB command, SQL execution, migration apply, RLS harness, auth simulation, test data/user creation, runtime integration, package/env/APK/native work, staging, or production occurred.
+
+Future migration slice objective:
+- Plan a narrow owner-controlled creation migration for `public.profiles_private` and `public.anonymous_identities`.
+- Prefer controlled authenticated RPC/function boundaries over direct table INSERT RLS.
+- Preserve the existing schema constraints: `profiles_private_owner_user_id_key` and `anonymous_identities_one_active_per_owner_idx`.
+
+Preferred future SQL shape, not created in Phase 30B:
+- `public.create_my_private_profile(...)`
+- `public.create_my_anonymous_identity(...)`
+- Optional reviewed wrapper: `public.create_owner_identity_foundation(text, text, text)` only if it remains narrow and owner-derived.
+
+Required function properties:
+- `SECURITY DEFINER` only with fixed `search_path`.
+- schema-qualified references to `public.profiles_private`, `public.anonymous_identities`, `auth.uid()`, and `extensions.gen_random_bytes` if randomness is used.
+- no dynamic SQL.
+- no service-role dependency.
+- no `owner_user_id` or target-user input.
+- narrow return: own id plus created/existing status only.
+- explicit EXECUTE revoke/grant posture: revoke from `public` and `anon`; grant to `authenticated` only after RPC/probing review.
+
+Planned grant/RLS posture:
+- No broad table grants.
+- No anon/PUBLIC creation.
+- No direct INSERT/UPDATE/DELETE policy unless a later fallback phase separately approves it.
+- Existing owner SELECT policies remain the read path for owner rows.
+- Creation functions must not expose raw `profiles_private` rows, owner IDs, anonymous-to-real correlation, or cross-user existence.
+
+Future face verification note:
+- Managed IDV provider integration, such as a future `@veriff/react-native-sdk` runtime/device path, is outside this migration slice.
+- Store only verification result fields in future schema work; do not store raw face images, selfie video, ID media, or biometric embeddings.
+
+Future verification gates:
+1. Phase 30B checkpoint verification only.
+2. Separate explicit GO before any migration draft or SQL edit.
+3. Separate explicit GO before local apply.
+4. Separate explicit GO before RLS harness/auth simulation/test data.
+
+Exact next GO:
+`GO: Create Phase 30B docs checkpoint commit only.`
+
 ## Phase 30A - Owner-Controlled Creation Future Migration Slice Plan (2026-06-19)
 
 Result: PASS - docs-only planning note. No SQL execution, DB command, migration creation/editing/apply, RLS harness, auth simulation, test data/user creation, runtime integration, package/env/APK/native work, staging, or production occurred.

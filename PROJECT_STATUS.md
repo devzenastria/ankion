@@ -3713,3 +3713,39 @@ Remaining blocked areas:
 
 Next required GO:
 `GO: Create Phase 30A docs checkpoint commit only.`
+
+## Phase 30B - Owner-Controlled Creation Migration Planning (2026-06-19)
+
+Status: PASS - docs-only future migration planning completed for owner-controlled creation of `public.profiles_private` and `public.anonymous_identities`. No DB command, psql, Docker DB command, Supabase CLI execution, SQL execution, migration creation/editing/apply, RLS harness, auth simulation, test data/user creation, source/runtime change, package/env/APK/native change, staging, production, git add, commit, or push occurred.
+
+Future migration objective:
+- Preserve owner-controlled creation while avoiding direct broad table INSERT/UPDATE/DELETE policies.
+- Ensure authenticated users can create or receive only their own `profiles_private` row and only their own active `anonymous_identities` row.
+- Prevent `owner_user_id` spoofing, cross-user row creation, duplicate private profiles, duplicate active anonymous identities, identity hijacking, public anonymous creation, and cross-user linkage leaks.
+
+Preferred future RPC/function boundary:
+- Plan narrow authenticated functions: `public.create_my_private_profile(...)` and `public.create_my_anonymous_identity(...)`.
+- The existing local `public.create_owner_identity_foundation(text, text, text)` boundary can be retained only as a wrapper or compatibility path if a later static review confirms it preserves the same owner binding and leak limits.
+- Functions must derive `owner_user_id` from `auth.uid()` and must not accept `owner_user_id`, `profile_private_id`, `anonymous_identity_id`, safety/status/verification/rotation/deleted fields, or reveal fields from the client.
+- Return shape should be narrow: own row id plus creation/existing status only, with no cross-user existence signal and no raw private profile or owner linkage output.
+
+Security and grant posture:
+- Future SQL must use `SECURITY DEFINER` only with fixed `search_path`, schema-qualified references, no dynamic SQL, no service-role dependency, and explicit ownership assumptions.
+- EXECUTE must be revoked from `public` and `anon`; `authenticated` EXECUTE may be granted only for the narrow creation functions after RPC/probing review.
+- No broad table grants, no anon/PUBLIC creation, no direct write policies, and no raw `profiles_private` read path are planned.
+
+Future face verification note:
+- Face/ID verification is separate from owner-controlled profile and anonymous identity creation.
+- A later provider direction may use a managed IDV SDK such as `@veriff/react-native-sdk`.
+- ANKION should store only verification result fields and must not store raw face images, selfie video, ID media, or biometric embeddings.
+
+Future verification plan:
+- Later explicit-GO phases must verify `auth.uid()` simulation, owner positive creation, spoofed owner denial, duplicate private profile denial, duplicate active identity denial, unauthenticated denial, direct table write denial, rollback/cleanup, persistent test data remaining 0, and no staging/production/runtime/APK work.
+
+Abuse carryover:
+- Instant-reply and voice-reply manipulation must not influence creation permissions.
+- Android client/device signals remain untrusted and may not create backend permission.
+- Rate limits, abuse scoring, and identity farming controls remain future server-side work.
+
+Exact next GO:
+`GO: Create Phase 30B docs checkpoint commit only.`

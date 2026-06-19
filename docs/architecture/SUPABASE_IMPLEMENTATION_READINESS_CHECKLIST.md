@@ -1947,3 +1947,36 @@ Required before any next implementation phase:
 
 Exact next GO:
 `GO: Create Phase 30A docs checkpoint commit only.`
+
+## Phase 30B - Owner-Controlled Creation Migration Readiness Planning (2026-06-19)
+
+Result: PASS - docs-only readiness planning completed. No DB command, SQL execution, migration creation/editing/apply, RLS harness, auth simulation, test data/user creation, runtime/Auth integration, package/env/APK/native work, staging, or production occurred.
+
+Readiness decision:
+- Future owner-controlled creation should use narrow authenticated RPC/function boundaries.
+- Planned function names: `public.create_my_private_profile(...)` and `public.create_my_anonymous_identity(...)`.
+- Existing `public.create_owner_identity_foundation(text, text, text)` can be reviewed as a wrapper, but it should not become a broader mutable profile/identity API.
+
+Required before any migration draft:
+- Confirm function signatures accept no `owner_user_id`, target user id, target profile id, target anonymous identity id, or arbitrary mutation JSON.
+- Confirm `owner_user_id` is derived only from `auth.uid()`.
+- Confirm duplicate private profile prevention through `profiles_private_owner_user_id_key`.
+- Confirm duplicate active anonymous identity prevention through `anonymous_identities_one_active_per_owner_idx`.
+- Confirm `SECURITY DEFINER`, fixed `search_path`, schema-qualified references, no dynamic SQL, no service-role dependency, and explicit EXECUTE revoke/grant posture.
+- Confirm no broad table grants, no anon/PUBLIC creation, no raw private profile output, no profile/user search, and no global anonymous directory.
+
+Future verification readiness:
+- Positive owner creation.
+- Spoofed owner denial.
+- Duplicate profile and duplicate active identity denial or safe idempotence.
+- Unauthenticated denial.
+- Direct table write denial.
+- Cross-user inference denial.
+- Rollback/cleanup and persistent test data 0.
+
+Future face verification readiness:
+- Managed IDV SDK direction, for example `@veriff/react-native-sdk`, remains a later runtime/device planning item.
+- Store only verification result fields; do not store raw face images, selfie video, ID media, or biometric embeddings.
+
+Exact next GO:
+`GO: Create Phase 30B docs checkpoint commit only.`

@@ -1633,3 +1633,38 @@ Creation invariants:
 
 Exact next GO:
 `GO: Create Phase 30A docs checkpoint commit only.`
+
+## Phase 30B - Owner-Controlled Creation Migration Shape Plan (2026-06-19)
+
+Status: PASS - docs-only migration planning update. No DB command, SQL execution, migration creation/editing/apply, RLS harness, auth simulation, test data/user creation, runtime integration, package/env/APK/native work, staging, or production occurred.
+
+Future migration objective:
+- Keep creation of `public.profiles_private` and `public.anonymous_identities` behind a controlled authenticated function boundary.
+- Do not add broad direct INSERT/UPDATE/DELETE table grants or generic write policies.
+- Derive ownership from `auth.uid()` only.
+
+Planned function boundary:
+- Preferred future functions: `public.create_my_private_profile(...)` and `public.create_my_anonymous_identity(...)`.
+- The existing `public.create_owner_identity_foundation(text, text, text)` may remain only as a reviewed wrapper or compatibility function if it does not broaden output or ownership semantics.
+- Function signatures must not accept `owner_user_id`, target user id, `profile_private_id`, `anonymous_identity_id`, safety/status/verification/rotation/deleted fields, reveal fields, or arbitrary JSON mutation payloads.
+
+`profiles_private` creation plan:
+- Authenticated owner can create or receive only one own private profile.
+- `owner_user_id` is set internally from `auth.uid()`.
+- Duplicate prevention relies on `profiles_private_owner_user_id_key` plus explicit conflict/error handling.
+- Caller input is limited to approved profile fields such as chosen display name, short bio, and age band after validation.
+- Server/default-owned fields remain unavailable: status, safety, visibility default, verification summary, audit/timestamps, deleted state, and future face verification result fields.
+
+`anonymous_identities` creation plan:
+- Authenticated owner can create or receive only own anonymous identity.
+- Active identity uniqueness relies on `anonymous_identities_one_active_per_owner_idx`.
+- Anonymous label, visual seed, and voice presence fields must be generated or allowlisted as non-identifying values.
+- Caller cannot link an identity to another owner, hijack another anonymous identity, rotate another identity, or set safety/status/rotation/deleted fields.
+
+Face verification boundary:
+- Future identity verification is separate from this creation migration plan.
+- A later managed IDV SDK direction, for example `@veriff/react-native-sdk`, may be considered only in a runtime/device phase.
+- Database storage should be limited to verification result fields; raw face images, selfie video, ID media, and biometric embeddings must not be stored by ANKION.
+
+Next required GO:
+`GO: Create Phase 30B docs checkpoint commit only.`
