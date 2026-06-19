@@ -3032,3 +3032,47 @@ Abuse carryover:
 Exact next GO:
 
 `GO: Run Phase 30D checkpoint verification only.`
+
+## Phase 30K - Owner-Controlled Creation Behavior Harness Result Matrix (2026-06-20)
+
+Result: PASS - Phase 30J local behavior harness results documented. Phase 30K is docs-only and did not run DB commands, SQL, psql, Docker DB commands, Supabase CLI, target function invocation, auth simulation, test user/data creation, mutation, cleanup SQL, migration creation/edit/apply, RLS harness execution, runtime/Auth work, APK/native work, package/env changes, staging, production, commit, or push.
+
+Phase 30J verified target:
+
+| Area | Observed result |
+| --- | --- |
+| Function | `public.create_owner_identity_foundation(text, text, text)` |
+| Function inputs | `p_chosen_display_name`, `p_short_bio`, `p_age_band` |
+| `owner_user_id` input | absent |
+| Owner source | active `auth.uid()` |
+| Authenticated EXECUTE | present |
+| anon/PUBLIC EXECUTE | absent |
+| RLS on target tables | enabled for `profiles_private` and `anonymous_identities` |
+| Duplicate private profile boundary | `profiles_private_owner_user_id_key` |
+| Duplicate active identity boundary | `anonymous_identities_one_active_per_owner_idx` |
+| Harness transaction | `BEGIN` / `ROLLBACK` |
+| Persistent residue | 0 deterministic auth users, profiles, and identities |
+
+Scenario matrix:
+
+| Scenario | Result | Evidence |
+| --- | --- | --- |
+| Authenticated creation success | PASS | User A `auth.uid()` matched the deterministic UUID; returned profile and identity ids were non-null; both owners equaled User A. |
+| Unauthenticated denial | PASS | Null auth context raised `AUTHENTICATED_OWNER_REQUIRED`; unauth profile count and null-owner identity count were 0. |
+| Duplicate private profile prevention | PASS | Second User A call returned original IDs idempotently; profile count stayed 1, identity count stayed 1, and no orphan identity was created. |
+| Duplicate active anonymous identity prevention | PASS | User A active identity count stayed 1. |
+| Owner spoofing denial | PASS | Spoofed owner claim candidate did not control ownership; rows created while `auth.uid()` was User B were owned by User B. |
+| Cross-user isolation | PASS | User A and User B each had only their own transaction-local profile and identity rows; cross-owner User B profile count was 0. |
+| Rollback / persistent residue | PASS | Post-rollback deterministic auth user, profile, and identity residue counts were 0. |
+
+RLS/security interpretation:
+- Duplicate private profile prevention is safe-idempotent rather than unique-error surfaced. It is accepted because duplicate rows and orphan identities did not occur.
+- Owner spoofing remains denied by signature and behavior: the function does not accept `owner_user_id`, and ownership followed `auth.uid()`.
+- This local behavior PASS does not approve runtime Supabase/Auth integration, staging/production, Storage/voice upload, Reveal, direct table write policies, APK/native work, package/env work, or monetization readiness.
+
+Abuse carryover remains required for instant-match manipulation, reveal state manipulation, connection state manipulation, local UI forcing, cooldown/rate bypass, fake presence, fake waiting/replyable transition, local-only entitlement spoofing, uploaded voice spoofing, replay audio, manipulated local draft, fake recorder state, forged voice metadata, anonymous identity carryover, connection reply abuse, storage boundary bypass, Android cached identity, fake entitlement, fake verification, replayed session, clock manipulation, offline bypass, rooted/emulator manipulation, debug flag abuse, and client-side trust abuse.
+
+Spoofed verification/result fields are future trust-layer work only. Rate/cooldown/replay/cached-state checks remain later policy/harness phases. Face verification remains future-only; `@veriff/react-native-sdk` is only a future provider direction, and ANKION must store only verification result fields, not raw face images, selfie video, ID media, or biometric embeddings.
+
+Next required GO:
+`GO: Start Phase 30L owner-controlled creation behavior documentation checkpoint / commit only.`

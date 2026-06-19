@@ -1727,3 +1727,32 @@ Remaining blocked:
 Exact next GO:
 
 `GO: Run Phase 30D checkpoint verification only.`
+
+## Phase 30K - Owner-Controlled Creation Behavior Harness Result (2026-06-20)
+
+Status: PASS - Phase 30J local owner-controlled creation behavior evidence is documented. Phase 30K is docs-only and did not run DB commands, SQL, psql, Docker DB commands, Supabase CLI, target function invocation, auth simulation, test data creation, mutation, cleanup SQL, migration creation/edit/apply, RLS harness execution, runtime/Auth integration, APK/native work, package/env changes, staging, production, commit, or push.
+
+Phase 30J local behavior confirmation:
+- Target function: `public.create_owner_identity_foundation(text, text, text)`.
+- Function args: `p_chosen_display_name`, `p_short_bio`, `p_age_band`.
+- `owner_user_id` arg: absent.
+- Authenticated EXECUTE present; anon/PUBLIC EXECUTE absent.
+- RLS enabled on `profiles_private` and `anonymous_identities`.
+- `profiles_private_owner_user_id_key` and `anonymous_identities_one_active_per_owner_idx` present.
+- Valid age band used: `18_24`.
+
+Scenario matrix:
+1. Authenticated creation success: PASS. User A `auth.uid()` matched the deterministic User A UUID; returned IDs were non-null; profile and identity owners equaled User A.
+2. Unauthenticated denial: PASS. Null auth context raised `AUTHENTICATED_OWNER_REQUIRED`; no unauthenticated profile or null-owner identity row was created.
+3. Duplicate private profile prevention: PASS. The second User A call returned original IDs idempotently instead of raising a unique error; profile count stayed 1, identity count stayed 1, and no orphan identity was created.
+4. Duplicate active anonymous identity prevention: PASS. User A active identity count stayed 1.
+5. Owner spoofing denial: PASS. A spoofed owner claim candidate did not control ownership; rows created under User B context were owned by User B.
+6. Cross-user isolation: PASS. User A and User B each had only their own transaction-local profile and identity rows; cross-owner User B profile count was 0.
+7. Rollback / persistent residue verification: PASS. Post-rollback deterministic auth user, profile, and identity residue counts were 0.
+
+Data/RLS interpretation:
+- The creation boundary is behavior-verified locally as owner-controlled for the first private profile and active anonymous identity.
+- Duplicate private profile prevention is idempotent, not direct unique-error surfaced, and is acceptable because no duplicate row or orphan row was created.
+- This does not approve runtime Supabase/Auth integration, direct table write policies, Storage/voice upload, Reveal, staging, production, monetization readiness, package/env/APK/native work, or broader backend readiness.
+
+Abuse carryover remains required for instant-match/reveal/connection manipulation, voice spoofing and replay, Android local-state manipulation, spoofed verification/result fields, and later rate/cooldown/replay/cached-state harness phases. Face verification remains a separate future trust layer; `@veriff/react-native-sdk` is only a future provider direction, with no raw face image, selfie video, ID media, or biometric embedding storage by ANKION.

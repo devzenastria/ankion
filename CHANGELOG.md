@@ -16,6 +16,42 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-20 - Phase 30K Document Local Owner-Controlled Creation Behavior Harness Results
+
+**Type:** Backend Behavior Harness Documentation / Owner Creation Boundary / Docs Only
+**Status:** Completed
+
+Documented the Phase 30J local owner-controlled creation behavior harness result.
+
+Phase 30J result:
+
+- PASS.
+- Local transaction-wrapped behavior harness executed against `supabase_db_ankion` / `postgres`.
+- Target function `public.create_owner_identity_foundation(text, text, text)` was invoked only inside the transaction.
+- Auth simulation and mutation were transaction-local only.
+- Rollback executed and persistent residue was 0 for deterministic auth users, private profiles, and anonymous identities.
+- Working tree was clean after harness execution.
+
+Scenario matrix:
+
+- Authenticated creation success: PASS.
+- Unauthenticated denial: PASS with `AUTHENTICATED_OWNER_REQUIRED`.
+- Duplicate private profile prevention: PASS through idempotent original-ID return, with profile count 1, identity count 1, and no orphan identity.
+- Duplicate active anonymous identity prevention: PASS with active identity count 1.
+- Owner spoofing denial: PASS; spoofed owner claim candidate did not control DB ownership.
+- Cross-user isolation: PASS.
+- Rollback / persistent residue verification: PASS.
+
+Abuse carryover remains in force for instant-match/reveal/connection manipulation, voice spoofing and replay, Android local-state manipulation, spoofed verification/result fields, and later rate/cooldown/replay/cached-state policy phases. Face verification remains future-only; `@veriff/react-native-sdk` is only a future provider direction, and ANKION must not store raw face images, selfie video, ID media, or biometric embeddings.
+
+No DB command, SQL execution, DB connection, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, cleanup SQL, migration creation/edit/apply, RLS harness execution, runtime/Auth change, package/env/APK/native change, staging, production, git add, commit, pull, or push occurred in Phase 30K.
+
+Exact next GO:
+
+`GO: Start Phase 30L owner-controlled creation behavior documentation checkpoint / commit only.`
+
+---
+
 ## 2026-06-20 - Phase 30D Existing Owner-Controlled Creation Boundary Verification Planning
 
 **Type:** Backend Verification Planning / Owner Creation Boundary / Docs Only

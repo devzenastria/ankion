@@ -16,6 +16,42 @@ ChatGPT / User / Codex-assisted
 
 # Current Phase
 
+## Phase 30K - Document Local Owner-Controlled Creation Behavior Harness Results (2026-06-20)
+
+Status: PASS - Phase 30J local owner-controlled creation behavior harness results documented. This is docs-only. No DB command, SQL execution, DB connection, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, cleanup SQL, migration creation/edit/apply, RLS harness execution, runtime/Auth change, APK/native change, package/env change, staging/production action, commit, push, or pull occurred in Phase 30K.
+
+Phase 30J documented result:
+- Result: PASS.
+- Local target: `C:\ankion`, `supabase_db_ankion`, database `postgres`.
+- HEAD during execution: `f0820b6`.
+- Working tree before and after harness: clean.
+- Local transaction-wrapped behavior harness executed.
+- `public.create_owner_identity_foundation(text, text, text)` was invoked only inside the transaction.
+- Auth simulation executed only inside the transaction.
+- Mutation was transaction-local only.
+- Rollback executed.
+- Persistent residue: NO.
+- Staging/production, runtime/Auth, APK/native, package/env, and migrations were untouched.
+- Commit and push were not executed.
+
+Phase 30J scenario matrix:
+- Authenticated creation success: PASS. User A `auth.uid()` matched `11111111-1111-4111-8111-111111111111`; returned `profile_private_id` and `anonymous_identity_id` were non-null; both rows were owned by User A; deterministic profile label count was 1.
+- Unauthenticated denial: PASS. Null auth context raised `AUTHENTICATED_OWNER_REQUIRED`; unauthenticated profile count was 0; null-owner anonymous identity count was 0.
+- Duplicate private profile prevention: PASS. A second User A call did not raise a unique error directly; it returned the original IDs idempotently. User A profile count stayed 1, User A identity count stayed 1, and no orphan anonymous identity was created.
+- Duplicate active anonymous identity prevention: PASS. User A active identity count stayed 1 and the `anonymous_identities_one_active_per_owner_idx` boundary remained present.
+- Owner spoofing denial: PASS. A spoofed owner claim candidate set to User A while `auth.uid()` was User B did not control ownership; created profile and identity owners were User B.
+- Cross-user isolation: PASS. User A and User B each had one transaction-local profile and one transaction-local identity; cross-owner User B profile count was 0.
+- Rollback / persistent residue verification: PASS. Post-rollback auth user residue, profile residue, and identity residue were all 0.
+
+Abuse and future-boundary carryover:
+- Instant-match manipulation, reveal state manipulation, connection state manipulation, local UI forcing, cooldown/rate bypass, fake presence, fake waiting/replyable transition, and local-only entitlement spoofing remain future abuse risks that must be enforced server-side.
+- Uploaded voice spoofing, replay audio, manipulated local draft, fake recorder state, forged voice metadata, anonymous identity carryover, connection reply abuse, and storage boundary bypass remain future voice/security harness concerns.
+- Android cached identity, fake entitlement, fake verification, replayed session, clock manipulation, offline bypass, rooted/emulator manipulation, debug flag abuse, and client-side trust abuse remain untrusted local-state risks.
+- Spoofed verification/result fields remain future trust-layer work only. Rate, cooldown, replay, and cached-state checks remain later policy/harness phases.
+- Face verification remains future-only; provider direction may be `@veriff/react-native-sdk`, but ANKION must store only verification result fields and must not store raw face images, selfie video, ID media, or biometric embeddings.
+
+Next recommended phase: Phase 30L - Owner-controlled creation behavior documentation checkpoint / commit. Phase 30L must be commit-only/checkpoint-only and requires explicit GO.
+
 ## Phase 27A - Backend SubAgent Operating Model / Planning Only (2026-06-18)
 
 Status: PASS - backend SubAgent operating model documented as planning-only. No backend implementation, migration edits, Supabase commands, DB mutation, Auth/runtime, Storage, Reveal, RPC/view/function/trigger, package/env/APK/native, app runtime, staging, or production work was performed.

@@ -680,3 +680,33 @@ Separation requirements:
 Exact next GO:
 
 `GO: Run Phase 30D checkpoint verification only.`
+
+## Phase 30K - Local Owner-Controlled Creation Behavior Result / Separation Confirmation (2026-06-20)
+
+Phase 30K documents the Phase 30J local behavior harness result. Phase 30K is docs-only and did not run DB commands, SQL, psql, Docker DB commands, Supabase CLI, auth simulation, target function invocation, test data creation, mutation, cleanup SQL, migration work, runtime/Auth work, APK/native work, package/env work, staging, production, commit, or push.
+
+Phase 30J result:
+- PASS.
+- `public.create_owner_identity_foundation(text, text, text)` was invoked only inside a local transaction.
+- The function accepted no `owner_user_id` argument.
+- Authenticated User A created or received only User A-owned `profiles_private` and `anonymous_identities` rows.
+- Unauthenticated creation raised `AUTHENTICATED_OWNER_REQUIRED` and created no rows.
+- Duplicate private profile behavior was safely idempotent: a second User A call returned original IDs, User A profile count stayed 1, User A identity count stayed 1, and no orphan anonymous identity was created.
+- Duplicate active anonymous identity behavior stayed bounded by one active identity.
+- A spoofed owner claim candidate did not control DB ownership; ownership followed active `auth.uid()`.
+- User A and User B rows remained separated.
+- Rollback completed and post-rollback deterministic auth user, private profile, and anonymous identity residue was 0.
+
+Separation decision:
+- Private profile creation remains real-profile infrastructure for the authenticated owner only.
+- Anonymous identity creation remains anonymous-facing infrastructure for the authenticated owner only.
+- Anonymous surfaces must still not expose `owner_user_id`, `auth_user_id`, `profile_private_id`, private profile fields, or anonymous-to-real correlation.
+- Reveal/profile visibility remains a separate owner-approved future boundary.
+
+Abuse carryover:
+- Instant-match manipulation, reveal state manipulation, connection state manipulation, local UI forcing, cooldown/rate bypass, fake presence, fake waiting/replyable transition, and local-only entitlement spoofing remain future server-side policy concerns.
+- Uploaded voice spoofing, replay audio, manipulated local draft, fake recorder state, forged voice metadata, anonymous identity carryover, connection reply abuse, and storage boundary bypass remain future voice/security concerns.
+- Android cached identity, fake entitlement, fake verification, replayed session, clock manipulation, offline bypass, rooted/emulator manipulation, debug flag abuse, and client-side trust abuse remain untrusted local-state risks.
+- Spoofed verification/result fields are future trust-layer only; rate/cooldown/replay/cached-state checks remain later policy/harness phases.
+
+Face verification remains future-only. A later provider direction may use `@veriff/react-native-sdk`, but ANKION stores only verification result fields and must not store raw face images, selfie video, ID media, or biometric embeddings.

@@ -2799,3 +2799,39 @@ Privacy and abuse checks:
 Exact next GO:
 
 `GO: Run Phase 30D checkpoint verification only.`
+
+## Phase 30K - Owner-Controlled Creation Behavior Harness Result Record (2026-06-20)
+
+Status: PASS - Phase 30J local owner-controlled creation behavior harness results are documented. Phase 30K is docs-only and did not run DB commands, SQL, psql, Docker DB commands, Supabase CLI, target function invocation, auth simulation, test user/data creation, mutation, cleanup SQL, migration creation/edit/apply, RLS harness execution, runtime/Auth work, APK/native work, package/env changes, staging, production, commit, or push.
+
+Executed in Phase 30J:
+- Local-only transaction-wrapped behavior harness.
+- Target function invocation inside transaction only.
+- Auth simulation inside transaction only.
+- Transaction-local mutation only.
+- Rollback and post-rollback residue verification.
+
+Observed Phase 30J scenario results:
+1. Authenticated creation success: PASS. User A `auth.uid()` matched the deterministic UUID; profile and anonymous identity rows existed inside the transaction and were owned by User A.
+2. Unauthenticated denial: PASS. Null auth context raised `AUTHENTICATED_OWNER_REQUIRED`; no unauthenticated profile or orphan identity row was created.
+3. Duplicate private profile prevention: PASS. The duplicate call returned original IDs idempotently; User A profile count stayed 1, User A identity count stayed 1, and no orphan anonymous identity was created.
+4. Duplicate active anonymous identity prevention: PASS. User A active identity count stayed 1.
+5. Owner spoofing denial: PASS. Spoofed owner claim candidate did not control DB ownership; ownership followed `auth.uid()`.
+6. Cross-user isolation: PASS. User A and User B rows remained owner-separated.
+7. Rollback / persistent residue verification: PASS. Post-rollback deterministic auth user, profile, and identity residue counts were 0.
+
+Testing interpretation:
+- Duplicate private profile prevention should be tested as "blocked or safely idempotent"; direct unique-error surfacing is not required when original IDs are returned and row counts stay bounded.
+- Future runtime tests must not weaken the owner source: `owner_user_id` remains derived from `auth.uid()` and is not a client input.
+- The local behavior PASS does not replace future runtime/Auth integration tests, safe DTO tests, direct table write denial tests, Storage tests, Reveal tests, rate/cooldown/replay tests, or staging/production readiness checks.
+
+Abuse carryover for later harnesses:
+- Instant-match manipulation, reveal state manipulation, connection state manipulation, local UI forcing, cooldown/rate bypass, fake presence, fake waiting/replyable transition, and local-only entitlement spoofing.
+- Uploaded voice spoofing, replay audio, manipulated local draft, fake recorder state, forged voice metadata, anonymous identity carryover, connection reply abuse, and storage boundary bypass.
+- Android cached identity, fake entitlement, fake verification, replayed session, clock manipulation, offline bypass, rooted/emulator manipulation, debug flag abuse, and client-side trust abuse.
+- Spoofed verification/result fields remain future trust-layer only; rate/cooldown/replay/cached-state checks remain later policy/harness phases.
+
+Face verification remains future-only. A later provider direction may use `@veriff/react-native-sdk`, but tests must confirm ANKION stores only verification result fields and not raw face images, selfie video, ID media, or biometric embeddings.
+
+Next required GO:
+`GO: Start Phase 30L owner-controlled creation behavior documentation checkpoint / commit only.`
