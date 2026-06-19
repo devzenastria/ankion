@@ -3576,3 +3576,17 @@ Draft behavior:
 - Adds no INSERT, UPDATE, DELETE, or `WITH CHECK` policy and no broad table grants.
 
 Next safe step: Phase 29O static checkpoint verification.
+
+## Phase 29P - SECURITY DEFINER / RPC Probing Exposure Static Review (2026-06-19)
+
+Status: NEEDS_REVISION - static/apply readiness review completed for `supabase/migrations/20260619153000_fix_connection_participant_rls_recursion.sql`. No DB command, Docker DB command, psql, Supabase CLI execution, SQL execution, migration apply, RLS harness rerun, test data/user creation, SQL migration edit, source/runtime change, package/env/APK/native change, staging, production, Dev Console work, git add, commit, or push occurred.
+
+Review decision:
+- The helper is boolean-only, uses `SECURITY DEFINER`, has fixed `search_path = public, auth, pg_temp`, uses schema-qualified table references, has no dynamic SQL, and preserves participant-bound SELECT semantics.
+- The helper is in `public` and grants EXECUTE to `authenticated`.
+- In Supabase/PostgREST posture, an authenticated client may be able to call public executable functions through RPC.
+- Random UUID probing is impractical, but direct boolean membership probing is not acceptable for ANKION's privacy model before an internal-schema/no-RPC revision is evaluated.
+- Phase 29O must not be locally applied as-is.
+
+Next required GO:
+`GO: Create Phase 29Q migration revision for connection participant RLS recursion RPC exposure only.`

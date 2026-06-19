@@ -3491,6 +3491,32 @@ No DB command, psql, Docker DB command, Supabase CLI execution, SQL execution, m
 
 ---
 
+## 2026-06-19 - Phase 29P SECURITY DEFINER / RPC Probing Exposure Static Review
+
+**Type:** Static Security Review / Apply Readiness  
+**Status:** NEEDS_REVISION
+
+Reviewed migration draft:
+
+- `supabase/migrations/20260619153000_fix_connection_participant_rls_recursion.sql`
+
+Decision:
+
+- Helper returns boolean only and no row data.
+- `SECURITY DEFINER`, fixed `search_path`, schema-qualified references, no dynamic SQL, no service-role dependency, and participant-bound SELECT behavior are preserved.
+- The current draft grants EXECUTE to `authenticated` on a `public` schema helper.
+- That posture may expose a direct Supabase/PostgREST RPC boolean membership probe.
+- UUID guessing is high-entropy and impractical, but the direct callable membership probe is not acceptable before revision.
+- Phase 29O migration should not be locally applied as-is.
+
+Exact next GO:
+
+`GO: Create Phase 29Q migration revision for connection participant RLS recursion RPC exposure only.`
+
+No DB command, psql, Docker DB command, Supabase CLI execution, SQL execution, migration apply, RLS harness rerun, test data/user creation, SQL migration edit, source/runtime change, package/env/APK/native change, staging, production, git add, commit, or push was performed.
+
+---
+
 ## 2026-06-19 - Phase 29J Connection Primitive RLS Policy Local Apply Readiness Preflight
 
 **Type:** Backend Readiness / Local RLS Apply Preflight  

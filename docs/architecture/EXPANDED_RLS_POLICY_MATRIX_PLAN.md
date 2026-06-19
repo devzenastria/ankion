@@ -2794,3 +2794,25 @@ Migration draft:
 | product boundary | no raw `profiles_private`, Reveal, Storage, global list, profile/user search, or room/chat-room behavior |
 
 Static review must confirm function ownership, RLS bypass behavior, and RPC exposure risk before any local apply is approved.
+
+## Phase 29P - SECURITY DEFINER / RPC Probing Exposure Review Matrix (2026-06-19)
+
+Result: NEEDS_REVISION - static review completed without DB command, SQL execution, migration apply, RLS harness rerun, test data/user, SQL migration edit, runtime integration, package/env/APK/native, staging, or production work.
+
+Reviewed draft:
+- `supabase/migrations/20260619153000_fix_connection_participant_rls_recursion.sql`
+
+| Review item | Decision |
+| --- | --- |
+| boolean-only helper | PASS - no row data returned |
+| `SECURITY DEFINER` | REVIEW - necessary to break recursive RLS, but ownership and bypass posture need revised apply plan |
+| fixed search_path | PASS - `public, auth, pg_temp` |
+| schema-qualified references | PASS - `public.*` and `auth.uid()` |
+| dynamic SQL | PASS - absent |
+| participant-bound SELECT | PASS - helper preserves `auth.uid()` to `public.anonymous_identities.owner_user_id` membership check |
+| direct RPC exposure | NEEDS_REVISION - `public` schema plus EXECUTE to `authenticated` can expose boolean membership probing |
+| UUID probing | REVIEW - random guessing is impractical, but known/obtained UUID probing remains a privacy concern |
+| apply readiness | NO-GO - revise before local apply |
+
+Required next GO:
+`GO: Create Phase 29Q migration revision for connection participant RLS recursion RPC exposure only.`

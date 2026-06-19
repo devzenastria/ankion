@@ -2526,3 +2526,25 @@ Future static review must verify:
 12. function EXECUTE posture is explicit and does not grant anon/PUBLIC execution.
 
 Future apply/harness sequence remains blocked until separate explicit GO phases after static review.
+
+## Phase 29P - SECURITY DEFINER / RPC Probing Exposure Static Review (2026-06-19)
+
+Status: NEEDS_REVISION - static/apply readiness review completed. No DB command, Docker DB command, psql, Supabase CLI execution, SQL execution, migration apply, RLS harness rerun, test execution, test data/user creation, SQL migration edit, source/runtime change, package/env/APK/native change, staging, production, git add, commit, or push occurred.
+
+Reviewed draft:
+- `supabase/migrations/20260619153000_fix_connection_participant_rls_recursion.sql`
+
+Review outcome:
+1. helper returns boolean only and no row data.
+2. helper uses `SECURITY DEFINER`, fixed `search_path = public, auth, pg_temp`, schema-qualified table references, and no dynamic SQL.
+3. helper preserves `auth.uid()` to `public.anonymous_identities.owner_user_id` participant membership checks.
+4. helper grants EXECUTE to `authenticated` while living in `public`.
+5. direct authenticated RPC calls may be possible through Supabase/PostgREST if the function remains exposed.
+6. random UUID probing is impractical, but boolean membership probing for known or leaked connection UUIDs is not acceptable before revision.
+7. Phase 29O must not be locally applied as-is.
+
+Future verification requirement:
+- Phase 29Q must revise the draft to avoid direct product RPC exposure before any Phase 29R/29S local apply or harness sequence.
+
+Exact next GO:
+`GO: Create Phase 29Q migration revision for connection participant RLS recursion RPC exposure only.`
