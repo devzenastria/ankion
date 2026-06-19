@@ -16,6 +16,74 @@ ChatGPT / User / Codex-assisted
 
 # Current Phase
 
+## Phase 31B - Supabase Client Dependency and Env Preflight (2026-06-20)
+
+Status: PASS - Supabase client dependency and env preflight completed as docs-only. No package install, package.json edit, lockfile edit, `.env` creation/edit, secret addition, Supabase client runtime binding, runtime Auth integration, app screen wiring, DB command, SQL execution, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, migration creation/edit/apply, RLS harness execution, APK/native/Android change, staging/production action, commit, push, or pull occurred.
+
+Read-only inspection:
+- Root `package.json`: no `@supabase/supabase-js` dependency.
+- `apps/mobile/package.json`: no `@supabase/supabase-js` dependency.
+- `apps/web/package.json`: no `@supabase/supabase-js` dependency.
+- `pnpm-lock.yaml`: exists; no `@supabase/supabase-js` / `supabase-js` match found.
+- `package-lock.json`: absent.
+- `yarn.lock`: absent.
+- `.env.example`: exists and contains only public placeholder keys.
+- Real `.env`: absent from the inspected root env files.
+- Existing inert mobile env file: `apps/mobile/src/lib/env.ts`.
+- Existing inert mobile boundary file: `apps/mobile/src/lib/supabaseBoundary.ts`.
+- Mobile app route Supabase import/search: no matches in `apps/mobile/app`.
+- Source search found only inert env references under `apps/mobile/src/lib/env.ts`; no runtime screen import or `createClient` usage was found.
+
+Dependency preflight decision:
+- `@supabase/supabase-js` remains NO-GO in Phase 31B.
+- Package install requires separate explicit GO.
+- `package.json` and lockfile changes remain forbidden in Phase 31B.
+- Future dependency GO requires: Auth/session boundary documented, env boundary documented, owner creation runtime call boundary documented, no service role in client, no secrets in repo, no staging/production scope, and rollback/checkpoint plan ready.
+
+Env boundary preflight decision:
+- Expo public env may be used only for public anon client config in a future approved phase.
+- `EXPO_PUBLIC_SUPABASE_URL` may be public.
+- `EXPO_PUBLIC_SUPABASE_ANON_KEY` may be the public anon key.
+- Service role key, JWT secret, storage signing secret, provider secret, production credential, and admin token are forbidden in client code, repo docs, logs, commits, screenshots, and Expo public env.
+- `.env` must not be committed.
+- `.env.example` may contain placeholders only.
+- Runtime env loading remains future work.
+
+Client boundary decision:
+- Even after a future Supabase client install, client state is not owner authority.
+- Auth session is UI/request eligibility only.
+- Owner assignment remains backend-derived from `auth.uid()`.
+- Client cannot send `owner_user_id`, owner override, target owner id, target profile id, or target anonymous identity id.
+- Cached anonymous identity and local profile-created state are not backend truth.
+
+Runtime NO-GO:
+- no login flow.
+- no signup flow.
+- no session provider.
+- no owner creation runtime call.
+- no Supabase client import to screens.
+- no Storage/voice/reveal runtime.
+- no APK/native.
+- no staging/production.
+
+Future gates:
+- Phase 31C - Auth DTO/session contract preflight.
+- Phase 31D - Supabase dependency install GO planning.
+- Phase 31E - Env/client inert boundary update GO.
+- Phase 31F - Runtime Auth integration planning.
+- Package install GO remains separate.
+- Runtime/Auth GO remains separate.
+- APK GO remains separate.
+- Staging/production remain NO-GO.
+
+Abuse carryover:
+- Android local-state risks remain: cached identity, fake entitlement, fake verification, replayed session, clock manipulation, offline bypass, rooted/emulator manipulation, debug flag abuse, client-side trust abuse, fake profile created state, and fake anonymous identity ready state.
+- Instant abuse risks remain: instant-match manipulation, reveal state manipulation, connection state manipulation, local UI forcing, cooldown/rate bypass, fake presence, fake waiting/replyable transition, and local-only entitlement spoofing.
+- Voice abuse risks remain: uploaded voice spoofing, replay audio, manipulated local draft, fake recorder state, forged voice metadata, anonymous identity carryover, connection reply abuse, and storage boundary bypass.
+- Face verification remains future-only; provider direction may be `@veriff/react-native-sdk`, but ANKION must store only verification result fields and must not store raw face images, selfie video, ID media, or biometric embeddings.
+
+Next recommended phase: Phase 31C - Auth DTO/session contract preflight.
+
 ## Phase 31A - Auth/Session Boundary Readiness Planning (2026-06-20)
 
 Status: PASS - Auth/session boundary readiness planning completed as docs-only. No DB command, SQL execution, DB connection, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, runtime Supabase/Auth binding, `@supabase/supabase-js` install, package/env/lockfile change, APK/native/Android change, app screen runtime wiring, staging/production action, commit, push, or pull occurred.

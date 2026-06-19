@@ -16,6 +16,41 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-20 - Phase 31B Supabase Client Dependency and Env Preflight
+
+**Type:** Supabase Client Dependency / Env Boundary Preflight / Docs Only
+**Status:** Completed
+
+Completed read-only dependency/env/client-boundary preflight.
+
+Inspection result:
+
+- Root, mobile, and web package files do not list `@supabase/supabase-js`.
+- `pnpm-lock.yaml` exists and contains no `@supabase/supabase-js` / `supabase-js` match.
+- `.env.example` exists with public placeholder keys only.
+- No root real `.env` file was present in the inspected env files.
+- Existing mobile boundary remains inert through `apps/mobile/src/lib/env.ts` and `apps/mobile/src/lib/supabaseBoundary.ts`.
+- No Supabase runtime import was found in `apps/mobile/app`.
+
+Preflight decision:
+
+- `@supabase/supabase-js` install remains NO-GO in Phase 31B.
+- Future package install requires separate explicit GO and must include package/lockfile scope.
+- Expo public env is limited to public anon client config: `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY`.
+- Service role keys, JWT secrets, storage signing secrets, provider secrets, production credentials, and admin tokens remain forbidden in client code, repo files, docs, logs, commits, screenshots, and Expo public env.
+- Client owner authority remains forbidden; owner assignment stays backend-derived from `auth.uid()`.
+- Runtime login/signup/session provider, owner creation runtime call, screen imports, Storage/voice/reveal runtime, APK/native, staging, and production remain NO-GO.
+
+Abuse carryover remains in force for Android local-state manipulation, instant-match/reveal/connection manipulation, voice spoofing and replay, and face verification future-only boundaries. `@veriff/react-native-sdk` remains only a future provider direction; ANKION stores only verification result fields and not raw face images, selfie video, ID media, or biometric embeddings.
+
+No package install, package.json edit, lockfile edit, `.env` creation/edit, secret addition, Supabase runtime binding, runtime Auth integration, app screen wiring, DB command, SQL execution, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, migration creation/edit/apply, RLS harness execution, APK/native change, staging, production, git add, commit, pull, or push occurred.
+
+Exact next GO:
+
+`GO: Start Phase 31C Auth DTO/session contract preflight only.`
+
+---
+
 ## 2026-06-20 - Phase 31A Auth/Session Boundary Readiness Planning
 
 **Type:** Auth/Session Boundary Planning / Docs Only

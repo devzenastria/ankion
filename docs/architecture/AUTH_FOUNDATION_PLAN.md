@@ -1023,3 +1023,38 @@ Separate explicit GO remains required for:
 Staging and production remain NO-GO.
 
 Next recommended phase: Phase 31B - Supabase client dependency and env preflight. Phase 31B must not install packages and must stay at dependency/env decision preflight level.
+
+## Phase 31B - Auth Dependency And Env Preflight (2026-06-20)
+
+Status: PASS - Supabase dependency and env preflight completed as docs-only. No package install, package.json edit, lockfile edit, `.env` change, secret introduction, Supabase client runtime, Auth runtime, owner creation runtime call, DB command, SQL, psql, Docker DB command, Supabase CLI, migration work, RLS harness, APK/native change, staging, production, commit, or push occurred.
+
+Auth dependency decision:
+- `@supabase/supabase-js` is not installed in Phase 31B.
+- Future install requires separate explicit GO.
+- Package install is allowed only after Auth/session boundary, env boundary, owner creation runtime-call boundary, no-service-role-in-client rule, no-secrets-in-repo rule, and rollback/checkpoint plan are ready.
+
+Auth env decision:
+- `EXPO_PUBLIC_SUPABASE_URL` can be public client configuration in a future approved phase.
+- `EXPO_PUBLIC_SUPABASE_ANON_KEY` can be the public anon key in a future approved phase.
+- Public anon key does not grant access by itself.
+- Service role key, JWT secret, storage signing secret, provider secret, production credential, and admin token are forbidden in mobile code, Expo public env, repo docs, logs, screenshots, and commits.
+- `.env.example` must stay placeholder-only.
+- Real local secrets must not be written into docs or committed files.
+
+Auth/source-of-truth preservation:
+- `auth.uid()` remains backend owner source.
+- Client owner spoofing remains forbidden.
+- Auth session state is request eligibility and UI state only.
+- Cached identity, fake entitlement, fake verification, fake profile-created state, fake anonymous-identity-ready state, and local-only owner switch cannot produce backend authority.
+
+Runtime remains NO-GO:
+- no login flow.
+- no signup flow.
+- no session provider.
+- no owner creation runtime call.
+- no screen import of Supabase client.
+- no Storage/voice/reveal runtime.
+- no APK/native.
+- no staging/production.
+
+Next recommended phase: Phase 31C - Auth DTO/session contract preflight.

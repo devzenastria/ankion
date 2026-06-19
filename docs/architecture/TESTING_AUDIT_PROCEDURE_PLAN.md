@@ -2880,3 +2880,35 @@ Readiness gates before executable tests or runtime work:
 - production GO.
 
 Next recommended phase: Phase 31B - Supabase client dependency and env preflight. Phase 31B must not install packages or run Auth tests.
+
+## Phase 31B - Dependency / Env Preflight Test Record (2026-06-20)
+
+Status: PASS - dependency/env preflight recorded as docs-only. No package install, package.json edit, lockfile edit, `.env` change, secret introduction, runtime Supabase/Auth change, app screen wiring, DB command, SQL, psql, Docker DB command, Supabase CLI, target function invocation, auth simulation, test user/data creation, mutation, migration work, RLS harness, APK/native change, staging, production, commit, or push occurred.
+
+Read-only checks recorded:
+1. Root package has no `@supabase/supabase-js`.
+2. Mobile package has no `@supabase/supabase-js`.
+3. Web package has no `@supabase/supabase-js`.
+4. `pnpm-lock.yaml` exists and has no `supabase-js` match.
+5. npm/yarn lockfiles are absent.
+6. `.env.example` exists with public placeholders only.
+7. Real root `.env` was absent from inspected env files.
+8. Inert boundary files exist.
+9. Mobile app routes do not import Supabase.
+10. No runtime `createClient` / `@supabase/supabase-js` source usage was found.
+
+Future test requirements:
+- package install should verify package/lockfile-only scope in the approved phase.
+- env/client boundary should verify placeholders only in `.env.example`.
+- service role key must never appear in client, repo docs, logs, screenshots, or commits.
+- public anon key must be treated as public configuration, not authorization.
+- runtime screen imports must remain absent until runtime Auth GO.
+- owner source must remain `auth.uid()`, not client state.
+
+Abuse carryover for later tests:
+- Android cached identity, fake entitlement, fake verification, replayed session, clock manipulation, offline bypass, rooted/emulator manipulation, debug flag abuse, client-side trust abuse, fake profile created state, and fake anonymous identity ready state.
+- instant-match manipulation, reveal state manipulation, connection state manipulation, local UI forcing, cooldown/rate bypass, fake presence, fake waiting/replyable transition, and local-only entitlement spoofing.
+- uploaded voice spoofing, replay audio, manipulated local draft, fake recorder state, forged voice metadata, anonymous identity carryover, connection reply abuse, and storage boundary bypass.
+- face verification remains future-only; `@veriff/react-native-sdk` is only a future provider direction, and ANKION must store only verification result fields, not raw face images, selfie video, ID media, or biometric embeddings.
+
+Next recommended phase: Phase 31C - Auth DTO/session contract preflight.

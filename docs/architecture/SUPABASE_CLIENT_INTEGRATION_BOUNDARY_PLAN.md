@@ -993,3 +993,67 @@ Readiness gates before implementation:
 - production GO.
 
 Phase 31B should be dependency/env preflight only and must not install packages.
+
+## Phase 31B - Supabase Client Dependency And Env Preflight (2026-06-20)
+
+Phase 31B is docs-only preflight. It does not install `@supabase/supabase-js`, edit package files, edit lockfiles, create or edit `.env`, add secrets, bind a runtime Supabase client, implement Auth/session runtime, wire screens, call backend functions, run DB/SQL commands, run Supabase CLI, create migrations, run RLS harnesses, change APK/native files, touch staging/production, commit, or push.
+
+Read-only inspection result:
+
+| Area | Result |
+| --- | --- |
+| Root package dependency | no `@supabase/supabase-js` dependency |
+| Mobile package dependency | no `@supabase/supabase-js` dependency |
+| Web package dependency | no `@supabase/supabase-js` dependency |
+| Lockfile | `pnpm-lock.yaml` exists; no `supabase-js` match found |
+| npm/yarn lockfiles | `package-lock.json` and `yarn.lock` absent |
+| `.env.example` | present with public placeholder keys only |
+| real root `.env` | absent from inspected root env files |
+| inert env module | `apps/mobile/src/lib/env.ts` exists |
+| inert boundary module | `apps/mobile/src/lib/supabaseBoundary.ts` exists |
+| app route Supabase import | no matches in `apps/mobile/app` |
+| runtime client usage | no `createClient` or `@supabase/supabase-js` source match found |
+
+Dependency decision:
+- `@supabase/supabase-js` remains NO-GO in Phase 31B.
+- A future install requires separate explicit package-install GO.
+- Package and lockfile edits must be named in that future scope.
+- Future install readiness requires Auth/session boundary, env boundary, owner creation runtime-call boundary, no service role in client, no secrets in repo, no staging/production scope, and rollback/checkpoint plan.
+
+Env boundary decision:
+- `EXPO_PUBLIC_SUPABASE_URL` may be public in a future approved runtime/env phase.
+- `EXPO_PUBLIC_SUPABASE_ANON_KEY` may be the public anon key in a future approved runtime/env phase.
+- Public anon key is not authorization; RLS, Auth context, safe DTO/RPC boundaries, block checks, and reveal grants still decide access.
+- Service role key is forbidden in client code, Expo public env, repo docs, `.env.example`, logs, screenshots, commits, and mobile/web runtime.
+- `.env` must not be committed.
+- `.env.example` must contain placeholders only.
+- Runtime env loading remains future work.
+
+Client owner boundary:
+- Even after a future client install, client state cannot be the owner source.
+- Auth session can only provide request eligibility and UI state.
+- Owner assignment remains backend-derived from `auth.uid()`.
+- Client must not send `owner_user_id`, owner override, target owner id, target profile id, or target anonymous identity id.
+- Cached anonymous identity is not backend authority.
+
+Runtime NO-GO:
+- no login flow.
+- no signup flow.
+- no session provider.
+- no owner creation runtime call.
+- no Supabase client import to screens.
+- no Storage/voice/reveal runtime.
+- no APK/native.
+- no staging/production.
+
+Future GO gates:
+- Phase 31C - Auth DTO/session contract preflight.
+- Phase 31D - Supabase dependency install GO planning.
+- Phase 31E - Env/client inert boundary update GO.
+- Phase 31F - Runtime Auth integration planning.
+- Package install GO remains separate.
+- Runtime/Auth GO remains separate.
+- APK GO remains separate.
+- Staging/production remain NO-GO.
+
+Abuse carryover remains required for Android local-state manipulation, instant-match/reveal/connection manipulation, voice spoofing and replay, and storage boundary bypass. Face verification remains future-only; `@veriff/react-native-sdk` is not a Phase 31B dependency and ANKION must store only verification result fields, not raw face images, selfie video, ID media, or biometric embeddings.

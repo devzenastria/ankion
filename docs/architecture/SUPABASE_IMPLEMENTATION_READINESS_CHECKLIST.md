@@ -2141,3 +2141,41 @@ Required GO gates:
 Staging and production remain NO-GO.
 
 Next recommended phase: Phase 31B - Supabase client dependency and env preflight. Phase 31B must not install packages.
+
+## Phase 31B - Supabase Client Dependency And Env Preflight (2026-06-20)
+
+Result: PASS - dependency/env preflight completed as docs-only. No package install, package.json edit, lockfile edit, `.env` creation/edit, secret introduction, Supabase client runtime binding, runtime Auth integration, app screen wiring, DB command, SQL execution, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, migration creation/edit/apply, RLS harness execution, APK/native/Android change, staging/production action, commit, push, or pull occurred.
+
+Inspection evidence:
+- no `@supabase/supabase-js` in root, mobile, or web package dependencies.
+- `pnpm-lock.yaml` exists and contains no `supabase-js` match.
+- `package-lock.json` and `yarn.lock` are absent.
+- `.env.example` exists and is placeholder-only for `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY`.
+- no real root `.env` was present in the inspected env files.
+- existing inert boundary files are `apps/mobile/src/lib/env.ts` and `apps/mobile/src/lib/supabaseBoundary.ts`.
+- no Supabase import/use was found in `apps/mobile/app`.
+
+Readiness decision:
+- `@supabase/supabase-js` install: NO-GO in Phase 31B.
+- Package/env/runtime changes require future explicit GO.
+- Public Expo env is limited to public anon client config in a future approved phase.
+- Service role/admin secrets remain forbidden in client/repo/docs/logs/commits/screenshots.
+- Runtime Auth, owner creation call, screen wiring, Storage/voice/reveal runtime, APK/native, staging, and production remain NO-GO.
+
+Future GO gates:
+- Phase 31C - Auth DTO/session contract preflight.
+- Phase 31D - Supabase dependency install GO planning.
+- Phase 31E - Env/client inert boundary update GO.
+- Phase 31F - Runtime Auth integration planning.
+- Package install GO separate.
+- Runtime/Auth GO separate.
+- APK GO separate.
+- Staging/production NO-GO.
+
+Security carryover:
+- `auth.uid()` remains backend owner source.
+- Client cannot send `owner_user_id` or owner override fields.
+- Cached identity and local anonymous identity cache are not backend truth.
+- Android local-state, instant abuse, voice abuse, and face-verification future-only boundaries remain preserved.
+
+Next recommended phase: Phase 31C - Auth DTO/session contract preflight.

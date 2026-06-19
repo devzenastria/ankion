@@ -1797,3 +1797,30 @@ Error/denial states to preserve:
 - rooted/debug/offline trust risk.
 
 Abuse carryover remains required for Android local-state manipulation, instant-match/reveal/connection manipulation, voice spoofing and replay, spoofed verification/result fields, and future rate/cooldown/replay/cached-state harnesses. Face verification remains future-only; `@veriff/react-native-sdk` is not a Phase 31A dependency and ANKION must store only verification result fields, not raw face images, selfie video, ID media, or biometric embeddings.
+
+## Phase 31B - Dependency / Env Data-RLS Boundary Preflight (2026-06-20)
+
+Status: PASS - Supabase dependency/env preflight documented as docs-only. No package install, package or lockfile edit, `.env` change, secret introduction, runtime Auth/Supabase binding, DB command, SQL, psql, Docker DB command, Supabase CLI, target function call, auth simulation, test data, migration work, RLS harness, APK/native work, staging, production, commit, or push occurred.
+
+Data/RLS boundary decision:
+- Installing a future Supabase client will not change owner source.
+- `auth.uid()` remains the backend owner source for `profiles_private` and `anonymous_identities`.
+- Client state, public anon key, cached anonymous identity, cached profile-created state, or local entitlement cannot write or override owner fields.
+- Client payloads must not include `owner_user_id`, owner override, target owner id, target profile id, or target anonymous identity id.
+- Public anon key is public configuration only; access still depends on Auth context, RLS, safe DTO/RPC boundaries, block checks, and reveal grants.
+
+Env boundary decision:
+- `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` may be future public client config.
+- Service role key and private secrets are forbidden in client code, Expo public env, repo docs, logs, screenshots, and commits.
+- `.env.example` remains placeholder-only.
+- Runtime env loading is future work.
+
+Runtime NO-GO remains:
+- no login/signup/session provider.
+- no owner creation runtime call.
+- no Supabase client import to screens.
+- no Storage/voice/reveal runtime.
+- no APK/native.
+- no staging/production.
+
+Next recommended phase: Phase 31C - Auth DTO/session contract preflight.
