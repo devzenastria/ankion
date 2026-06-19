@@ -2772,3 +2772,25 @@ The future fix must preserve participant-only access, same-connection visibility
 
 Exact future GO:
 `GO: Create Phase 29O local migration draft for connection participant RLS recursion fix only.`
+
+## Phase 29O - Connection Participant RLS Recursion Fix Draft Matrix (2026-06-19)
+
+Result: PASS - one local migration draft was created for static review only. No DB command, SQL execution, migration apply, RLS harness rerun, test data/user, runtime integration, package/env/APK/native, staging, or production work was performed.
+
+Migration draft:
+- `supabase/migrations/20260619153000_fix_connection_participant_rls_recursion.sql`
+
+| Check | Draft posture |
+| --- | --- |
+| helper function | `public.is_connection_participant_for_current_user(target_connection_id uuid) returns boolean` |
+| security | `SECURITY DEFINER`, fixed `search_path = public, auth, pg_temp` |
+| row data | none returned; boolean only |
+| membership linkage | `public.anonymous_identities.owner_user_id = auth.uid()` |
+| participant check | `public.connection_participants` joined to `public.anonymous_identities` and `public.connections` inside helper |
+| policy replacement | both existing SELECT policies are dropped and recreated |
+| recursion fix | `connection_participants` policy calls helper with row `connection_id`; no direct self-referencing SELECT predicate |
+| write boundary | no INSERT/UPDATE/DELETE/WITH CHECK policy |
+| grants | helper EXECUTE revoked then granted only to authenticated; no table grants added |
+| product boundary | no raw `profiles_private`, Reveal, Storage, global list, profile/user search, or room/chat-room behavior |
+
+Static review must confirm function ownership, RLS bypass behavior, and RPC exposure risk before any local apply is approved.

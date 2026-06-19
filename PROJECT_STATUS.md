@@ -3556,3 +3556,23 @@ Exact future GO:
 `GO: Create Phase 29O local migration draft for connection participant RLS recursion fix only.`
 
 Next safe step: Phase 29N checkpoint verification.
+
+## Phase 29O - Local Migration Draft For Connection Participant RLS Recursion Fix (2026-06-19)
+
+Status: PASS - one local migration draft was created for the Phase 29M recursive RLS blocker. No DB command, Docker DB command, psql, Supabase CLI execution, SQL execution, migration apply, RLS harness rerun, test data/user creation, source/runtime change, package/env/APK/native change, staging, production, Dev Console work, git add, commit, or push occurred.
+
+Created migration draft:
+- `supabase/migrations/20260619153000_fix_connection_participant_rls_recursion.sql`
+
+Draft behavior:
+- Adds `public.is_connection_participant_for_current_user(target_connection_id uuid) returns boolean`.
+- Uses `SECURITY DEFINER`, fixed `search_path = public, auth, pg_temp`, schema-qualified table references, and no dynamic SQL.
+- Returns only boolean and no row data.
+- Checks `auth.uid()` through `public.anonymous_identities.owner_user_id`.
+- Checks current schema active/non-deleted connection, anonymous identity, and participant rows.
+- Drops and recreates only `connections_participant_select_own` and `connection_participants_participant_select_same_connection`.
+- Replaces the recursive self-referencing policy shape with helper calls.
+- Grants helper EXECUTE only to `authenticated` after explicit revokes from `public`, `anon`, and `authenticated`.
+- Adds no INSERT, UPDATE, DELETE, or `WITH CHECK` policy and no broad table grants.
+
+Next safe step: Phase 29O static checkpoint verification.

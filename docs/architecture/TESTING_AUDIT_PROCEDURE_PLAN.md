@@ -2503,3 +2503,26 @@ After a future approved migration draft/review/apply sequence, local verificatio
 ### Exact Future GO
 
 `GO: Create Phase 29O local migration draft for connection participant RLS recursion fix only.`
+
+## Phase 29O - Connection Participant RLS Recursion Fix Draft Review Plan (2026-06-19)
+
+Status: PASS - local migration draft created for future static review. No DB command, Docker DB command, psql, Supabase CLI execution, SQL execution, migration apply, RLS harness rerun, test execution, test data/user creation, source/runtime change, package/env/APK/native change, staging, production, git add, commit, or push occurred.
+
+Draft under review:
+- `supabase/migrations/20260619153000_fix_connection_participant_rls_recursion.sql`
+
+Future static review must verify:
+1. `SECURITY DEFINER` helper exists with signature `public.is_connection_participant_for_current_user(target_connection_id uuid)`.
+2. helper returns boolean only.
+3. helper has fixed `search_path = public, auth, pg_temp`.
+4. all table references are schema-qualified.
+5. dynamic SQL is absent.
+6. no row data is returned.
+7. `auth.uid()` is linked to `public.anonymous_identities.owner_user_id`.
+8. participant membership is checked through `public.connection_participants`.
+9. existing recursive SELECT policies are dropped and recreated.
+10. no INSERT, UPDATE, DELETE, or `WITH CHECK` policies are added.
+11. no service role dependency exists.
+12. function EXECUTE posture is explicit and does not grant anon/PUBLIC execution.
+
+Future apply/harness sequence remains blocked until separate explicit GO phases after static review.

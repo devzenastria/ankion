@@ -3467,6 +3467,30 @@ No DB command, psql, Docker DB command, SQL execution, migration creation/editin
 
 ---
 
+## 2026-06-19 - Phase 29O Local Migration Draft For Connection Participant RLS Recursion Fix
+
+**Type:** Backend RLS Migration Draft / Local Source Only  
+**Status:** Completed  
+
+Created one migration draft:
+
+- `supabase/migrations/20260619153000_fix_connection_participant_rls_recursion.sql`
+
+The draft addresses the Phase 29M recursion blocker by adding a boolean-only `SECURITY DEFINER` helper:
+
+- `public.is_connection_participant_for_current_user(target_connection_id uuid)`
+
+The draft drops and recreates only the existing recursive SELECT policies:
+
+- `connections_participant_select_own`
+- `connection_participants_participant_select_same_connection`
+
+The replacement policies call the helper instead of embedding direct self-referencing `connection_participants` SELECT predicates. The draft keeps participant-only SELECT, same-connection visibility, cross-connection isolation, non-participant denial, and `auth.uid()` to `public.anonymous_identities.owner_user_id` linkage.
+
+No DB command, psql, Docker DB command, Supabase CLI execution, SQL execution, migration apply, RLS harness rerun, test data/user creation, source/runtime change, package/env/APK/native change, staging, production, git add, commit, or push was performed.
+
+---
+
 ## 2026-06-19 - Phase 29J Connection Primitive RLS Policy Local Apply Readiness Preflight
 
 **Type:** Backend Readiness / Local RLS Apply Preflight  
