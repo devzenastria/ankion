@@ -2568,3 +2568,24 @@ Static checkpoint verification must confirm:
 
 Exact next GO:
 `GO: Commit Phase 29Q revised migration checkpoint only.`
+
+## Phase 29R - Local Apply Metadata Verification For Connection Participant RLS Recursion Fix (2026-06-19)
+
+Status: PASS - revised migration applied locally and metadata verified. No RLS harness, test execution, test data/user creation, staging, production, remote Supabase command, source/runtime change, package/env/APK/native change, migration edit, new migration file, git add, commit, or push occurred.
+
+Verified:
+1. local DB target was `supabase_db_ankion` / `postgres`.
+2. pre-apply schema-only checkpoint was created outside the repository.
+3. `private` schema exists.
+4. `private.is_connection_participant_for_current_user(uuid)` exists and returns boolean.
+5. helper is `SECURITY DEFINER` with fixed `search_path=public, auth, pg_temp`.
+6. `public.is_connection_participant_for_current_user(uuid)` is absent.
+7. `public.connections` and `public.connection_participants` SELECT policies call the private helper.
+8. RLS remains enabled on both target tables.
+9. no INSERT, UPDATE, DELETE policies or unsafe table grants were added.
+10. no Phase 29R test users/data were created.
+
+Phase 29S must rerun the local RLS harness to validate participant access, non-participant denial, cross-connection isolation, and private helper EXECUTE behavior.
+
+Exact next GO:
+`GO: Run Phase 29S local RLS harness rerun for connection participant recursion fix only.`

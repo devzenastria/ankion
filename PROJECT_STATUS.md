@@ -3608,3 +3608,23 @@ Revision summary:
 
 Next required GO:
 `GO: Commit Phase 29Q revised migration checkpoint only.`
+
+## Phase 29R - Local Migration Apply For Connection Participant RLS Recursion Fix (2026-06-19)
+
+Status: PASS - revised Phase 29Q migration was applied only to the local `supabase_db_ankion` Docker DB / `postgres` database. No staging, production, remote Supabase command, service role key, `.env` secret access, RLS harness, test user/data creation, source/runtime change, package/env/APK/native change, migration edit, new migration file, git add, commit, or push occurred.
+
+Applied migration:
+- `supabase/migrations/20260619153000_fix_connection_participant_rls_recursion.sql`
+
+Local verification:
+- Pre-apply schema-only checkpoint created outside the repository: `C:\Users\ugurc\AppData\Local\Temp\ankion_phase29r_preapply_schema_20260619_161349.sql`.
+- Local migration history recorded: `20260619153000|fix_connection_participant_rls_recursion`.
+- `private` schema exists.
+- `private.is_connection_participant_for_current_user(uuid)` exists, returns boolean, is `SECURITY DEFINER`, and has fixed `search_path=public, auth, pg_temp`.
+- `public.is_connection_participant_for_current_user(uuid)` is absent.
+- `public.connections` and `public.connection_participants` RLS remain enabled.
+- SELECT policies call the private helper; no INSERT/UPDATE/DELETE policies or unsafe table grants were added.
+- Private helper EXECUTE posture still needs Phase 29S behavioral validation.
+
+Next required GO:
+`GO: Run Phase 29S local RLS harness rerun for connection participant recursion fix only.`
