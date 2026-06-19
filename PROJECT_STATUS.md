@@ -3774,3 +3774,36 @@ Reason no new migration was created:
 
 Exact next GO:
 `GO: Create Phase 30C docs checkpoint commit only.`
+
+## Phase 30D - Existing Owner-Controlled Creation Boundary Verification Planning (2026-06-20)
+
+Status: PASS - docs-only verification planning completed for the existing owner-controlled creation boundary. No DB command, psql, Docker DB command, Supabase CLI execution, SQL execution, migration creation/editing/apply, RLS harness, auth simulation, test data/user creation, source/runtime change, package/env/APK/native change, staging, production, git add, commit, or push occurred.
+
+Existing boundary baseline:
+- Function: `public.create_owner_identity_foundation(text, text, text)`.
+- `auth.uid()` is required and `owner_user_id` is set internally from `auth.uid()`.
+- `owner_user_id` is not accepted as client input.
+- Duplicate private profile prevention relies on `profiles_private_owner_user_id_key`.
+- Duplicate active anonymous identity prevention relies on `anonymous_identities_one_active_per_owner_idx`.
+- The boundary uses `SECURITY DEFINER`, fixed `search_path`, schema-qualified crypto, explicit EXECUTE revoke/grant posture, no dynamic SQL, no service-role dependency, and no broad table grants.
+
+Future local verification objective:
+- Verify function metadata and security posture locally before behavior tests.
+- Prove `auth.uid()` simulation works for User A and User B.
+- Prove authenticated User A can create only User A's profile/identity foundation.
+- Prove unauthenticated creation is denied.
+- Prove duplicate private profile creation and duplicate active anonymous identity creation are denied or safely idempotent.
+- Prove User B cannot affect, hijack, or select User A private profile or owner linkage.
+- Prove `owner_user_id` spoofing cannot be attempted through the function input.
+- Prove owner SELECT after creation works only for the owner.
+- Run the future harness transaction-wrapped and verify rollback/cleanup leaves zero persistent deterministic test rows.
+
+Privacy, abuse, and blocked areas:
+- Private profile and anonymous identity remain separated; anonymous surfaces must not expose private profile data, owner linkage, or anonymous-to-real correlation.
+- Reveal, Storage/voice upload, runtime Supabase/Auth integration, APK/Android, face verification implementation, monetization readiness, staging, and production remain separate future work.
+- Instant-reply and voice-reply manipulation, Android local-state tampering, identity farming, hidden profile/identity inference, and client owner spoofing must not create backend authority.
+
+Recommended next phase: Phase 30E - Local static verification of existing owner-controlled creation boundary.
+
+Exact next GO:
+`GO: Run Phase 30D checkpoint verification only.`

@@ -2000,3 +2000,36 @@ Security posture:
 
 Next required GO:
 `GO: Create Phase 30C docs checkpoint commit only.`
+
+## Phase 30D - Existing Owner-Controlled Creation Boundary Verification Readiness (2026-06-20)
+
+Result: PASS - docs-only verification planning. No DB command, psql, Docker DB command, Supabase CLI execution, SQL execution, migration creation/editing/apply, RLS harness, auth simulation, test data/user creation, source/runtime change, package/env/APK/native change, staging, or production occurred.
+
+Readiness baseline:
+
+- Target function: `public.create_owner_identity_foundation(text, text, text)`.
+- `auth.uid()` required.
+- `owner_user_id` derived internally and not accepted from the client.
+- Duplicate private profile prevention: `profiles_private_owner_user_id_key`.
+- Duplicate active anonymous identity prevention: `anonymous_identities_one_active_per_owner_idx`.
+- Security posture: `SECURITY DEFINER`, fixed `search_path`, schema-qualified references, no dynamic SQL, no service-role dependency, explicit EXECUTE revoke/grant posture, no broad table grants.
+
+Future verification requirements:
+
+- Static metadata check for function signature/properties, grants, RLS state, owner SELECT policies, and uniqueness constraints/indexes.
+- Local-only transaction-wrapped harness with User A, User B, and unauthenticated context.
+- Positive owner creation assertion.
+- Spoofed `owner_user_id` assertion by confirming the input cannot be supplied.
+- Unauthenticated denial assertion.
+- Duplicate private profile and duplicate active anonymous identity assertions.
+- Cross-user isolation and identity hijack denial assertions.
+- Owner SELECT after creation limited to the owner.
+- Rollback/cleanup assertion with zero persistent test data.
+
+Still blocked:
+
+- Staging/production, runtime Supabase/Auth integration, APK/native, Storage/voice upload, Reveal, monetization readiness, and face verification implementation.
+
+Exact next GO:
+
+`GO: Run Phase 30D checkpoint verification only.`

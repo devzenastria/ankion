@@ -1695,3 +1695,35 @@ Security posture:
 
 Next required GO:
 `GO: Create Phase 30C docs checkpoint commit only.`
+
+## Phase 30D - Existing Owner-Controlled Creation Verification Planning (2026-06-20)
+
+Status: PASS - docs-only verification planning. No DB command, SQL execution, migration creation/editing/apply, auth simulation, RLS harness, test data/user creation, runtime/Auth work, APK/native work, staging, or production occurred.
+
+Existing boundary baseline:
+
+- `public.create_owner_identity_foundation(text, text, text)` remains the target boundary.
+- `auth.uid()` is required.
+- `owner_user_id` is derived internally from `auth.uid()` and is not accepted as client input.
+- `profiles_private_owner_user_id_key` prevents duplicate private profiles.
+- `anonymous_identities_one_active_per_owner_idx` prevents duplicate active anonymous identities.
+- `SECURITY DEFINER`, fixed `search_path`, schema-qualified references, no dynamic SQL, no service-role dependency, explicit EXECUTE revoke/grant posture, and no broad table grants remain the required security posture.
+
+Future local verification plan:
+
+- Verify function metadata, arguments, grants, RLS state, owner SELECT policies, and uniqueness constraints/indexes before behavioral tests.
+- Use a local-only transaction-wrapped harness with User A, User B, and unauthenticated context.
+- Prove User A can create only User A's own foundation.
+- Prove spoofed `owner_user_id` cannot be supplied through the function input.
+- Prove unauthenticated creation is denied.
+- Prove duplicate private profile and duplicate active anonymous identity attempts are denied or safely idempotent.
+- Prove cross-user creation, linkage hijacking, and non-owner SELECT are denied.
+- Prove rollback/cleanup leaves no persistent deterministic test data.
+
+Remaining blocked:
+
+- Runtime Supabase/Auth integration, staging/production, APK/Android, Storage/voice upload, Reveal, monetization readiness, and face verification implementation remain separate explicit-GO phases.
+
+Exact next GO:
+
+`GO: Run Phase 30D checkpoint verification only.`

@@ -2726,6 +2726,36 @@ Phase 30C did not create a migration file, did not edit old migrations, did not 
 Exact next GO:
 `GO: Create Phase 30C docs checkpoint commit only.`
 
+## Phase 30D - Existing Creation Boundary Verification Slice Plan (2026-06-20)
+
+Result: PASS - docs-only verification planning. No new SQL migration is needed for Phase 30D, and no SQL migration file was created or edited.
+
+Verification target:
+
+- `public.create_owner_identity_foundation(text, text, text)`.
+- Supporting constraints/indexes: `profiles_private_owner_user_id_key` and `anonymous_identities_one_active_per_owner_idx`.
+- Supporting owner SELECT policies from the existing owner-bound SELECT migration.
+
+Future local-only verification sequence:
+
+1. Static local metadata verification: function signature, arguments, `SECURITY DEFINER`, fixed `search_path`, schema-qualified references, no dynamic SQL, no service-role dependency, grants, RLS enabled state, owner SELECT policies, and uniqueness constraints/indexes.
+2. Transaction-wrapped behavioral harness with User A, User B, and unauthenticated/null context.
+3. Positive case: User A creates or receives only User A-owned private profile and active anonymous identity.
+4. Negative cases: unauthenticated denial, duplicate private profile denial/idempotence, duplicate active anonymous identity denial/idempotence, cross-user hijack denial, non-owner SELECT denial, and owner spoofing impossibility through missing `owner_user_id` input.
+5. Cleanup: rollback or deterministic cleanup with zero persistent test rows.
+
+No apply in this phase:
+
+- Phase 30D does not create, edit, or apply migrations.
+- Future local verification requires a separate explicit GO.
+- Staging/production remain NO-GO.
+
+Recommended next phase: Phase 30E - Local static verification of existing owner-controlled creation boundary.
+
+Exact next GO:
+
+`GO: Run Phase 30D checkpoint verification only.`
+
 ## Phase 30B - Owner-Controlled Creation Migration Planning Only (2026-06-19)
 
 Result: PASS - docs-only migration planning completed. No migration file was created or edited. No DB command, SQL execution, migration apply, RLS harness, auth simulation, test data/user creation, runtime integration, package/env/APK/native work, staging, or production occurred.

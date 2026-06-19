@@ -16,6 +16,33 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-20 - Phase 30D Existing Owner-Controlled Creation Boundary Verification Planning
+
+**Type:** Backend Verification Planning / Owner Creation Boundary / Docs Only
+**Status:** Completed
+
+Prepared a docs-only local verification plan for the existing owner-controlled creation boundary:
+
+- `public.create_owner_identity_foundation(text, text, text)`
+- `public.profiles_private`
+- `public.anonymous_identities`
+
+Planning outcome:
+
+- Future verification must prove the function exists locally, keeps `SECURITY DEFINER`, fixed `search_path`, schema-qualified references, no dynamic SQL, no service-role dependency, narrow grants, and no `owner_user_id` input.
+- Future local-only harness must prove `auth.uid()` simulation, authenticated owner creation, unauthenticated denial, duplicate private profile denial, duplicate active anonymous identity denial, cross-user isolation, owner-only SELECT after creation, and rollback/cleanup with zero persistent test data.
+- `owner_user_id` spoofing must be treated as structurally impossible through the function signature and verified by metadata plus negative behavior checks.
+- Privacy separation remains required: private profile data and anonymous identity linkage must not leak through anonymous app surfaces, reveal remains separate, and face verification remains future-only with no raw face/ID storage.
+- Abuse carryover remains: instant-reply, voice-reply, Android local-state manipulation, identity farming, hidden profile inference, and owner spoofing must not create backend authority.
+
+No DB command, psql, Docker DB command, Supabase CLI execution, SQL execution, migration creation/editing/apply, RLS harness execution, auth simulation, test user/data creation, source/runtime change, package/env/APK/native change, staging, production, git add, commit, or push was performed.
+
+Exact next GO:
+
+`GO: Run Phase 30D checkpoint verification only.`
+
+---
+
 ## 2026-06-20 - Phase 30C Owner-Controlled Creation Migration Draft Assessment
 
 **Type:** Backend Migration Draft Assessment / Owner Creation Boundary / Docs Only

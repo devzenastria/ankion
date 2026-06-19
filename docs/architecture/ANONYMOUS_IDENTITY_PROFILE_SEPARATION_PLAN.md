@@ -651,3 +651,32 @@ No new migration is justified without a separately documented gap. A future spli
 
 Exact next GO:
 `GO: Create Phase 30C docs checkpoint commit only.`
+
+## Phase 30D - Existing Boundary Separation Verification Plan (2026-06-20)
+
+Phase 30D is docs-only verification planning. It does not execute DB commands, SQL, migration apply, RLS harness, auth simulation, test data/user creation, runtime/Auth work, APK/native work, staging, or production.
+
+Future local verification must cover `public.create_owner_identity_foundation(text, text, text)` as the existing creation boundary for the first private profile and active anonymous identity.
+
+Required future checks:
+
+- Function exists locally and has no `owner_user_id` input.
+- Ownership is derived only from `auth.uid()`.
+- Authenticated User A can create only User A's own foundation.
+- Unauthenticated creation is denied.
+- Duplicate private profile creation is denied or safely idempotent through `profiles_private_owner_user_id_key`.
+- Duplicate active anonymous identity creation is denied or safely idempotent through `anonymous_identities_one_active_per_owner_idx`.
+- User B cannot affect, hijack, select, or infer User A private profile or anonymous-owner linkage.
+- Owner SELECT after creation exposes only the owner's rows.
+- Transaction rollback/cleanup leaves zero persistent deterministic test rows.
+
+Separation requirements:
+
+- Private profile data and anonymous identity remain separated.
+- Anonymous app surfaces must not expose private profile data, `owner_user_id`, `auth_user_id`, `profile_private_id`, or anonymous-to-real correlation.
+- Reveal/profile visibility remains a separate owner-approved future boundary.
+- Face verification remains future-only and must not store raw face images, ID media, selfie video, or biometric embeddings.
+
+Exact next GO:
+
+`GO: Run Phase 30D checkpoint verification only.`

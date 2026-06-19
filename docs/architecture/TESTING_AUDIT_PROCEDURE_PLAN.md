@@ -2757,3 +2757,45 @@ No DB execution, SQL execution, migration apply, RLS harness, auth simulation, t
 
 Exact next GO:
 `GO: Create Phase 30C docs checkpoint commit only.`
+
+## Phase 30D - Existing Owner-Controlled Creation Boundary Verification Plan (2026-06-20)
+
+Status: PASS - docs-only verification planning. No DB command, SQL execution, migration creation/editing/apply, RLS harness, auth simulation, test data/user creation, runtime/Auth work, APK/native work, staging, or production occurred.
+
+Future local-only verification scope:
+
+- Target function: `public.create_owner_identity_foundation(text, text, text)`.
+- Target tables: `public.profiles_private` and `public.anonymous_identities`.
+- Actors: User A authenticated creator, User B separate authenticated user, and unauthenticated/null context.
+- Harness style: local-only, transaction-wrapped where possible; otherwise deterministic cleanup must prove zero persistent test rows.
+
+Required future assertions:
+
+1. Function exists locally.
+2. Function argument list does not include `owner_user_id`.
+3. Function is `SECURITY DEFINER` with fixed `search_path`, schema-qualified references, no dynamic SQL, no service-role dependency, and narrow grants.
+4. RLS remains enabled on target tables.
+5. `profiles_private_owner_user_id_key` exists.
+6. `anonymous_identities_one_active_per_owner_idx` exists.
+7. `auth.uid()` simulation works for User A and User B.
+8. User A can create or receive only User A-owned foundation rows.
+9. `owner_user_id` spoofing is impossible through the function input.
+10. Unauthenticated creation is denied.
+11. Duplicate private profile creation is denied or safely idempotent.
+12. Duplicate active anonymous identity creation is denied or safely idempotent.
+13. User B cannot create, affect, hijack, or select User A rows or owner linkage.
+14. Owner SELECT after creation works only for the owner.
+15. Rollback/cleanup leaves no persistent deterministic test data.
+
+Privacy and abuse checks:
+
+- Private profile and anonymous identity remain separated.
+- Anonymous surfaces must not expose private profile data, owner linkage, or anonymous-to-real correlation.
+- Instant-reply and voice-reply manipulation must not rely on UI state.
+- Android local-state manipulation must not create backend authority.
+- Identity farming must remain blocked by active identity uniqueness and later abuse controls.
+- Face verification remains future-only and must not store raw face/ID data.
+
+Exact next GO:
+
+`GO: Run Phase 30D checkpoint verification only.`

@@ -3002,3 +3002,33 @@ Conclusion: A new Phase 30C migration draft would duplicate existing boundary be
 
 Next required GO:
 `GO: Create Phase 30C docs checkpoint commit only.`
+
+## Phase 30D - Existing Owner-Controlled Creation Verification Matrix (2026-06-20)
+
+Result: PASS - docs-only verification planning for the existing boundary. No DB command, SQL execution, migration creation/editing/apply, auth simulation, RLS harness, test user/data creation, runtime/Auth work, APK/native work, staging, or production occurred.
+
+Future local verification matrix:
+
+| Case | Expected result | Verification intent |
+| --- | --- | --- |
+| Function metadata: `public.create_owner_identity_foundation(text, text, text)` | PASS | Function exists, no `owner_user_id` argument, `SECURITY DEFINER`, fixed `search_path`, narrow grants. |
+| Authenticated User A creates foundation | ALLOW | Creates or returns only User A-owned `profiles_private` and active `anonymous_identities` rows. |
+| Caller attempts `owner_user_id` spoofing | DENY / impossible | Function signature has no owner input; owner is derived from `auth.uid()`. |
+| Unauthenticated caller invokes function | DENY | `auth.uid()` null path rejects creation. |
+| Duplicate private profile attempt | DENY / safely idempotent | `profiles_private_owner_user_id_key` and function conflict handling prevent duplicate private profile rows. |
+| Duplicate active anonymous identity attempt | DENY / safely idempotent | `anonymous_identities_one_active_per_owner_idx` and function conflict handling prevent duplicate active identities. |
+| User B attempts to affect User A rows | DENY | Cross-user creation, linkage hijacking, and non-owner SELECT remain blocked. |
+| Owner SELECT after creation | OWNER ONLY | User A can see own rows; User B cannot see User A private profile or owner linkage. |
+| Rollback/cleanup | REQUIRED | Transaction rollback or deterministic cleanup leaves zero persistent test rows. |
+
+Abuse carryover:
+
+- Instant-reply and voice-reply manipulation must not rely on UI state.
+- Android local-state manipulation must not create backend authority.
+- Identity farming must be blocked by active identity uniqueness and future rate/abuse controls.
+- Hidden profile/identity inference must be denied.
+- Client-controlled owner spoofing remains forbidden.
+
+Exact next GO:
+
+`GO: Run Phase 30D checkpoint verification only.`
