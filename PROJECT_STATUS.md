@@ -3628,3 +3628,20 @@ Local verification:
 
 Next required GO:
 `GO: Run Phase 29S local RLS harness rerun for connection participant recursion fix only.`
+
+## Phase 29S - Local RLS Harness Rerun For Connection Participant Recursion Fix (2026-06-19)
+
+Status: PASS - local transaction-wrapped RLS harness rerun completed against `supabase_db_ankion` / `postgres`. No migration apply, migration edit, schema change, staging, production, remote Supabase command, service role key, `.env` secret access, source/runtime change, package/env/APK/native change, git add, commit, or push occurred.
+
+Harness result:
+- `auth.uid()` simulation returned the expected UUID for Users A, B, C, and D.
+- Recursion error was absent; no `infinite recursion detected in policy for relation "connection_participants"` occurred.
+- Participant connection SELECT passed: User A and User B saw connection 1; User D saw connection 2.
+- Non-participant denial passed: User C saw zero connection rows and zero participant rows.
+- Cross-connection isolation passed: User D could not see connection 1; User A could not see connection 2.
+- `connection_participants` visibility passed: same-connection participants saw only their own connection membership rows.
+- Private helper execution through RLS policies worked with the current private-schema EXECUTE posture.
+- Transaction rollback completed; deterministic Phase 29S auth users, anonymous identities, connections, and participants remaining: 0.
+
+Next required GO:
+`GO: Create Phase 29S docs checkpoint commit only.`

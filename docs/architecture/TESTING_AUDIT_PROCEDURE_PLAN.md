@@ -2589,3 +2589,29 @@ Phase 29S must rerun the local RLS harness to validate participant access, non-p
 
 Exact next GO:
 `GO: Run Phase 29S local RLS harness rerun for connection participant recursion fix only.`
+
+## Phase 29S - Local RLS Harness Rerun For Connection Participant Recursion Fix (2026-06-19)
+
+Status: PASS - local transaction-wrapped RLS harness rerun completed against `supabase_db_ankion` / `postgres`.
+
+Verified:
+
+1. local DB target confirmed as `supabase_db_ankion` / `postgres`.
+2. migration history included `20260619153000|fix_connection_participant_rls_recursion`.
+3. private helper existed and policies called `private.is_connection_participant_for_current_user(...)`.
+4. public helper was absent.
+5. `auth.uid()` simulation returned expected UUIDs for Users A, B, C, and D.
+6. recursion error was absent.
+7. User A and User B selected connection 1 as participants.
+8. User C selected zero connection and participant rows.
+9. User D was denied connection 1 and selected connection 2.
+10. User A was denied connection 2.
+11. same-connection participant rows were visible only within the relevant connection.
+12. cross-connection participant membership did not leak.
+13. private helper execution through policies worked.
+14. rollback completed and deterministic Phase 29S rows remaining were 0.
+
+No migration apply, migration edit, schema change, staging, production, remote Supabase command, service role key, `.env` secret access, source/runtime change, package/env/APK/native change, git add, commit, or push occurred.
+
+Next required GO:
+`GO: Create Phase 29S docs checkpoint commit only.`

@@ -2860,3 +2860,22 @@ Result: PASS - revised migration applied to local `supabase_db_ankion` only. No 
 
 Exact next GO:
 `GO: Run Phase 29S local RLS harness rerun for connection participant recursion fix only.`
+
+## Phase 29S - Connection Participant RLS Recursion Fix Harness Matrix (2026-06-19)
+
+Result: PASS - local transaction-wrapped RLS harness rerun completed against `supabase_db_ankion` / `postgres`. No staging, production, remote Supabase command, migration apply, migration edit, schema change, source/runtime change, package/env/APK/native change, test data persistence, or commit work was performed.
+
+| Check | Result |
+| --- | --- |
+| `auth.uid()` simulation | PASS for Users A, B, C, and D |
+| recursion blocker | PASS; no `infinite recursion detected in policy for relation "connection_participants"` |
+| participant connection SELECT | PASS; User A and User B saw connection 1, User D saw connection 2 |
+| non-participant connection denial | PASS; User C saw zero rows |
+| cross-connection isolation | PASS; User D could not see connection 1 and User A could not see connection 2 |
+| participant row visibility | PASS; same-connection participants saw only same-connection rows |
+| non-participant participant-row denial | PASS; User C saw zero rows |
+| private helper policy execution | PASS through SELECT policies |
+| rollback / cleanup | PASS; deterministic Phase 29S rows remaining: 0 |
+
+Next required GO:
+`GO: Create Phase 29S docs checkpoint commit only.`

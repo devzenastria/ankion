@@ -3392,6 +3392,37 @@ No DB command, SQL execution, local migration apply, RLS harness, test execution
 
 ---
 
+## 2026-06-19 - Phase 29S Local RLS Harness Rerun For Connection Participant Recursion Fix
+
+**Type:** Local RLS Harness / Transaction-Wrapped Verification  
+**Status:** Completed
+
+Ran the local-only Phase 29S RLS harness against:
+
+- Docker container: `supabase_db_ankion`
+- Database: `postgres`
+
+Result:
+
+- `auth.uid()` simulation succeeded for Users A, B, C, and D.
+- The Phase 29M recursion blocker did not recur.
+- User A and User B selected connection 1 as valid participants.
+- User C selected zero rows as a non-participant.
+- User D selected connection 2 and was denied connection 1.
+- User A was denied connection 2.
+- Same-connection `connection_participants` visibility returned only in-scope participant rows.
+- Cross-connection participant membership did not leak.
+- Private helper execution through RLS policies worked.
+- Transaction rollback completed; deterministic Phase 29S test rows remaining: 0.
+
+Exact next GO:
+
+`GO: Create Phase 29S docs checkpoint commit only.`
+
+No migration apply, migration edit, schema change, staging, production, remote Supabase command, service role key, `.env` secret access, source/runtime change, package/env/APK/native change, git add, commit, or push was performed.
+
+---
+
 ## 2026-06-19 - Phase 29K Local Connection Participant SELECT RLS Policy Apply
 
 **Type:** Backend Local DB Mutation / RLS SELECT Policy Apply  
