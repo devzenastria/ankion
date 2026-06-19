@@ -1668,3 +1668,30 @@ Face verification boundary:
 
 Next required GO:
 `GO: Create Phase 30B docs checkpoint commit only.`
+
+## Phase 30C - Existing Owner-Controlled Creation Boundary Assessment (2026-06-20)
+
+Status: NO-GO / ALREADY_IMPLEMENTED - no new SQL migration draft was created. Existing migrations already implement the controlled creation boundary for `public.profiles_private` and `public.anonymous_identities`.
+
+Data model evidence:
+- `public.profiles_private.owner_user_id` is unique through `profiles_private_owner_user_id_key`.
+- `public.anonymous_identities` has one active identity per owner through `anonymous_identities_one_active_per_owner_idx`.
+- The controlled function creates or returns only rows for `auth.uid()`.
+
+Function boundary:
+- Existing function: `public.create_owner_identity_foundation(text, text, text)`.
+- `auth.uid()` is required; unauthenticated callers are denied.
+- `owner_user_id` is set internally and is not accepted as an input.
+- Caller input is limited to validated profile display fields; status, safety, verification, rotation, audit, deleted, reveal, and system fields remain unavailable.
+- Anonymous label, visual seed, and voice presence values remain controlled by function defaults.
+
+Security posture:
+- `SECURITY DEFINER` with fixed `search_path`.
+- Schema-qualified crypto generation after the Phase 28F correction.
+- No dynamic SQL.
+- No service-role dependency.
+- Explicit EXECUTE revoke/grant posture.
+- No broad table grants and no direct write policies were added for client table writes.
+
+Next required GO:
+`GO: Create Phase 30C docs checkpoint commit only.`

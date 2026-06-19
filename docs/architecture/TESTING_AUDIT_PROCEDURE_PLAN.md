@@ -2732,3 +2732,28 @@ Face verification note:
 
 Exact next GO:
 `GO: Create Phase 30B docs checkpoint commit only.`
+
+## Phase 30C - Existing Owner-Controlled Creation Boundary Verification Path (2026-06-20)
+
+Status: NO-GO / ALREADY_IMPLEMENTED - no new migration draft was created, so no new migration-draft test plan is needed in this phase. Future work should checkpoint-verify the existing `public.create_owner_identity_foundation(text, text, text)` boundary.
+
+Static verification target:
+- Existing migration: `supabase/migrations/20260618143000_create_owner_controlled_creation_boundary.sql`.
+- Corrective migration: `supabase/migrations/20260618170000_fix_controlled_creation_crypto_schema.sql`.
+- Function: `public.create_owner_identity_foundation(text, text, text)`.
+
+Future verification should confirm:
+1. `owner_user_id` is not an input.
+2. `auth.uid()` is required.
+3. `owner_user_id` is set internally from `auth.uid()`.
+4. private profile creation is caller-owned only.
+5. anonymous identity creation is caller-owned only.
+6. duplicate private profile prevention uses `profiles_private_owner_user_id_key`.
+7. duplicate active identity prevention uses `anonymous_identities_one_active_per_owner_idx`.
+8. `SECURITY DEFINER`, fixed `search_path`, schema-qualified crypto, no dynamic SQL, no service-role dependency, no broad table grants, and narrow authenticated EXECUTE are preserved.
+9. return shape exposes only caller-owned ids.
+
+No DB execution, SQL execution, migration apply, RLS harness, auth simulation, test data, runtime/Auth work, APK/native work, or commit occurred in Phase 30C.
+
+Exact next GO:
+`GO: Create Phase 30C docs checkpoint commit only.`

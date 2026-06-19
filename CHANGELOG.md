@@ -16,6 +16,33 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-20 - Phase 30C Owner-Controlled Creation Migration Draft Assessment
+
+**Type:** Backend Migration Draft Assessment / Owner Creation Boundary / Docs Only
+**Status:** NO-GO / Already Implemented
+
+Assessed the existing migrations before creating any new SQL migration draft for owner-controlled creation of:
+
+- `public.profiles_private`
+- `public.anonymous_identities`
+
+Decision:
+
+- No new migration draft was created because the existing controlled creation boundary is already implemented by `public.create_owner_identity_foundation(text, text, text)`.
+- The boundary is defined in `supabase/migrations/20260618143000_create_owner_controlled_creation_boundary.sql` and corrected by `supabase/migrations/20260618170000_fix_controlled_creation_crypto_schema.sql`.
+- The function requires `auth.uid()`, derives `owner_user_id` internally, accepts no `owner_user_id` input, creates or returns only the caller's private profile and active anonymous identity, and returns only the caller-owned ids.
+- Duplicate private profile prevention relies on `profiles_private_owner_user_id_key`.
+- Duplicate active anonymous identity prevention relies on `anonymous_identities_one_active_per_owner_idx`.
+- The function uses `SECURITY DEFINER`, fixed `search_path`, schema-qualified crypto generation, no dynamic SQL, no service-role dependency, explicit function EXECUTE revoke/grant posture, and no broad table grants or direct write policies.
+
+No DB command, psql, Docker DB command, Supabase CLI execution, SQL execution, migration creation/editing/apply, RLS harness execution, auth simulation, test user/data creation, source/runtime change, package/env/APK/native change, staging, production, git add, commit, or push was performed.
+
+Exact next GO:
+
+`GO: Create Phase 30C docs checkpoint commit only.`
+
+---
+
 ## 2026-06-19 - Phase 30B Owner-Controlled Creation Migration Planning
 
 **Type:** Backend Migration Planning / Owner Creation Boundary / Docs Only

@@ -3749,3 +3749,28 @@ Abuse carryover:
 
 Exact next GO:
 `GO: Create Phase 30B docs checkpoint commit only.`
+
+## Phase 30C - Owner-Controlled Creation Migration Draft Assessment (2026-06-20)
+
+Status: NO-GO / ALREADY_IMPLEMENTED - no new SQL migration draft was created because the owner-controlled creation boundary already exists in the committed migration chain. No DB command, psql, Docker DB command, Supabase CLI execution, SQL execution, migration creation/editing/apply, RLS harness, auth simulation, test data/user creation, source/runtime change, package/env/APK/native change, staging, production, git add, commit, or push occurred.
+
+Existing boundary evidence:
+- `supabase/migrations/20260615062809_create_private_profile_and_anonymous_identity_foundation.sql` creates `public.profiles_private` and `public.anonymous_identities`, including `profiles_private_owner_user_id_key` and `anonymous_identities_one_active_per_owner_idx`.
+- `supabase/migrations/20260616090000_create_owner_select_rls_policies.sql` adds owner-bound SELECT policies using `auth.uid() = owner_user_id`.
+- `supabase/migrations/20260618143000_create_owner_controlled_creation_boundary.sql` defines `public.create_owner_identity_foundation(text, text, text)`.
+- `supabase/migrations/20260618170000_fix_controlled_creation_crypto_schema.sql` replaces that function with schema-qualified `extensions.gen_random_bytes(8)`.
+
+Boundary assessment:
+- Existing boundary requires `auth.uid()` and denies unauthenticated callers.
+- `owner_user_id` is not a function input and is set internally from `auth.uid()`.
+- `profiles_private` creation is caller-owned only and duplicate profile creation is blocked or safely idempotent through `profiles_private_owner_user_id_key`.
+- `anonymous_identities` creation is caller-owned only and duplicate active identity creation is blocked or safely idempotent through `anonymous_identities_one_active_per_owner_idx`.
+- The function uses `SECURITY DEFINER`, fixed `search_path`, schema-qualified references for the crypto call, no dynamic SQL, no service-role dependency, explicit EXECUTE revokes from `public` and `anon`, narrow authenticated EXECUTE grant, and no broad table grants.
+- Return shape is minimal: `profile_private_id` and `anonymous_identity_id` for the caller-owned rows only.
+
+Reason no new migration was created:
+- Creating `public.create_my_private_profile(...)` and `public.create_my_anonymous_identity(...)` now would duplicate an already working controlled creation boundary without a documented security gap.
+- A future split-function migration can be proposed only if a later static review identifies a concrete product or security reason.
+
+Exact next GO:
+`GO: Create Phase 30C docs checkpoint commit only.`

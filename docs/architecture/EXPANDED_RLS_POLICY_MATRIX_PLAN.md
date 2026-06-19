@@ -2981,3 +2981,24 @@ Abuse carryover: instant-reply manipulation, voice-reply manipulation, Android l
 
 Next required GO:
 `GO: Create Phase 30B docs checkpoint commit only.`
+
+## Phase 30C - Existing Owner-Controlled Creation Boundary Matrix (2026-06-20)
+
+Result: NO-GO / ALREADY_IMPLEMENTED - no duplicate migration draft was created. The existing `public.create_owner_identity_foundation(text, text, text)` function already covers the owner-controlled creation boundary.
+
+| Scenario | Existing result | Evidence |
+| --- | --- | --- |
+| Authenticated owner creates own private profile | ALLOW | Function inserts/selects `public.profiles_private` scoped to `auth.uid()`. |
+| Authenticated owner spoofs `owner_user_id` | DENY / impossible | Function has no `owner_user_id` parameter and sets owner internally. |
+| Duplicate private profile creation | DENY / safely idempotent | `profiles_private_owner_user_id_key` plus `on conflict (owner_user_id) do nothing`. |
+| Authenticated owner creates own active anonymous identity | ALLOW | Function inserts/selects `public.anonymous_identities` scoped to `auth.uid()`. |
+| Duplicate active anonymous identity | DENY / safely idempotent | `anonymous_identities_one_active_per_owner_idx` plus partial conflict handling. |
+| Identity hijack or cross-user linkage | DENY | No target owner or identity input; lookup is scoped to `auth.uid()`. |
+| Unauthenticated creation | DENY | Function raises `AUTHENTICATED_OWNER_REQUIRED` when `auth.uid()` is null. |
+| Direct broad table writes | DENY | Existing boundary adds no broad INSERT/UPDATE/DELETE grants or policies. |
+| Raw private profile exposure | DENY | Return shape is limited to caller-owned ids. |
+
+Conclusion: A new Phase 30C migration draft would duplicate existing boundary behavior. Next phase should statically verify the existing boundary and decide whether any future split-function migration is actually needed.
+
+Next required GO:
+`GO: Create Phase 30C docs checkpoint commit only.`

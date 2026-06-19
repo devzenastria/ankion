@@ -2702,6 +2702,30 @@ Explicitly not included:
 
 Next required gate: static SQL review before any checkpoint or local apply decision.
 
+## Phase 30C - Existing Owner-Controlled Creation Migration Boundary Assessment (2026-06-20)
+
+Result: NO-GO / ALREADY_IMPLEMENTED - no new SQL migration draft was created because the owner-controlled creation boundary already exists.
+
+Existing migration chain:
+- `supabase/migrations/20260615062809_create_private_profile_and_anonymous_identity_foundation.sql` creates the target tables and duplicate-prevention constraints/indexes.
+- `supabase/migrations/20260616090000_create_owner_select_rls_policies.sql` adds owner SELECT compatibility.
+- `supabase/migrations/20260618143000_create_owner_controlled_creation_boundary.sql` creates `public.create_owner_identity_foundation(text, text, text)`.
+- `supabase/migrations/20260618170000_fix_controlled_creation_crypto_schema.sql` corrects the function to use `extensions.gen_random_bytes(8)`.
+
+Why no new migration draft was created:
+- The existing function requires `auth.uid()`.
+- The function does not accept `owner_user_id`.
+- The function sets `owner_user_id` internally from `auth.uid()`.
+- The function creates or returns only the caller's private profile and active anonymous identity.
+- Duplicate profile prevention is already backed by `profiles_private_owner_user_id_key`.
+- Duplicate active anonymous identity prevention is already backed by `anonymous_identities_one_active_per_owner_idx`.
+- The function uses `SECURITY DEFINER`, fixed `search_path`, schema-qualified crypto generation, no dynamic SQL, no service-role dependency, narrow return, explicit EXECUTE revoke/grant posture, and no broad table grants.
+
+Phase 30C did not create a migration file, did not edit old migrations, did not execute SQL, did not apply migrations, and did not run a harness.
+
+Exact next GO:
+`GO: Create Phase 30C docs checkpoint commit only.`
+
 ## Phase 30B - Owner-Controlled Creation Migration Planning Only (2026-06-19)
 
 Result: PASS - docs-only migration planning completed. No migration file was created or edited. No DB command, SQL execution, migration apply, RLS harness, auth simulation, test data/user creation, runtime integration, package/env/APK/native work, staging, or production occurred.

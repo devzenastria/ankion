@@ -635,3 +635,19 @@ Future face verification note:
 
 Exact next GO:
 `GO: Create Phase 30B docs checkpoint commit only.`
+
+## Phase 30C - Existing Creation Boundary Separation Assessment (2026-06-20)
+
+Phase 30C did not create a new migration draft. The existing `public.create_owner_identity_foundation(text, text, text)` boundary already provides owner-controlled provisioning for the first private profile and active anonymous identity.
+
+Separation assessment:
+- The function derives `owner_user_id` from `auth.uid()` and does not accept owner, target user, private profile, anonymous identity, or anonymous-to-real correlation identifiers from the client.
+- Private profile creation remains real-profile infrastructure for the current authenticated owner only.
+- Anonymous identity creation remains anonymous-facing infrastructure for the current authenticated owner only.
+- The return shape is limited to caller-owned row ids and does not expose raw real profile rows, owner linkage, private profile data, or cross-user existence.
+- Duplicate private profile and duplicate active anonymous identity prevention rely on existing constraints and controlled function conflict handling.
+
+No new migration is justified without a separately documented gap. A future split into `public.create_my_private_profile(...)` and `public.create_my_anonymous_identity(...)` would require a separate static review and explicit GO.
+
+Exact next GO:
+`GO: Create Phase 30C docs checkpoint commit only.`
