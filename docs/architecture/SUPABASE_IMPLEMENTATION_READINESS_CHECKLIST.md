@@ -1928,3 +1928,22 @@ Future Phase 29L checks after any approved local apply:
 
 Exact next DB-mutation GO:
 `GO: Start Phase 29K local connection participant select RLS policy apply.`
+
+## Phase 30A - Owner-Controlled Creation Readiness Planning (2026-06-19)
+
+Result: PASS - docs-only readiness planning completed. No DB command, SQL execution, migration creation/editing/apply, RLS harness, auth simulation, test data/user creation, runtime/Auth integration, package/env/APK/native work, staging, or production occurred.
+
+Readiness decision:
+- Preferred future path: controlled authenticated RPC/function boundary for `profiles_private` and `anonymous_identities` creation.
+- Direct INSERT RLS is not the default readiness path because it increases risk around client-controlled `owner_user_id`, unsafe field mutability, duplicate rows, and identity farming.
+- Any future runtime/Auth integration remains blocked until the creation boundary is reverified and explicitly approved.
+
+Required before any next implementation phase:
+- Confirm current schema and constraints from migrations.
+- Confirm no client-supplied `owner_user_id`.
+- Confirm duplicate private profile and duplicate active anonymous identity prevention.
+- Confirm no anon/public creation, no service-role dependency, no broad write grants, and no raw profile/identity inference.
+- Confirm rollback/cleanup strategy and local-only test data boundary.
+
+Exact next GO:
+`GO: Create Phase 30A docs checkpoint commit only.`

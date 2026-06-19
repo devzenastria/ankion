@@ -1605,3 +1605,31 @@ RLS boundary:
 - Future SELECT must be participant-only.
 - Future write access must use a controlled boundary and must not trust client-supplied owner IDs.
 - No raw `profiles_private` read, public/global conversation list, profile/user search, room/chat-room model, or reveal shortcut is introduced.
+
+## Phase 30A - Owner-Controlled Creation Path Rebaseline (2026-06-19)
+
+Status: PASS - docs-only planning update. No DB command, SQL execution, migration creation/editing/apply, RLS harness, auth simulation, test data/user creation, runtime integration, package/env/APK/native work, staging, or production occurred.
+
+Current data model baseline:
+- `public.profiles_private.owner_user_id` references `auth.users(id)` and is unique through `profiles_private_owner_user_id_key`.
+- `public.profiles_private` includes status, safety, visibility, verification, timestamp, and soft-delete fields that must remain server/default-owned during first creation.
+- `public.anonymous_identities.owner_user_id` references `auth.users(id)`.
+- `public.anonymous_identities` includes `status`, `safety_state`, `rotation_state`, `rotated_at`, timestamps, and `deleted_at`.
+- `anonymous_identities_one_active_per_owner_idx` preserves one active anonymous identity per owner where `status = 'active'` and `deleted_at is null`.
+- RLS is enabled on both tables. Owner SELECT policies exist. Direct INSERT/UPDATE/DELETE policies are still absent.
+
+Preferred future creation model:
+- Controlled authenticated RPC/function boundary remains preferred over direct INSERT RLS.
+- The boundary must derive ownership from `auth.uid()` and must not accept `owner_user_id` from the client.
+- Caller-controlled input must stay limited to an explicit allowlist; owner, safety, status, verification, rotation, audit, deleted, reveal, and system fields remain unavailable to the caller.
+- Direct INSERT RLS is a conditional fallback only if future review proves strict `WITH CHECK`, field-level mutability, duplicate prevention, and abuse controls without broad privilege escalation.
+
+Creation invariants:
+- An authenticated user can create or receive only their own private profile.
+- An authenticated user can create or receive only their own anonymous identity.
+- Duplicate private profiles and duplicate active anonymous identities must be blocked or safely idempotent.
+- Anonymous labels, visual seeds, and voice presence fields must remain non-identifying and must not encode real profile attributes.
+- No public anonymous creation, service-role dependency, profile search, user search, global browsing, or anonymous-to-real lookup path is allowed.
+
+Exact next GO:
+`GO: Create Phase 30A docs checkpoint commit only.`

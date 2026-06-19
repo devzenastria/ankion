@@ -592,3 +592,22 @@ Reveal guardrails:
 - Reveal remains owner-approved and connection/context-bound.
 - Reveal must never grant raw `profiles_private` table read access.
 - Real profile visibility must not depend on Android client checks, fake liveness claims, payment state, or UI state.
+
+## Phase 30A - Creation-Time Separation Guard (2026-06-19)
+
+Phase 30A keeps owner-controlled creation planning docs-only. It does not implement SQL, create or edit migrations, execute DB commands, run a harness, create users/data, or touch runtime/Auth/APK/native work.
+
+Creation-time separation decision:
+- `profiles_private` creation remains real-profile infrastructure only; it must not create a public profile, searchable profile, global profile, or profile-browsing surface.
+- `anonymous_identities` creation remains anonymous interaction infrastructure only; it must not expose private profile data, owner linkage, Auth user IDs, or anonymous-to-real correlation to non-owner clients.
+- The preferred future creation path is a controlled authenticated RPC/function boundary that derives `owner_user_id` from `auth.uid()`, not direct client-provided owner fields.
+- Direct INSERT RLS remains conditional fallback only; it must not be used unless field mutability, spoof denial, duplicate denial, and abuse controls are explicitly approved.
+
+Privacy and abuse requirements:
+- Identity creation must not leak real user identity through anonymous label, visual seed, voice presence, status, rotation, or output shape.
+- Client UI state, instant-reply state, voice-reply state, Android permissions, device checks, or monetization state must not grant creation or reveal permission.
+- Clients must not spoof `owner_user_id`, farm unlimited active identities, hijack an anonymous identity, bypass uniqueness, or infer another user's private profile or anonymous identity.
+- Future reveal/profile visibility remains separate and owner-approved within the relevant connection/context only.
+
+Exact next GO:
+`GO: Create Phase 30A docs checkpoint commit only.`

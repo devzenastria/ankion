@@ -2905,3 +2905,38 @@ Next recommended slice: Phase 30A - Owner-controlled creation path planning for 
 
 Next required GO:
 `GO: Create Phase 29T docs checkpoint commit only.`
+
+## Phase 30A - Owner-Controlled Creation RLS Planning Matrix (2026-06-19)
+
+Result: PASS - docs-only planning completed. No DB command, SQL execution, migration creation/editing/apply, RLS harness, auth simulation, test data/user creation, runtime integration, package/env/APK/native work, staging, or production occurred.
+
+Preferred future implementation direction: controlled authenticated RPC/function boundary. Direct INSERT RLS remains a conditional fallback only after a later explicit review proves spoof denial, field mutability, duplicate prevention, rate limits, and abuse controls.
+
+| Scenario | Planned result | Required future mechanism |
+| --- | --- | --- |
+| Authenticated owner creates own `profiles_private` | ALLOW candidate | Controlled boundary derives `owner_user_id = auth.uid()` and allows only approved profile input fields. |
+| Authenticated owner creates profile for another user | DENY | No `owner_user_id` parameter; spoofed owner input impossible or rejected. |
+| Duplicate private profile creation | DENY / idempotent | `profiles_private_owner_user_id_key` plus controlled conflict handling. |
+| Unauthenticated profile creation | DENY | `auth.uid()` null guard and no anon execute/table write. |
+| Authenticated owner creates own `anonymous_identities` row | ALLOW candidate | Controlled boundary derives owner, uses safe non-identifying defaults, and preserves active identity uniqueness. |
+| Duplicate active anonymous identity | DENY / idempotent | `anonymous_identities_one_active_per_owner_idx` plus controlled conflict handling. |
+| Anonymous identity owner spoof or hijack | DENY | No client owner field; no cross-user UPDATE/INSERT path. |
+| Direct table INSERT/UPDATE/DELETE by client | DENY | No broad write grants or write policies unless a separate explicit phase approves a narrower alternative. |
+| Cross-user SELECT/inference | DENY | Existing owner SELECT remains owner-bound; creation output must not expose other users' profile or identity state. |
+| Public/global/profile/user search | DENY | No public profile, user search, anonymous identity search, global browsing, room/member-directory, or raw profile read path. |
+
+Verification required later:
+- `auth.uid()` simulation.
+- owner creation positive case.
+- spoofed `owner_user_id` denial.
+- duplicate private profile denial.
+- duplicate active anonymous identity denial.
+- unauthenticated denial.
+- cross-user isolation.
+- direct table write denial.
+- rollback/cleanup and persistent test data remaining 0.
+
+Abuse carryover: instant-reply and voice-reply manipulation, Android local-state manipulation, identity farming, and hidden profile/identity inference remain future backend/RLS abuse-control concerns.
+
+Exact next GO:
+`GO: Create Phase 30A docs checkpoint commit only.`

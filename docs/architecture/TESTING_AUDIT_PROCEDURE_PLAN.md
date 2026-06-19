@@ -2655,3 +2655,42 @@ Next recommended slice: Phase 30A - Owner-controlled creation path planning for 
 
 Next required GO:
 `GO: Create Phase 29T docs checkpoint commit only.`
+
+## Phase 30A - Owner-Controlled Creation Verification Plan (2026-06-19)
+
+Status: PASS - docs-only verification planning completed for future owner-controlled creation of `public.profiles_private` and `public.anonymous_identities`. No DB command, SQL execution, migration creation/editing/apply, RLS harness, auth simulation, test execution, test user/data creation, source/runtime change, package/env/APK/native change, staging, or production occurred.
+
+Preferred future test target:
+- Controlled authenticated RPC/function boundary is preferred over direct INSERT RLS.
+- The test plan must prove the boundary derives owner identity from `auth.uid()` and does not trust client-supplied `owner_user_id`.
+- If direct INSERT RLS is reconsidered later, it requires a separate explicit GO and a stricter deny/allow matrix before any apply.
+
+Required future assertions:
+1. `auth.uid()` simulation works for owner A and owner B.
+2. authenticated owner A can create or receive only owner A `profiles_private`.
+3. authenticated owner A cannot create `profiles_private` for owner B.
+4. duplicate private profile creation is denied or safely idempotent.
+5. authenticated owner A can create or receive only owner A active anonymous identity.
+6. duplicate active anonymous identity creation is denied or safely idempotent.
+7. unauthenticated creation is denied.
+8. direct table INSERT/UPDATE/DELETE remains denied unless a separately approved fallback changes the boundary.
+9. client cannot set owner, safety, status, verification, rotation, audit, deleted, reveal, or system fields.
+10. cross-user SELECT/INSERT inference remains denied.
+11. anonymous labels, visual seeds, and voice presence outputs remain non-identifying.
+12. rollback/cleanup completes and persistent test data remains 0.
+
+Abuse and Android carryover:
+- Instant-reply and voice-reply manipulation must not rely on local UI state.
+- Android runtime/device phases must not assume UI permission equals backend permission.
+- Client owner spoofing, identity farming, uniqueness bypass, identity hijacking, and hidden profile/identity inference must be explicitly denied.
+
+Execution boundary:
+- No staging/production.
+- No runtime Supabase/Auth integration.
+- No APK/Android integration.
+- No Storage/voice upload.
+- No Reveal.
+- No monetization readiness.
+
+Exact next GO:
+`GO: Create Phase 30A docs checkpoint commit only.`

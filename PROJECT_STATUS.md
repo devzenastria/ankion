@@ -3678,3 +3678,38 @@ Next recommended slice:
 
 Next required GO:
 `GO: Create Phase 29T docs checkpoint commit only.`
+
+## Phase 30A - Owner-Controlled Creation Path Planning (2026-06-19)
+
+Status: PASS - docs-only planning completed for safe owner-controlled creation of `public.profiles_private` and `public.anonymous_identities`. No implementation, DB command, SQL execution, migration creation/editing/apply, RLS harness, auth simulation, test data/user creation, source/runtime change, package/env/APK/native change, staging, production, git add, commit, or push occurred.
+
+Current baseline:
+- `public.profiles_private` exists with `owner_user_id` linked to `auth.users(id)`, `profiles_private_owner_user_id_key`, status/safety/visibility/verification defaults, timestamps, and `deleted_at`.
+- `public.anonymous_identities` exists with `owner_user_id` linked to `auth.users(id)`, active identity uniqueness through `anonymous_identities_one_active_per_owner_idx`, status/safety/rotation defaults, timestamps, and `deleted_at`.
+- RLS is enabled on both tables. Owner SELECT policies exist. Direct INSERT/UPDATE/DELETE policies remain absent.
+- `public.create_owner_identity_foundation(text, text, text)` exists locally from the Phase 28 controlled creation slice and Phase 28H passed 27/27 local harness assertions, but runtime/Auth/Supabase client integration remains blocked.
+
+Preferred future creation design:
+- Preferred path remains a controlled authenticated RPC/function boundary over direct INSERT RLS.
+- Reason: the controlled boundary derives `owner_user_id` from `auth.uid()`, does not accept client-supplied owner IDs, limits caller-controlled fields, preserves duplicate prevention through existing constraints/indexes, and avoids broad table write grants.
+- Direct INSERT RLS remains a fallback only if a later phase proves strict `WITH CHECK`, column mutability, duplicate handling, rate limits, and abuse controls without enabling spoofing or system-field mutation.
+- Future review must keep no service-role dependency, no public/anon creation, no profile/identity search, and no anonymous-to-real profile correlation path.
+
+Creation boundary plan:
+- `profiles_private`: authenticated owner can create or receive only one own private profile; user cannot create for another owner; duplicate active/private profile creation must be blocked; safety/status/audit/verification/soft-delete fields must remain server/default-owned.
+- `anonymous_identities`: authenticated owner can create or receive only own anonymous identity; active identity uniqueness must hold; label/visual/voice fields must stay non-identifying; status/rotation/safety/deleted fields must not be client-abusable; identity hijacking and cross-user linkage leaks remain forbidden.
+
+Future verification plan:
+- Later explicit-GO execution must cover `auth.uid()` simulation, owner creation positive case, spoofed `owner_user_id` denial, duplicate private profile denial, duplicate active anonymous identity denial, unauthenticated denial, cross-user isolation, direct table write denial, rollback/cleanup, and no persistent test data.
+
+Abuse and privacy carryover:
+- Instant-reply and voice-reply manipulation must not rely on local UI state.
+- Android runtime/device phases must not assume UI permission equals backend permission.
+- Client must not spoof `owner_user_id`, farm unlimited anonymous identities, bypass uniqueness, or infer other users' private profiles or identities.
+- Private profile and anonymous identity remain separated; reveal/profile visibility remains a separate owner-approved connection/context boundary.
+
+Remaining blocked areas:
+- Staging/production, runtime Supabase/Auth integration, APK/Android, Storage/voice upload, Reveal, feed/runtime binding, monetization readiness, and broader abuse systems remain separate future work.
+
+Next required GO:
+`GO: Create Phase 30A docs checkpoint commit only.`

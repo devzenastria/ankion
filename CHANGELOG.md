@@ -16,6 +16,32 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-19 - Phase 30A Owner-Controlled Creation Path Planning
+
+**Type:** Backend Planning / RLS Creation Boundary / Docs Only  
+**Status:** Completed
+
+Prepared a docs-only owner-controlled creation path plan for:
+
+- `public.profiles_private`
+- `public.anonymous_identities`
+
+Planning outcome:
+
+- Current schema baseline was reviewed: both tables exist, both link `owner_user_id` to `auth.users(id)`, `profiles_private` has one-owner uniqueness, `anonymous_identities` has one-active-identity-per-owner uniqueness, RLS is enabled, owner SELECT policies exist, and direct INSERT/UPDATE/DELETE policies remain absent.
+- Preferred future direction remains a controlled authenticated RPC/function boundary rather than direct INSERT RLS.
+- The preferred boundary must bind `owner_user_id` to `auth.uid()`, avoid client-supplied owner IDs, preserve duplicate/active-identity constraints, avoid broad privilege escalation, and keep private profile and anonymous identity separated.
+- Direct INSERT RLS remains only a conditional fallback after strict `WITH CHECK`, field mutability, duplicate prevention, rate-limit, abuse, and deny/allow tests are explicitly approved.
+- Future verification must cover owner creation positive case, spoofed owner denial, duplicate profile denial, duplicate active identity denial, unauthenticated denial, cross-user isolation, rollback/cleanup, and no persistent test data.
+
+No DB command, psql, Docker DB command, Supabase CLI execution, SQL execution, migration creation/editing/apply, RLS harness execution, auth simulation, test user/data creation, source/runtime change, package/env/APK/native change, staging, production, git add, commit, or push was performed.
+
+Exact next GO:
+
+`GO: Create Phase 30A docs checkpoint commit only.`
+
+---
+
 ## 2026-06-18 - Phase 27A Backend SubAgent Operating Model
 
 **Type:** Backend Planning / Process Guardrail  

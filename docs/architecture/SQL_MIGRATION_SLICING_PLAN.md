@@ -2702,6 +2702,27 @@ Explicitly not included:
 
 Next required gate: static SQL review before any checkpoint or local apply decision.
 
+## Phase 30A - Owner-Controlled Creation Future Migration Slice Plan (2026-06-19)
+
+Result: PASS - docs-only planning note. No SQL execution, DB command, migration creation/editing/apply, RLS harness, auth simulation, test data/user creation, runtime integration, package/env/APK/native work, staging, or production occurred.
+
+Future migration/RLS/RPC direction:
+- Preferred future implementation path is the controlled authenticated creation function/RPC boundary, not direct INSERT RLS.
+- The existing local controlled creation boundary shape (`public.create_owner_identity_foundation(text, text, text)`) already avoids a client `owner_user_id` argument and derives ownership from `auth.uid()`.
+- Any future revision or apply/checkpoint phase must preserve no service-role dependency, no anon/public creation, no broad table write grants, no direct unrestricted INSERT/UPDATE/DELETE policy, and no client-controlled system/safety/status/rotation/deleted fields.
+- Direct INSERT RLS may be considered only as a separately approved fallback with strict `WITH CHECK (auth.uid() = owner_user_id)`, explicit column/mutability limits, duplicate prevention, and negative harness coverage.
+
+Future local-only execution gates:
+1. Static checkpoint verification of this Phase 30A plan.
+2. Separate explicit GO before any migration draft or migration edit.
+3. Separate explicit GO before any local DB apply.
+4. Separate explicit GO before any RLS harness, auth simulation, or test user/data creation.
+
+Future verification must cover owner creation, spoof denial, duplicate profile denial, duplicate active identity denial, unauthenticated denial, cross-user isolation, direct table write denial, rollback/cleanup, and no persistent test data.
+
+Exact next GO:
+`GO: Create Phase 30A docs checkpoint commit only.`
+
 ## Phase 29J - Connection Primitive RLS Policy Local Apply Readiness Preflight (2026-06-19)
 
 Result: PASS - local apply readiness/preflight completed for the Phase 29I participant-only SELECT RLS policy candidate. No DB command, SQL execution, local migration apply, Supabase db push/reset/link, RLS harness, test execution, test data/user, runtime integration, Storage, Reveal, APK/native, package/dependency, staging, or production work occurred.
