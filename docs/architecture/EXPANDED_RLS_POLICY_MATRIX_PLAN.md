@@ -2816,3 +2816,26 @@ Reviewed draft:
 
 Required next GO:
 `GO: Create Phase 29Q migration revision for connection participant RLS recursion RPC exposure only.`
+
+## Phase 29Q - Revised Connection Participant RLS Recursion Fix Matrix (2026-06-19)
+
+Result: PASS - existing migration draft revised only. No DB command, SQL execution, migration apply, RLS harness rerun, test data/user, new migration file, runtime integration, package/env/APK/native, staging, or production work was performed.
+
+Revised draft:
+- `supabase/migrations/20260619153000_fix_connection_participant_rls_recursion.sql`
+
+| Check | Revised posture |
+| --- | --- |
+| helper schema | `private`, not `public` |
+| helper function | `private.is_connection_participant_for_current_user(target_connection_id uuid) returns boolean` |
+| security | `SECURITY DEFINER`, fixed `search_path = public, auth, pg_temp` |
+| RPC exposure | public-schema helper removed; no public helper grant remains |
+| grants | private schema access revoked from `public`, `anon`, `authenticated`; EXECUTE granted only on private helper to `authenticated` for policy-use review |
+| row data | none returned; boolean only |
+| membership linkage | `public.anonymous_identities.owner_user_id = auth.uid()` |
+| policy replacement | both SELECT policies call the private helper |
+| write boundary | no INSERT/UPDATE/DELETE/WITH CHECK policy |
+| apply readiness | ready for static checkpoint verification; local apply still requires later explicit GO |
+
+Exact next GO:
+`GO: Commit Phase 29Q revised migration checkpoint only.`

@@ -3517,6 +3517,32 @@ No DB command, psql, Docker DB command, Supabase CLI execution, SQL execution, m
 
 ---
 
+## 2026-06-19 - Phase 29Q Migration Revision For Connection Participant RLS Recursion RPC Exposure
+
+**Type:** Backend RLS Migration Draft Revision / Local Source Only  
+**Status:** Completed
+
+Revised existing migration draft:
+
+- `supabase/migrations/20260619153000_fix_connection_participant_rls_recursion.sql`
+
+Revision:
+
+- Replaced the public helper with `private.is_connection_participant_for_current_user(target_connection_id uuid)`.
+- Added `create schema if not exists private` and explicit schema revokes from `public`, `anon`, and `authenticated`.
+- Kept the helper boolean-only with `SECURITY DEFINER`, fixed `search_path`, schema-qualified references, no dynamic SQL, and no row data return.
+- Updated `public.connections` and `public.connection_participants` SELECT policies to call the private helper.
+- Preserved the recursive-policy fix while reducing the public RPC membership-probe surface identified in Phase 29P.
+- Added no write policies, no table grants, no service-role dependency, no runtime integration, and no new migration file.
+
+Exact next GO:
+
+`GO: Commit Phase 29Q revised migration checkpoint only.`
+
+No DB command, psql, Docker DB command, Supabase CLI execution, SQL execution, migration apply, RLS harness rerun, test data/user creation, source/runtime change, package/env/APK/native change, staging, production, git add, commit, or push was performed.
+
+---
+
 ## 2026-06-19 - Phase 29J Connection Primitive RLS Policy Local Apply Readiness Preflight
 
 **Type:** Backend Readiness / Local RLS Apply Preflight  

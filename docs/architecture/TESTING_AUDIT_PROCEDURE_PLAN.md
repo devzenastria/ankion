@@ -2548,3 +2548,23 @@ Future verification requirement:
 
 Exact next GO:
 `GO: Create Phase 29Q migration revision for connection participant RLS recursion RPC exposure only.`
+
+## Phase 29Q - Revised Connection Participant RLS Recursion Migration Review Plan (2026-06-19)
+
+Status: PASS - existing Phase 29O migration draft revised to reduce public RPC probing exposure. No DB command, Docker DB command, psql, Supabase CLI execution, SQL execution, migration apply, RLS harness rerun, test execution, test data/user creation, new migration file, source/runtime change, package/env/APK/native change, staging, production, git add, commit, or push occurred.
+
+Revised draft:
+- `supabase/migrations/20260619153000_fix_connection_participant_rls_recursion.sql`
+
+Static checkpoint verification must confirm:
+1. public helper was removed from final policy calls.
+2. `private.is_connection_participant_for_current_user(target_connection_id uuid)` exists.
+3. helper remains boolean-only, `SECURITY DEFINER`, fixed `search_path`, schema-qualified, and dynamic-SQL-free.
+4. policy calls use the private helper for both `public.connections` and `public.connection_participants`.
+5. recursive policy shape remains removed.
+6. no INSERT, UPDATE, DELETE, or `WITH CHECK` policy is added.
+7. no broad table grants or service-role dependency is added.
+8. private schema and helper EXECUTE posture are reviewed before any apply.
+
+Exact next GO:
+`GO: Commit Phase 29Q revised migration checkpoint only.`
