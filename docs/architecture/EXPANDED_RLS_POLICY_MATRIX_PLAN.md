@@ -2646,3 +2646,32 @@ Future harness requirements:
 - verify participant-only SELECT before any runtime binding.
 - verify closed, blocked, frozen, deleted, and non-participant states deny unsafe continuation.
 - verify no test output exposes raw private profile data.
+
+## Phase 29F - Connection Primitive Verification Matrix (2026-06-19)
+
+Result: PASS - planning-only metadata verification matrix for the local connection primitive tables. No DB command, SQL execution, RLS harness, test data/user, runtime integration, package/env/APK/native, staging, or production work was performed.
+
+Current intended state after Phase 29E local corrective apply:
+
+| Surface | Expected metadata result |
+| --- | --- |
+| `public.connections` | table exists, RLS enabled, no policies |
+| `public.connection_participants` | table exists, RLS enabled, no policies |
+| anon/authenticated/PUBLIC table privileges | no SELECT/INSERT/UPDATE/DELETE/TRUNCATE/REFERENCES/TRIGGER |
+| FK targets | anonymous identities and connection primitive only |
+| `profiles_private` path | DENY / forbidden; no FK or raw read path |
+| global conversation list | DENY / forbidden; no policy or grant |
+| participant-only SELECT | FUTURE EXPLICIT PHASE; not implemented in Phase 29F |
+| direct broad write | DENY / forbidden; no broad write policy |
+| voice/reveal/storage/runtime | OUT OF SCOPE / not implemented |
+
+Future Phase 29G metadata verification must confirm deny-by-default remains intact before any participant-only SELECT policy is considered.
+
+Product boundaries remain unchanged:
+- No profile search.
+- No user search.
+- No public profile.
+- No room/chat-room/member-directory model.
+- Anonymous identity and real profile remain separated.
+- Reveal remains untouched and does not grant raw `profiles_private` access.
+- Monetization cannot bypass identity, reveal, or consent.

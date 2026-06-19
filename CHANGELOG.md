@@ -3309,3 +3309,20 @@ Applied the corrective grant migration to the local Supabase DB only:
 No staging, production, remote Supabase command, RLS harness, test execution, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, app runtime integration, Dev Console work, or commit was performed.
 
 ---
+
+## 2026-06-19 - Phase 29F Connection Primitive Local Verification Planning
+
+**Type:** Backend Test Planning / Connection Primitive Metadata Verification  
+**Status:** Completed  
+
+Planned the local-only metadata verification phase for connection primitives after Phase 29C and Phase 29E local applies:
+
+- Scoped future verification to local `supabase_db_ankion` metadata for `public.connections` and `public.connection_participants`.
+- Defined future Phase 29G assertions for table existence, RLS enabled, no policies, no anon/authenticated/PUBLIC table privileges, FK targets, constraints, safety/moderation fields, timestamps, soft delete fields, and absence of forbidden profile/search/room/runtime paths.
+- Kept future Phase 29G metadata-only by default; any data tests or test users require separate explicit GO.
+- Reconfirmed deny-by-default: participant-only SELECT remains a future explicit phase, and no broad write/global list policy is approved.
+- Documented exact future GO: `GO: Run Phase 29G local connection primitive metadata verification only.`
+
+No DB command, SQL execution, local migration apply, RLS harness, test execution, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, voice upload/storage, staging, production, Dev Console work, or commit was performed.
+
+---

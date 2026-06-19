@@ -1813,3 +1813,29 @@ Readiness checks:
 
 Next required review:
 - Static SQL review must confirm the revoke-only scope before any checkpoint or local corrective apply decision.
+
+## Phase 29F - Connection Primitive Local Verification Readiness (2026-06-19)
+
+Result: PASS - docs-only readiness plan for future local metadata verification. No DB command, SQL execution, migration apply, Supabase db push/reset/link, RLS harness, test execution, test data/user, Auth runtime, Supabase client runtime, Storage, Reveal, RPC/view/function/trigger runtime, APK/native, package/dependency, staging, production, Dev Console, or commit work occurred.
+
+Readiness scope:
+- Future verification target is local `supabase_db_ankion` only.
+- Future target tables are `public.connections` and `public.connection_participants` only.
+- Verification should be metadata/schema-only by default.
+- No `profiles_private` verification output, reveal, Storage, voice upload/storage, runtime object, staging, or production scope is approved.
+
+Future Phase 29G checks:
+- Tables exist and RLS is enabled.
+- No `CREATE POLICY` exists.
+- No anon/authenticated/PUBLIC DML or unsafe non-DML table privileges exist.
+- Foreign keys point only to `public.anonymous_identities` and `public.connections`.
+- Status/lifecycle/reply eligibility, participant role/state, safety/moderation, timestamps, and soft delete fields/constraints exist.
+- No `profiles_private` path, voice message table, Storage, Reveal, runtime object, global listing, room/chat-room model, profile search, user search, or browsing path exists.
+
+RLS boundary:
+- Current state remains deny-by-default: RLS enabled and no policies.
+- Participant-only SELECT is a future explicit phase.
+- Broad direct write policies and global list policies remain blocked.
+
+Exact future GO:
+`GO: Run Phase 29G local connection primitive metadata verification only.`

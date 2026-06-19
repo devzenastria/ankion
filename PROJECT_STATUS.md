@@ -3341,3 +3341,30 @@ Local apply result:
 
 Next required phase:
 - Phase 29E checkpoint verification. Harness execution, test data/user creation, runtime integration, staging, and production remain blocked until separate explicit GO.
+
+## Phase 29F - Connection Primitive Local Verification Planning (2026-06-19)
+
+Status: PASS - docs-only local verification planning completed for the connection/conversation primitive tables. No DB command, SQL execution, local migration apply, Supabase db push/reset/link, RLS harness, test execution, test data/user creation, migration creation/editing, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, voice upload/storage, app runtime integration, staging, production, Dev Console work, or commit was performed.
+
+Planned local verification scope:
+- Local-only target: `supabase_db_ankion`.
+- Target tables: `public.connections` and `public.connection_participants`.
+- Verification should be metadata/schema-only by default.
+- No `profiles_private` row output or private profile verification output.
+- No reveal, Storage, voice upload/storage, runtime, staging, or production verification.
+
+Future Phase 29G assertion summary:
+- Verify both connection primitive tables exist and RLS remains enabled.
+- Verify no `CREATE POLICY` exists and no anon/authenticated/PUBLIC `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `TRUNCATE`, `REFERENCES`, or `TRIGGER` privilege exists.
+- Verify FK targets are limited to `public.anonymous_identities` and `public.connections`; no `profiles_private` path exists.
+- Verify status, lifecycle, reply eligibility, participant role/state, safety/moderation, timestamps, and soft delete fields/constraints exist.
+- Verify no `voice_messages`, Storage, Reveal, runtime object, global conversation list, room/chat-room model, profile/user search, or browsing path exists.
+
+Future execution boundary:
+- Phase 29G should prefer metadata/schema verification only.
+- Any data tests, test data, or test users require separate explicit GO.
+- Persistent fake data must remain 0 in any future execution phase.
+- Exact future GO: `GO: Run Phase 29G local connection primitive metadata verification only.`
+
+Next required phase:
+- Phase 29F checkpoint verification. Phase 29G metadata verification remains blocked until separate explicit GO.

@@ -2164,3 +2164,45 @@ Covered assertions:
 - No broad write policies or write grants were introduced.
 
 No raw private profile row contents were printed. No staging, production, migration edit/apply, RLS policy edit, runtime integration, Storage, Reveal, APK/native, package/dependency, or Dev Console work was performed.
+
+## Phase 29F - Connection Primitive Metadata Verification Plan (2026-06-19)
+
+Status: PASS - planning-only local verification plan for the connection primitive tables. No DB command, SQL execution, RLS harness run, test execution, test data/user creation, runtime integration, Storage, Reveal, APK/native, package/dependency, staging, or production work occurred.
+
+### Local Verification Scope
+
+- Local-only target for future execution: `supabase_db_ankion`.
+- Target tables: `public.connections` and `public.connection_participants`.
+- Verification should inspect metadata/schema only by default.
+- Do not print `profiles_private` rows or private profile data.
+- Do not verify reveal, Storage, voice upload/storage, runtime objects, staging, or production.
+
+### Required Future Phase 29G Assertions
+
+1. `public.connections` exists.
+2. `public.connection_participants` exists.
+3. RLS is enabled on both tables.
+4. No `CREATE POLICY` exists on either table.
+5. No `SELECT`, `INSERT`, `UPDATE`, or `DELETE` grants exist for `anon`, `authenticated`, or `PUBLIC`.
+6. No `TRUNCATE`, `REFERENCES`, or `TRIGGER` grants exist for `anon`, `authenticated`, or `PUBLIC`.
+7. FK targets are only `public.anonymous_identities` and `public.connections`.
+8. No `profiles_private` FK or raw read path exists.
+9. Status, lifecycle, and reply eligibility constraints exist.
+10. Participant role and participant state constraints exist.
+11. Safety/moderation fields exist.
+12. Timestamps and soft delete fields exist.
+13. No `voice_messages` table exists.
+14. No Storage, Reveal, or runtime objects are introduced.
+15. No global conversation listing path exists.
+16. No room/chat-room model exists.
+17. No profile search, user search, or browsing path exists.
+
+### Test Data Boundary
+
+- Phase 29G should remain metadata/schema verification only unless a later prompt explicitly approves data tests.
+- No test data or test users are created in Phase 29F.
+- Any future data tests require separate explicit GO and cleanup verification.
+- Persistent fake data must remain 0 in any future execution phase.
+
+Exact future GO:
+`GO: Run Phase 29G local connection primitive metadata verification only.`
