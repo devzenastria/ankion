@@ -2912,3 +2912,27 @@ Abuse carryover for later tests:
 - face verification remains future-only; `@veriff/react-native-sdk` is only a future provider direction, and ANKION must store only verification result fields, not raw face images, selfie video, ID media, or biometric embeddings.
 
 Next recommended phase: Phase 31C - Auth DTO/session contract preflight.
+
+## Phase 31C - Auth DTO / Session Contract Test Planning Record (2026-06-20)
+
+Status: PASS - Auth DTO/session contract preflight recorded as docs-only. No source code, TypeScript interface/type file, package install, package/lockfile edit, `.env` change, runtime Supabase/Auth binding, DB command, SQL, psql, Docker DB command, Supabase CLI, target function invocation, auth simulation, test user/data, mutation, migration work, RLS harness, APK/native change, staging, production, commit, or push occurred.
+
+Future contract assertions:
+1. `AuthSessionState` covers `unknown`, `loading`, `unauthenticated`, `authenticated`, `refresh_pending`, `expired`, `refresh_failed`, `local_cached_untrusted`, and `recovery_required`.
+2. `AuthSessionState` is UI/request eligibility only and cannot derive `owner_user_id`.
+3. `AuthUserView` is not backend owner source and provider metadata, verification flags, and debug/local flags are non-authoritative.
+4. `AnonymousIdentityReadiness` covers `unknown`, `not_created`, `creation_eligible`, `creation_pending`, `ready`, `denied`, `blocked`, `stale_cache`, and `needs_refresh`.
+5. `AnonymousIdentityReadiness.ready` is trusted only after server confirmation.
+6. `OwnerCreationReadiness` covers `not_authenticated`, `session_loading`, `session_expired`, `eligible`, `pending`, `complete`, `denied`, `idempotent_existing`, `blocked_by_policy`, `network_unavailable`, and `needs_recovery`.
+7. `AuthErrorState` includes the planned session, owner creation, cache mismatch, replay/offline/debug trust, network, and unknown error codes.
+8. `SessionRecoveryState` cannot use local cache as backend truth and offline mode cannot authorize owner creation.
+9. Forbidden client-authority fields are absent: `client_owner_user_id`, `owner_user_id_override`, `force_authenticated`, `force_identity_ready`, `force_profile_created`, `local_entitlement_override`, `verification_override`, `debug_auth_bypass`.
+10. Owner creation call contract allows only `p_chosen_display_name`, `p_short_bio`, and `p_age_band`; owner remains `auth.uid()`.
+
+Abuse test carryover:
+- Android local-state: cached identity, fake entitlement, fake verification, replayed session, clock manipulation, offline bypass, rooted/emulator manipulation, debug flag abuse, client-side trust abuse, fake profile created state, fake anonymous identity ready state, local-only owner switch, local auth bypass.
+- Instant abuse: instant-match manipulation, reveal state manipulation, connection state manipulation, local UI forcing, cooldown/rate bypass, fake presence, fake waiting/replyable transition, local-only entitlement spoofing.
+- Voice abuse: uploaded voice spoofing, replay audio, manipulated local draft, fake recorder state, forged voice metadata, anonymous identity carryover, connection reply abuse, storage boundary bypass.
+- Face verification future-only: `@veriff/react-native-sdk` remains a future provider direction, ANKION stores only verification result fields, no raw face/ID/biometric storage, and verification result fields cannot be client-overridden.
+
+Next recommended phase: Phase 31D - Auth DTO/source implementation planning. Phase 31D must not implement source code.

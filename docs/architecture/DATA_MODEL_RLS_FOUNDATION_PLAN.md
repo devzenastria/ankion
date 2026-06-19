@@ -1824,3 +1824,27 @@ Runtime NO-GO remains:
 - no staging/production.
 
 Next recommended phase: Phase 31C - Auth DTO/session contract preflight.
+
+## Phase 31C - Auth DTO / Session Data-RLS Contract Preflight (2026-06-20)
+
+Status: PASS - Auth DTO/session contract preflight documented as docs-only. No source code, package/env/runtime, DB/SQL, migration, RLS harness, APK/native, staging, production, commit, or push occurred.
+
+Data/RLS contract:
+- `AuthSessionState` states are `unknown`, `loading`, `unauthenticated`, `authenticated`, `refresh_pending`, `expired`, `refresh_failed`, `local_cached_untrusted`, and `recovery_required`.
+- `AuthUserView` may carry auth/server-derived current user data for display, but it is not the backend owner source.
+- `AnonymousIdentityReadiness` states are `unknown`, `not_created`, `creation_eligible`, `creation_pending`, `ready`, `denied`, `blocked`, `stale_cache`, and `needs_refresh`.
+- `OwnerCreationReadiness` states are `not_authenticated`, `session_loading`, `session_expired`, `eligible`, `pending`, `complete`, `denied`, `idempotent_existing`, `blocked_by_policy`, `network_unavailable`, and `needs_recovery`.
+- `AuthErrorState` covers `AUTHENTICATED_OWNER_REQUIRED`, session errors, owner creation denial/idempotence, anonymous identity not ready, cache mismatch, replay/offline/debug trust blocks, network unavailable, and unknown auth error.
+- `SessionRecoveryState` covers `none`, `refresh_required`, `reauth_required`, `clear_local_cache_required`, `server_recheck_required`, `blocked_until_online`, and `security_review_required`.
+
+RLS owner rule:
+- `auth.uid()` remains the only backend owner source.
+- Client DTOs must not carry owner authority.
+- Forbidden client-authority fields include `client_owner_user_id`, `owner_user_id_override`, `force_authenticated`, `force_identity_ready`, `force_profile_created`, `local_entitlement_override`, `verification_override`, and `debug_auth_bypass`.
+
+Owner creation call contract:
+- Future function args remain `p_chosen_display_name`, `p_short_bio`, and `p_age_band`.
+- `owner_user_id` never enters client payload.
+- Runtime call remains blocked until explicit GO.
+
+Staging and production remain NO-GO. Next recommended phase: Phase 31D - Auth DTO/source implementation planning, planning-only.

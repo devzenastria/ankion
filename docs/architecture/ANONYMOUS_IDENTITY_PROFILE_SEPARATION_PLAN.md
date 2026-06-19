@@ -737,3 +737,32 @@ Abuse carryover:
 - Voice abuse: uploaded voice spoofing, replay audio, manipulated local draft, fake recorder state, forged voice metadata, anonymous identity carryover, connection reply abuse, and storage boundary bypass.
 
 Face verification remains future-only and separate from Auth/session and owner-controlled creation. `@veriff/react-native-sdk` is only a future provider direction; ANKION stores only verification result fields and never raw face images, selfie video, ID media, or biometric embeddings.
+
+## Phase 31C - Auth DTO / Session Separation Contract (2026-06-20)
+
+Phase 31C plans the Auth DTO/session contract without implementation. It does not create TypeScript types, edit source, install packages, change env files, bind runtime Auth/Supabase, call functions, run DB/SQL commands, create migrations, change APK/native files, touch staging/production, commit, or push.
+
+Separation contract:
+- `AuthSessionState` is UI/request eligibility only and cannot assign owners.
+- `AuthUserView` is an auth-derived current-user view and is not public identity.
+- `AnonymousIdentityReadiness` must be server-confirmed before the client treats anonymous identity as ready.
+- `OwnerCreationReadiness` can model eligibility, pending, complete, denied, idempotent existing, policy blocked, network unavailable, and recovery states, but backend remains the authority.
+- `AuthErrorState` and `SessionRecoveryState` must clear or recheck local state instead of trusting it.
+
+Forbidden client-authority fields:
+- `client_owner_user_id`.
+- `owner_user_id_override`.
+- `force_authenticated`.
+- `force_identity_ready`.
+- `force_profile_created`.
+- `local_entitlement_override`.
+- `verification_override`.
+- `debug_auth_bypass`.
+
+Owner creation remains separated from client identity:
+- function args are only `p_chosen_display_name`, `p_short_bio`, and `p_age_band`.
+- `owner_user_id` is never a client payload field.
+- backend owner source remains `auth.uid()`.
+- duplicate/idempotent existing response remains safe only under the Phase 30J verified no-duplicate/no-orphan behavior.
+
+Android local-state, instant abuse, voice abuse, and face-verification future-only risks remain preserved. Verification result fields cannot be client-overridden.

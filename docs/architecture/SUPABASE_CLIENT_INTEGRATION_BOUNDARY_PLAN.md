@@ -1057,3 +1057,47 @@ Future GO gates:
 - Staging/production remain NO-GO.
 
 Abuse carryover remains required for Android local-state manipulation, instant-match/reveal/connection manipulation, voice spoofing and replay, and storage boundary bypass. Face verification remains future-only; `@veriff/react-native-sdk` is not a Phase 31B dependency and ANKION must store only verification result fields, not raw face images, selfie video, ID media, or biometric embeddings.
+
+## Phase 31C - Auth DTO / Session Contract Client Boundary (2026-06-20)
+
+Phase 31C is docs-only. It does not create TypeScript types, edit source, install packages, change env files, bind runtime Supabase/Auth, wire screens, call backend functions, run DB/SQL commands, create migrations, run tests, change APK/native files, touch staging/production, commit, or push.
+
+Client contract planning:
+
+| Contract | Planned states / fields | Client boundary |
+| --- | --- | --- |
+| `AuthSessionState` | `unknown`, `loading`, `unauthenticated`, `authenticated`, `refresh_pending`, `expired`, `refresh_failed`, `local_cached_untrusted`, `recovery_required` | UI/request eligibility only; not owner authority. |
+| `AuthUserView` | auth-derived user id; minimal PII if needed; provider/verification/debug flags non-authoritative | Not backend owner source. |
+| `AnonymousIdentityReadiness` | `unknown`, `not_created`, `creation_eligible`, `creation_pending`, `ready`, `denied`, `blocked`, `stale_cache`, `needs_refresh` | Local cache is not authority; ready must be server-confirmed. |
+| `OwnerCreationReadiness` | `not_authenticated`, `session_loading`, `session_expired`, `eligible`, `pending`, `complete`, `denied`, `idempotent_existing`, `blocked_by_policy`, `network_unavailable`, `needs_recovery` | Future call eligibility only; backend decides. |
+| `AuthErrorState` | safe error codes including session, owner creation, cache mismatch, replay/offline/debug blocks, network, unknown | Display/recovery only. |
+| `SessionRecoveryState` | `none`, `refresh_required`, `reauth_required`, `clear_local_cache_required`, `server_recheck_required`, `blocked_until_online`, `security_review_required` | Cannot promote local cache to backend truth. |
+
+DTO trust boundary:
+- trusted backend-derived fields: Auth/RLS/RPC-confirmed and safe DTO scoped.
+- untrusted local-only fields: cache, optimistic UI, local entitlement, local verification, debug flags, offline state, rooted/emulator signals.
+- display-only fields: may render UI but cannot authorize backend actions.
+- request eligibility fields: may allow a future request attempt but cannot decide access.
+
+Forbidden client-authority fields:
+- `client_owner_user_id`.
+- `owner_user_id_override`.
+- `force_authenticated`.
+- `force_identity_ready`.
+- `force_profile_created`.
+- `local_entitlement_override`.
+- `verification_override`.
+- `debug_auth_bypass`.
+
+Owner creation call contract:
+- Future args are only `p_chosen_display_name`, `p_short_bio`, and `p_age_band`.
+- Client never sends `owner_user_id`.
+- Owner source remains backend `auth.uid()`.
+- Duplicate/idempotent existing response is planned as safe because Phase 30J verified bounded rows and no orphan identity.
+- No runtime call occurs in Phase 31C.
+
+Abuse carryover remains required for Android local-state manipulation, instant manipulation, voice spoofing/replay, and Storage boundary bypass. Face verification remains future-only; verification result fields cannot be client-overridden.
+
+Future GO gates: DTO/source implementation GO, Supabase dependency install GO, env/client boundary update GO, runtime Auth integration GO, owner creation runtime wiring GO, local Auth test GO, APK/native GO, staging GO, and production GO.
+
+Next recommended phase: Phase 31D - Auth DTO/source implementation planning. Phase 31D must remain planning/preflight only.

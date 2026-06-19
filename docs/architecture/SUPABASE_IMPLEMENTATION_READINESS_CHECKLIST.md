@@ -2179,3 +2179,41 @@ Security carryover:
 - Android local-state, instant abuse, voice abuse, and face-verification future-only boundaries remain preserved.
 
 Next recommended phase: Phase 31C - Auth DTO/session contract preflight.
+
+## Phase 31C - Auth DTO / Session Contract Preflight (2026-06-20)
+
+Result: PASS - Auth DTO/session contract preflight completed as docs-only. No source code implementation, TypeScript interface/type file creation or edit, runtime Supabase/Auth binding, package install, package/lockfile edit, `.env` change, app screen wiring, DB command, SQL, psql, Docker DB command, Supabase CLI, target function invocation, auth simulation, test data, migration work, RLS harness, APK/native change, staging, production, commit, push, or pull occurred.
+
+Contract readiness:
+- `AuthSessionState`: `unknown`, `loading`, `unauthenticated`, `authenticated`, `refresh_pending`, `expired`, `refresh_failed`, `local_cached_untrusted`, `recovery_required`.
+- `AuthUserView`: auth/server-derived user id view; PII minimal; provider metadata, verification flags, and debug/local flags are not client authority.
+- `AnonymousIdentityReadiness`: `unknown`, `not_created`, `creation_eligible`, `creation_pending`, `ready`, `denied`, `blocked`, `stale_cache`, `needs_refresh`.
+- `OwnerCreationReadiness`: `not_authenticated`, `session_loading`, `session_expired`, `eligible`, `pending`, `complete`, `denied`, `idempotent_existing`, `blocked_by_policy`, `network_unavailable`, `needs_recovery`.
+- `AuthErrorState`: includes `AUTHENTICATED_OWNER_REQUIRED`, session missing/expired/refresh failed, owner creation denial/idempotent existing, anonymous identity not ready, cache mismatch, replay/offline/debug trust blocks, network unavailable, and unknown auth error.
+- `SessionRecoveryState`: `none`, `refresh_required`, `reauth_required`, `clear_local_cache_required`, `server_recheck_required`, `blocked_until_online`, `security_review_required`.
+
+DTO trust boundary:
+- Trusted fields are backend-derived.
+- Local/cache/debug/offline fields are untrusted.
+- Display-only and request-eligibility fields do not authorize backend actions.
+- Forbidden fields: `client_owner_user_id`, `owner_user_id_override`, `force_authenticated`, `force_identity_ready`, `force_profile_created`, `local_entitlement_override`, `verification_override`, `debug_auth_bypass`.
+
+Owner creation call contract:
+- future args only `p_chosen_display_name`, `p_short_bio`, `p_age_band`.
+- no client `owner_user_id`.
+- owner source remains `auth.uid()`.
+- duplicate/idempotent existing response remains documented as Phase 30J PASS.
+- no runtime call in Phase 31C.
+
+Future GO gates:
+- DTO/source implementation GO.
+- Supabase dependency install GO.
+- env/client boundary update GO.
+- runtime Auth integration GO.
+- owner creation runtime wiring GO.
+- local Auth test GO.
+- APK/native GO.
+- staging GO.
+- production GO.
+
+Staging and production remain NO-GO. Next recommended phase: Phase 31D - Auth DTO/source implementation planning.

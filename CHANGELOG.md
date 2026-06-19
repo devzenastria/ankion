@@ -16,6 +16,33 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-20 - Phase 31C Auth DTO/Session Contract Preflight
+
+**Type:** Auth DTO / Session Contract Preflight / Docs Only
+**Status:** Completed
+
+Planned the Auth DTO/session contract without implementation.
+
+Contract decisions:
+
+- `AuthSessionState` states: `unknown`, `loading`, `unauthenticated`, `authenticated`, `refresh_pending`, `expired`, `refresh_failed`, `local_cached_untrusted`, `recovery_required`.
+- `AuthUserView` remains a minimal auth-derived current-user view and is not the backend owner source.
+- `AnonymousIdentityReadiness` states: `unknown`, `not_created`, `creation_eligible`, `creation_pending`, `ready`, `denied`, `blocked`, `stale_cache`, `needs_refresh`.
+- `OwnerCreationReadiness` states: `not_authenticated`, `session_loading`, `session_expired`, `eligible`, `pending`, `complete`, `denied`, `idempotent_existing`, `blocked_by_policy`, `network_unavailable`, `needs_recovery`.
+- `AuthErrorState` and `SessionRecoveryState` categories were defined for future safe UI/recovery handling.
+- DTO trust boundaries were documented, including trusted backend-derived fields, untrusted local-only fields, display-only fields, request-eligibility fields, and forbidden client-authority fields.
+- Owner creation call contract remains limited to `p_chosen_display_name`, `p_short_bio`, and `p_age_band`; `owner_user_id` remains absent from client payloads and owner source remains `auth.uid()`.
+
+Abuse carryover remains in force for Android local-state manipulation, instant-match/reveal/connection manipulation, voice spoofing and replay, and face-verification future-only boundaries. Verification result fields cannot be client-overridden.
+
+No source code, TypeScript interface/type file, package install, package.json edit, lockfile edit, `.env` creation/edit, runtime Supabase/Auth binding, app screen wiring, DB command, SQL execution, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, migration creation/edit/apply, RLS harness execution, APK/native change, staging, production, git add, commit, pull, or push occurred.
+
+Exact next GO:
+
+`GO: Start Phase 31D Auth DTO/source implementation planning only.`
+
+---
+
 ## 2026-06-20 - Phase 31B Supabase Client Dependency and Env Preflight
 
 **Type:** Supabase Client Dependency / Env Boundary Preflight / Docs Only

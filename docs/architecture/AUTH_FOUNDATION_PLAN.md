@@ -1058,3 +1058,144 @@ Runtime remains NO-GO:
 - no staging/production.
 
 Next recommended phase: Phase 31C - Auth DTO/session contract preflight.
+
+## Phase 31C - Auth DTO / Session Contract Preflight (2026-06-20)
+
+Status: PASS - Auth DTO/session contract preflight completed as docs-only. No source code, TypeScript interface/type file, runtime Auth integration, Supabase client binding, package install, package/lockfile edit, `.env` change, DB command, SQL, psql, Docker DB command, Supabase CLI, target function call, auth simulation, test data, migration work, RLS harness, APK/native work, staging, production, commit, or push occurred.
+
+### `AuthSessionState`
+
+Planned states:
+- `unknown`.
+- `loading`.
+- `unauthenticated`.
+- `authenticated`.
+- `refresh_pending`.
+- `expired`.
+- `refresh_failed`.
+- `local_cached_untrusted`.
+- `recovery_required`.
+
+Rules:
+- Session state is for UI/request eligibility.
+- Session state is not an owner assignment source.
+- `owner_user_id` cannot be derived from client session state.
+
+### `AuthUserView`
+
+Planned fields:
+- user id, only as server/auth-derived view.
+- email/phone kept minimal if ever displayed.
+- auth provider metadata is not client authority.
+- verification flags are not client authority.
+- debug/local flags are not owner authority.
+
+Rule: `AuthUserView` is not the backend owner source. Backend owner source remains only `auth.uid()`.
+
+### `AnonymousIdentityReadiness`
+
+Planned states:
+- `unknown`.
+- `not_created`.
+- `creation_eligible`.
+- `creation_pending`.
+- `ready`.
+- `denied`.
+- `blocked`.
+- `stale_cache`.
+- `needs_refresh`.
+
+Rules:
+- Local cached `anonymous_identity_id` is not backend authority.
+- `ready` is not trusted until server-confirmed.
+- Fake anonymous identity ready state remains an Android/local abuse risk.
+
+### `OwnerCreationReadiness`
+
+Planned states:
+- `not_authenticated`.
+- `session_loading`.
+- `session_expired`.
+- `eligible`.
+- `pending`.
+- `complete`.
+- `denied`.
+- `idempotent_existing`.
+- `blocked_by_policy`.
+- `network_unavailable`.
+- `needs_recovery`.
+
+Rules:
+- Owner creation can advance only after a valid authenticated session.
+- Client cannot send `owner_user_id`.
+- Function call remains future runtime GO.
+- Duplicate/idempotent existing response is a safe state only when backend row counts remain bounded.
+
+### `AuthErrorState`
+
+Planned codes:
+- `AUTHENTICATED_OWNER_REQUIRED`.
+- `SESSION_MISSING`.
+- `SESSION_EXPIRED`.
+- `SESSION_REFRESH_FAILED`.
+- `OWNER_CREATION_DENIED`.
+- `OWNER_CREATION_IDEMPOTENT_EXISTING`.
+- `ANONYMOUS_IDENTITY_NOT_READY`.
+- `LOCAL_CACHE_MISMATCH`.
+- `REPLAYED_SESSION_SUSPECTED`.
+- `OFFLINE_TRUST_BLOCKED`.
+- `DEBUG_TRUST_BLOCKED`.
+- `NETWORK_UNAVAILABLE`.
+- `UNKNOWN_AUTH_ERROR`.
+
+### `SessionRecoveryState`
+
+Planned states:
+- `none`.
+- `refresh_required`.
+- `reauth_required`.
+- `clear_local_cache_required`.
+- `server_recheck_required`.
+- `blocked_until_online`.
+- `security_review_required`.
+
+Rules:
+- Recovery cannot promote local cache to backend truth.
+- Offline mode cannot authorize owner creation or identity readiness.
+
+### DTO Trust Boundary
+
+Trusted backend-derived fields are server/Auth/RLS/RPC confirmed. Untrusted local-only fields include cache, optimistic UI, debug flags, local verification, local entitlement, and offline state. Display-only fields may render UI but cannot authorize actions. Request eligibility fields may allow the client to request an action, but backend decides.
+
+Forbidden client-authority fields:
+- `client_owner_user_id`.
+- `owner_user_id_override`.
+- `force_authenticated`.
+- `force_identity_ready`.
+- `force_profile_created`.
+- `local_entitlement_override`.
+- `verification_override`.
+- `debug_auth_bypass`.
+
+### Owner Creation Call Contract
+
+Future function args remain:
+- `p_chosen_display_name`.
+- `p_short_bio`.
+- `p_age_band`.
+
+`owner_user_id` never enters client payload. `auth.uid()` remains backend owner source. Duplicate private profile idempotent response is documented as PASS in Phase 30J. No runtime call occurs in Phase 31C.
+
+### Abuse And Future Gates
+
+Android local-state risks remain: cached identity, fake entitlement, fake verification, replayed session, clock manipulation, offline bypass, rooted/emulator manipulation, debug flag abuse, client-side trust abuse, fake profile created state, fake anonymous identity ready state, local-only owner switch, and local auth bypass.
+
+Instant abuse risks remain: instant-match manipulation, reveal state manipulation, connection state manipulation, local UI forcing, cooldown/rate bypass, fake presence, fake waiting/replyable transition, and local-only entitlement spoofing.
+
+Voice abuse risks remain: uploaded voice spoofing, replay audio, manipulated local draft, fake recorder state, forged voice metadata, anonymous identity carryover, connection reply abuse, and storage boundary bypass.
+
+Face verification remains future-only. `@veriff/react-native-sdk` is only a future provider direction; ANKION stores only verification result fields and never raw face images, selfie video, ID media, or biometric embeddings. Verification result fields cannot be client-overridden.
+
+Future GO gates: DTO/source implementation GO, Supabase dependency install GO, env/client boundary update GO, runtime Auth integration GO, owner creation runtime wiring GO, local Auth test GO, APK/native GO, staging GO, and production GO. Staging and production remain NO-GO.
+
+Next recommended phase: Phase 31D - Auth DTO/source implementation planning. Phase 31D must not implement source code.

@@ -16,6 +16,53 @@ ChatGPT / User / Codex-assisted
 
 # Current Phase
 
+## Phase 31C - Auth DTO/Session Contract Preflight (2026-06-20)
+
+Status: PASS - Auth DTO/session contract preflight completed as docs-only. No source code implementation, TypeScript interface/type file creation or edit, runtime Supabase/Auth binding, `@supabase/supabase-js` install, package.json edit, lockfile edit, `.env` creation/edit, app screen wiring, DB command, SQL execution, DB connection, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, APK/native/Android change, staging/production action, commit, push, or pull occurred.
+
+Contract summary:
+- `AuthSessionState`: `unknown`, `loading`, `unauthenticated`, `authenticated`, `refresh_pending`, `expired`, `refresh_failed`, `local_cached_untrusted`, `recovery_required`.
+- `AuthUserView`: minimal auth-derived current-user view; user id is auth/server-derived only; email/phone and provider metadata remain minimal and non-authoritative; verification/debug/local flags are not owner authority.
+- `AnonymousIdentityReadiness`: `unknown`, `not_created`, `creation_eligible`, `creation_pending`, `ready`, `denied`, `blocked`, `stale_cache`, `needs_refresh`.
+- `OwnerCreationReadiness`: `not_authenticated`, `session_loading`, `session_expired`, `eligible`, `pending`, `complete`, `denied`, `idempotent_existing`, `blocked_by_policy`, `network_unavailable`, `needs_recovery`.
+- `AuthErrorState`: `AUTHENTICATED_OWNER_REQUIRED`, `SESSION_MISSING`, `SESSION_EXPIRED`, `SESSION_REFRESH_FAILED`, `OWNER_CREATION_DENIED`, `OWNER_CREATION_IDEMPOTENT_EXISTING`, `ANONYMOUS_IDENTITY_NOT_READY`, `LOCAL_CACHE_MISMATCH`, `REPLAYED_SESSION_SUSPECTED`, `OFFLINE_TRUST_BLOCKED`, `DEBUG_TRUST_BLOCKED`, `NETWORK_UNAVAILABLE`, `UNKNOWN_AUTH_ERROR`.
+- `SessionRecoveryState`: `none`, `refresh_required`, `reauth_required`, `clear_local_cache_required`, `server_recheck_required`, `blocked_until_online`, `security_review_required`.
+
+Trust boundary:
+- Trusted fields are backend-derived and validated through Auth/RLS/RPC boundaries.
+- Untrusted fields are local-only, cached, optimistic, debug, offline, rooted/emulator, or user-controlled state.
+- Display-only fields may render UI but must not authorize owner creation, profile visibility, reveal, connection, or Storage access.
+- Request eligibility fields may gate whether UI can request an action, but backend remains the authority.
+- Forbidden client-authority fields: `client_owner_user_id`, `owner_user_id_override`, `force_authenticated`, `force_identity_ready`, `force_profile_created`, `local_entitlement_override`, `verification_override`, `debug_auth_bypass`.
+
+Owner creation call contract:
+- Future function args remain only `p_chosen_display_name`, `p_short_bio`, and `p_age_band`.
+- Client payload must not include `owner_user_id`.
+- Backend owner source remains `auth.uid()`.
+- Duplicate private profile idempotent response is documented as PASS from Phase 30J.
+- Runtime call is not performed in Phase 31C and requires separate explicit GO.
+
+Abuse carryover:
+- Android local-state risks remain: cached identity, fake entitlement, fake verification, replayed session, clock manipulation, offline bypass, rooted/emulator manipulation, debug flag abuse, client-side trust abuse, fake profile created state, fake anonymous identity ready state, local-only owner switch, and local auth bypass.
+- Instant abuse risks remain: instant-match manipulation, reveal state manipulation, connection state manipulation, local UI forcing, cooldown/rate bypass, fake presence, fake waiting/replyable transition, and local-only entitlement spoofing.
+- Voice abuse risks remain: uploaded voice spoofing, replay audio, manipulated local draft, fake recorder state, forged voice metadata, anonymous identity carryover, connection reply abuse, and storage boundary bypass.
+- Face verification remains future-only; provider direction may be `@veriff/react-native-sdk`, ANKION stores only verification result fields, raw face image/selfie video/ID media/biometric embedding storage remains forbidden, and verification result fields cannot be client-overridden.
+
+Future GO gates:
+- DTO/source implementation GO.
+- Supabase dependency install GO.
+- Env/client boundary update GO.
+- Runtime Auth integration GO.
+- Owner creation runtime wiring GO.
+- Local Auth test GO.
+- APK/native GO.
+- staging GO.
+- production GO.
+
+Staging and production remain NO-GO.
+
+Next recommended phase: Phase 31D - Auth DTO/source implementation planning. Phase 31D must remain planning/preflight only; actual TypeScript DTO/source scaffold requires separate explicit GO.
+
 ## Phase 31B - Supabase Client Dependency and Env Preflight (2026-06-20)
 
 Status: PASS - Supabase client dependency and env preflight completed as docs-only. No package install, package.json edit, lockfile edit, `.env` creation/edit, secret addition, Supabase client runtime binding, runtime Auth integration, app screen wiring, DB command, SQL execution, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, migration creation/edit/apply, RLS harness execution, APK/native/Android change, staging/production action, commit, push, or pull occurred.
