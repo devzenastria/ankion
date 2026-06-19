@@ -3368,3 +3368,26 @@ Future execution boundary:
 
 Next required phase:
 - Phase 29F checkpoint verification. Phase 29G metadata verification remains blocked until separate explicit GO.
+
+## Phase 29G - Local Connection Primitive Metadata Verification (2026-06-19)
+
+Status: PASS - local metadata/schema verification completed against `supabase_db_ankion`. No staging, production, remote Supabase command, Supabase db push/reset/link, migration creation/edit/apply, schema change, RLS policy edit/create, RLS harness with test actors, test execution requiring fake rows, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, voice upload/storage, app runtime integration, Dev Console work, or commit was performed.
+
+Metadata verification result:
+- Target tables `public.connections` and `public.connection_participants` exist locally.
+- RLS is enabled on both tables.
+- No `CREATE POLICY` exists on either table.
+- `anon` and `authenticated` have no `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `TRUNCATE`, `REFERENCES`, or `TRIGGER` privileges on either table.
+- No `PUBLIC` grants are listed for either table.
+- Foreign keys are limited to `public.anonymous_identities` and `public.connections`; no `profiles_private` FK/read path exists.
+- Required status, lifecycle, reply eligibility, participant role/state, safety/moderation, timestamp, and soft-delete metadata exists.
+- No `voice_messages`, `reveal_requests`, `profile_visibility_grants`, room/chat-room/search/listing, Storage, Reveal, trigger, or runtime function object was introduced.
+
+Assertion result:
+- Metadata assertions: 32 total, 32 passed, 0 failed.
+- No test users/data were created.
+- No raw table row data or private profile row contents were output.
+- Phase 29G persistent fake data remaining: 0.
+
+Next required phase:
+- Phase 29G checkpoint verification. Any future participant-only SELECT policy, data test, runtime integration, Storage, Reveal, APK/native, staging, or production work remains blocked until separate explicit GO.

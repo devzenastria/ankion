@@ -3326,3 +3326,24 @@ Planned the local-only metadata verification phase for connection primitives aft
 No DB command, SQL execution, local migration apply, RLS harness, test execution, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, voice upload/storage, staging, production, Dev Console work, or commit was performed.
 
 ---
+
+## 2026-06-19 - Phase 29G Local Connection Primitive Metadata Verification
+
+**Type:** Local DB Metadata Verification / Connection Primitive  
+**Status:** Completed  
+
+Verified the connection primitive local metadata state against `supabase_db_ankion`:
+
+- Verified `public.connections` and `public.connection_participants` exist locally.
+- Verified RLS is enabled on both tables.
+- Verified no policies exist on either table.
+- Verified no `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `TRUNCATE`, `REFERENCES`, or `TRIGGER` privileges for `anon` or `authenticated` on either table, and no `PUBLIC` grants are listed.
+- Verified FK targets are limited to `public.anonymous_identities` and `public.connections`; no `profiles_private` FK path exists.
+- Verified status/lifecycle/reply eligibility, participant role/state, safety/moderation, timestamp, and soft-delete metadata exists.
+- Verified no `voice_messages`, `reveal_requests`, `profile_visibility_grants`, room/chat-room/search/listing, Storage, Reveal, trigger, or runtime function object was introduced by this slice.
+
+Metadata assertions: 32 total, 32 passed, 0 failed. No test users/data were created, no row data was output, and Phase 29G persistent fake data remaining is 0.
+
+No staging, production, remote Supabase command, migration creation/edit/apply, RLS harness, test execution requiring fake rows, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, app runtime integration, Dev Console work, or commit was performed.
+
+---

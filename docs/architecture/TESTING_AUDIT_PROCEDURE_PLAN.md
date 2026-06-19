@@ -2206,3 +2206,26 @@ Status: PASS - planning-only local verification plan for the connection primitiv
 
 Exact future GO:
 `GO: Run Phase 29G local connection primitive metadata verification only.`
+
+## Phase 29G - Connection Primitive Metadata Verification Result (2026-06-19)
+
+Status: PASS - local metadata/schema verification completed against `supabase_db_ankion`.
+
+Execution boundary:
+- Metadata/catalog/privilege/RLS/FK/constraint checks only.
+- No RLS harness with test actors.
+- No test users or test data.
+- No row data output and no `profiles_private` row contents.
+- No migration creation, migration edit, migration apply, schema change, RLS policy edit/create, runtime integration, Storage, Reveal, APK/native, staging, or production.
+
+Result:
+- Metadata assertions: 32 total, 32 passed, 0 failed.
+- `public.connections` and `public.connection_participants` exist.
+- RLS is enabled on both tables.
+- No policies exist on either table.
+- No anon/authenticated/PUBLIC DML or unsafe non-DML table privileges remain.
+- FK targets remain limited to `public.anonymous_identities` and `public.connections`.
+- No `profiles_private` FK/read path exists.
+- Required status/lifecycle/reply eligibility, participant role/state, safety/moderation, timestamp, and soft-delete metadata exists.
+- No voice/reveal/storage/runtime/listing/search/room object was introduced.
+- Persistent fake data remaining from Phase 29G: 0, because no fake data was created.
