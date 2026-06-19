@@ -3511,3 +3511,48 @@ Exact future DB/RLS harness GO required before execution:
 `GO: Run Phase 29M local connection participant RLS verification harness only.`
 
 Next safe step: Phase 29L checkpoint verification can run after human review.
+
+## Phase 29N - Connection Participant RLS Recursion Fix Planning (2026-06-19)
+
+Status: PASS - docs-only recursion fix plan prepared after Phase 29M local harness failed with `ERROR: infinite recursion detected in policy for relation "connection_participants"`. No DB command, Docker DB command, psql, SQL execution, migration creation/editing/apply, RLS harness rerun, test data/user creation, source/runtime change, package/env/APK/native change, staging, production, Dev Console work, git add, commit, or push occurred.
+
+Failure summary:
+- Selecting `public.connections` as an authenticated participant triggered `connections_participant_select_own`.
+- That policy checks `public.connection_participants`.
+- `connection_participants_participant_select_same_connection` also queries `public.connection_participants`.
+- PostgreSQL detects recursive RLS evaluation on `connection_participants`.
+- Phase 29M verified local target, RLS enabled, policy existence, and `auth.uid()` simulation, but participant SELECT, non-participant denial, cross-connection isolation, and participant-row visibility assertions were blocked by recursion.
+
+Fix objective:
+- Remove recursive policy evaluation while preserving participant-only SELECT, same-connection participant visibility, cross-connection isolation, non-participant denial, and `public.anonymous_identities.owner_user_id = auth.uid()` linkage.
+
+Future migration design:
+- Add a narrowly scoped `SECURITY DEFINER` helper function: `public.is_connection_participant_for_current_user(target_connection_id uuid) returns boolean`.
+- Function must return only boolean and never row data.
+- Function must use fixed `search_path`, schema-qualified references, no dynamic SQL, and no service role dependency.
+- Function must check `auth.uid()` through `public.anonymous_identities.owner_user_id`.
+- Function must check active/non-deleted `anonymous_identities` and active/non-deleted `connection_participants` rows using current schema columns: `status`, `deleted_at`, `participant_state`, and participant `safety_state`.
+- Replace both SELECT policies so `public.connections` calls the helper with `id`, and `public.connection_participants` calls the helper with the row `connection_id`.
+- Avoid direct self-referencing SELECT from `public.connection_participants` inside the `connection_participants` policy.
+- Define explicit revoke/grant expectations for function EXECUTE; no anon/PUBLIC execute unless separately justified, and authenticated execute only if required for policy evaluation.
+
+Security and limitation notes:
+- `SECURITY DEFINER` must be reviewed for owner, RLS bypass behavior, fixed search path, and privilege scope before any apply.
+- The helper is intended to break recursion by performing membership lookup outside the caller policy's recursive RLS path while returning only a boolean.
+- If local Supabase/Postgres function ownership does not bypass the recursive RLS path as expected, Phase 29O/29P must stop and report a blocker rather than broadening policies.
+- No raw `profiles_private` path, reveal implication, profile/user search, global list, room/chat-room model, or participant directory is allowed.
+
+Future verification requirements:
+- metadata check for helper function shape, `SECURITY DEFINER`, fixed search path, grants, and policy definitions.
+- `auth.uid()` simulation.
+- participant positive SELECT, non-participant denial, cross-connection isolation, participant-row visibility, non-participant participant-row denial, rollback/cleanup, and persistent fake data count 0.
+
+Abuse carryover:
+- Instant-reply manipulation must not infer hidden participant rows.
+- Voice-reply manipulation must not bypass participant-bound reads.
+- Android runtime/device phases must not trust local UI/device state as backend permission.
+
+Exact future GO:
+`GO: Create Phase 29O local migration draft for connection participant RLS recursion fix only.`
+
+Next safe step: Phase 29N checkpoint verification.

@@ -2739,3 +2739,36 @@ Candidate migration:
 | raw `profiles_private` access | DENY / forbidden; no reference or read path. |
 
 The candidate keeps anonymous identity and real profile separation intact. Reveal, Storage, voice messages, profile/user search, public profile browsing, room/chat-room behavior, and runtime integration remain out of scope.
+
+## Phase 29N - Connection Participant RLS Recursion Fix Matrix (2026-06-19)
+
+Result: PASS - docs-only planning for the Phase 29M recursion blocker. No DB command, SQL execution, migration creation/editing/apply, RLS harness rerun, test data/user, runtime integration, package/env/APK/native, staging, or production work was performed.
+
+Phase 29M blocker:
+
+| Item | Finding |
+| --- | --- |
+| error | `ERROR: infinite recursion detected in policy for relation "connection_participants"` |
+| blocked relation | `public.connection_participants` |
+| current cause | `connections` policy reads `connection_participants`; `connection_participants` policy also reads `connection_participants`. |
+| blocked checks | participant SELECT, non-participant denial, cross-connection isolation, participant-row visibility. |
+
+Future corrected posture:
+
+| Surface | Planned correction |
+| --- | --- |
+| helper | `public.is_connection_participant_for_current_user(target_connection_id uuid) returns boolean` |
+| helper security | narrow `SECURITY DEFINER`, fixed `search_path`, schema-qualified references, no dynamic SQL |
+| helper output | boolean only; no row data |
+| membership linkage | `public.anonymous_identities.owner_user_id = auth.uid()` |
+| participant filters | active/non-deleted identity and participant rows using current schema columns |
+| `connections` SELECT | call helper with current row `id` |
+| `connection_participants` SELECT | call helper with current row `connection_id` |
+| self-reference | no direct self-referencing SELECT inside `connection_participants` policy |
+| grants | explicit revoke/grant plan for EXECUTE; no broad public posture |
+| product boundary | no raw `profiles_private`, Reveal, global list, profile/user search, room/chat-room model |
+
+The future fix must preserve participant-only access, same-connection visibility, cross-connection isolation, and non-participant denial while removing recursive RLS evaluation. If local function ownership/RLS behavior does not break recursion safely, the future execution phase must stop instead of broadening policies.
+
+Exact future GO:
+`GO: Create Phase 29O local migration draft for connection participant RLS recursion fix only.`

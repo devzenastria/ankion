@@ -2391,3 +2391,115 @@ Status: PASS - docs-only planning for future participant-bound SELECT RLS verifi
 Phase 29L does not run verification. Any DB execution, RLS harness work, test users, or test data require a later explicit GO:
 
 `GO: Run Phase 29M local connection participant RLS verification harness only.`
+
+## Phase 29N - Connection Participant RLS Recursion Fix Plan (2026-06-19)
+
+Status: PASS - docs-only fix planning after Phase 29M local RLS harness failed with recursion. No DB command, Docker DB command, psql, SQL execution, migration creation/editing/apply, RLS harness rerun, test execution, test data/user creation, source/runtime change, package/env/APK/native change, staging, production, Dev Console work, git add, commit, or push occurred.
+
+### Phase 29M Failure Summary
+
+Exact error:
+
+`ERROR: infinite recursion detected in policy for relation "connection_participants"`
+
+Current recursive shape:
+
+1. Selecting `public.connections` evaluates `connections_participant_select_own`.
+2. That policy checks membership by querying `public.connection_participants`.
+3. Selecting from `public.connection_participants` evaluates `connection_participants_participant_select_same_connection`.
+4. That policy also queries `public.connection_participants`.
+5. PostgreSQL detects recursive RLS evaluation on `connection_participants`.
+
+Blocked Phase 29M assertions:
+
+- participant can SELECT own/same connection.
+- non-participant cannot SELECT connection.
+- cross-connection participant cannot SELECT unrelated connection.
+- participant can SELECT allowed `connection_participants` rows.
+- non-participant cannot SELECT `connection_participants` rows.
+- cross-connection participant membership does not leak.
+
+Already confirmed before blocker:
+
+- local DB target was confirmed.
+- RLS was enabled on `public.connections` and `public.connection_participants`.
+- SELECT policies existed.
+- `auth.uid()` simulation worked.
+- rollback/cleanup left persistent test data at 0.
+
+### Fix Objective
+
+- Remove recursive policy evaluation.
+- Preserve participant-only read access.
+- Preserve same-connection participant visibility.
+- Preserve cross-connection isolation.
+- Preserve authenticated non-participant denial.
+- Preserve `public.anonymous_identities.owner_user_id = auth.uid()` linkage.
+- Prevent data leakage through `public.connection_participants`.
+
+### Future Migration Design
+
+Future Phase 29O should draft, not apply, a narrow corrective migration that:
+
+1. creates `public.is_connection_participant_for_current_user(target_connection_id uuid) returns boolean`.
+2. marks it `SECURITY DEFINER`.
+3. fixes `search_path`.
+4. schema-qualifies `public.connection_participants`, `public.anonymous_identities`, and any other referenced object.
+5. returns only boolean.
+6. avoids dynamic SQL.
+7. checks `auth.uid()` through `public.anonymous_identities.owner_user_id`.
+8. checks active/non-deleted `anonymous_identities` rows where current schema supports `status` and `deleted_at`.
+9. checks active/non-deleted participant rows where current schema supports `participant_state`, `safety_state`, and `deleted_at`.
+10. updates `public.connections` SELECT policy to call the helper with `public.connections.id`.
+11. updates `public.connection_participants` SELECT policy to call the helper with `public.connection_participants.connection_id`.
+12. avoids direct self-referencing SELECT inside the `connection_participants` policy.
+
+This should break recursion because the policy predicate no longer embeds a self-referencing SELECT against `connection_participants`; the helper performs a membership check under a controlled function boundary and returns only true/false.
+
+### Security Requirements
+
+- `SECURITY DEFINER` must be narrowly justified and reviewed.
+- Function owner and RLS behavior must be explicitly checked in local Supabase/Postgres before any apply is accepted.
+- Fixed `search_path` is required.
+- Referenced tables must be schema-qualified.
+- No dynamic SQL.
+- No row data return.
+- No service role key or service role dependency.
+- No broad privilege escalation.
+- No raw `profiles_private` read.
+- No global conversation list.
+- No profile/user search.
+- No room/chat-room model.
+- No Reveal implication.
+- EXECUTE posture must be explicit:
+  - revoke from PUBLIC by default.
+  - no anon execute unless separately justified.
+  - authenticated execute only if required for RLS policy evaluation.
+- If helper ownership/RLS behavior does not avoid recursion locally, the future phase must stop and report a blocker rather than broadening table policies.
+
+### Later Verification Requirements
+
+After a future approved migration draft/review/apply sequence, local verification must include:
+
+1. metadata check for helper existence, signature, `SECURITY DEFINER`, fixed `search_path`, and boolean return.
+2. metadata check for explicit EXECUTE grants/revokes.
+3. metadata check for updated `public.connections` and `public.connection_participants` policies.
+4. `auth.uid()` simulation.
+5. participant positive SELECT.
+6. non-participant denial.
+7. cross-connection isolation.
+8. participant rows visibility within same connection only.
+9. non-participant participant-row denial.
+10. rollback/cleanup.
+11. persistent fake data remaining 0.
+
+### Abuse Carryover
+
+- Instant-reply manipulation must not infer hidden participant rows or connection existence outside participant-bound context.
+- Voice-reply manipulation must not bypass participant-bound reads, even with replay, stale state, repeated upload, or forged local reply eligibility.
+- Android runtime/device phases must not assume backend permission from local UI state, device-side flags, root/emulator/hook checks, or client attestation alone.
+- Rate limits, abuse scoring, nonce/session binding, and reveal/consent manipulation defenses remain future server-side work.
+
+### Exact Future GO
+
+`GO: Create Phase 29O local migration draft for connection participant RLS recursion fix only.`

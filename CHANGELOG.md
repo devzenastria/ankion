@@ -3439,6 +3439,34 @@ No DB command, SQL execution, migration apply, RLS harness, test execution, test
 
 ---
 
+## 2026-06-19 - Phase 29N Connection Participant RLS Recursion Fix Planning
+
+**Type:** Backend RLS Fix Planning / Docs Only  
+**Status:** Completed  
+
+Documented a docs-only fix plan for the Phase 29M blocker:
+
+`ERROR: infinite recursion detected in policy for relation "connection_participants"`
+
+Planned future direction:
+
+- Add a narrow `SECURITY DEFINER` helper: `public.is_connection_participant_for_current_user(target_connection_id uuid) returns boolean`.
+- Keep the helper boolean-only with fixed `search_path`, schema-qualified table references, no dynamic SQL, and no row data return.
+- Preserve `auth.uid()` ownership through `public.anonymous_identities.owner_user_id`.
+- Check current-schema active/non-deleted identity and participant columns where supported.
+- Update `public.connections` SELECT policy to call the helper with `id`.
+- Update `public.connection_participants` SELECT policy to call the helper with row `connection_id`.
+- Avoid direct self-referencing SELECT inside the `connection_participants` policy.
+- Keep participant-only access, same-connection visibility, cross-connection isolation, non-participant denial, leak prevention, and no `profiles_private`/Reveal/global list/profile search behavior.
+
+Future execution remains blocked behind:
+
+`GO: Create Phase 29O local migration draft for connection participant RLS recursion fix only.`
+
+No DB command, psql, Docker DB command, SQL execution, migration creation/editing/apply, RLS harness rerun, test user/data creation, source/runtime change, package/env/APK/native change, staging, production, git add, commit, or push was performed.
+
+---
+
 ## 2026-06-19 - Phase 29J Connection Primitive RLS Policy Local Apply Readiness Preflight
 
 **Type:** Backend Readiness / Local RLS Apply Preflight  
