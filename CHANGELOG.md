@@ -3290,3 +3290,22 @@ Prepared one corrective migration candidate after Phase 29C local apply exposed 
 No DB command, SQL execution, local migration apply, RLS harness, test execution, test data/user, package/env/APK/native work, staging, production, Dev Console work, or commit was performed.
 
 ---
+
+## 2026-06-19 - Phase 29E Local Corrective Grant Migration Apply
+
+**Type:** Local DB Migration Apply / Grant Correction  
+**Status:** Completed  
+
+Applied the corrective grant migration to the local Supabase DB only:
+
+- Applied `supabase/migrations/20260619103000_revoke_connection_primitive_unsafe_grants.sql` to local `supabase_db_ankion`.
+- Used the Docker + psql local-only apply path: copied the migration into the local Docker container and applied it with `docker exec ... psql -f ...`.
+- Recorded `20260619103000 revoke_connection_primitive_unsafe_grants` in local migration history.
+- Verified `public.connections` and `public.connection_participants` exist locally with RLS still enabled.
+- Verified no `CREATE POLICY` exists on either table.
+- Verified `anon`, `authenticated`, and `PUBLIC` have no `TRUNCATE`, `REFERENCES`, `TRIGGER`, `SELECT`, `INSERT`, `UPDATE`, or `DELETE` privileges on either table.
+- Verified no `profiles_private` FK/read path, voice message table, Storage, Reveal, or runtime object was introduced.
+
+No staging, production, remote Supabase command, RLS harness, test execution, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, app runtime integration, Dev Console work, or commit was performed.
+
+---

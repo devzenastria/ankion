@@ -3324,3 +3324,20 @@ Corrective scope:
 - Adds no `profiles_private` FK/read path, voice message table, Storage, Reveal, runtime object, or schema redesign.
 
 Next safe step: Phase 29D static SQL review can run after human review. Local corrective apply remains blocked until separate explicit DB-mutation GO.
+
+## Phase 29E - Local Corrective Grant Migration Apply (2026-06-19)
+
+Status: PASS - corrective grant migration was applied to the local Supabase DB only. No staging, production, remote Supabase command, Supabase db push/reset/link, RLS harness, test execution, test data/user creation, package/env/APK/native work, Auth/Supabase client runtime, Storage, Reveal, voice upload/storage, app runtime integration, Dev Console work, or commit was performed.
+
+Local apply result:
+- Applied `supabase/migrations/20260619103000_revoke_connection_primitive_unsafe_grants.sql` to local `supabase_db_ankion`.
+- Docker + psql local-only apply path was used: the migration was copied into the local Docker container and applied with `docker exec ... psql -f ...`.
+- Local migration history now includes `20260619103000 revoke_connection_primitive_unsafe_grants`.
+- `public.connections` and `public.connection_participants` exist locally with RLS still enabled.
+- No `CREATE POLICY` exists on either table.
+- `anon`, `authenticated`, and `PUBLIC` have no `TRUNCATE`, `REFERENCES`, `TRIGGER`, `SELECT`, `INSERT`, `UPDATE`, or `DELETE` privileges on either table.
+- Foreign keys remain limited to `public.anonymous_identities` and the connection primitive relationship; no `profiles_private` path was introduced.
+- No voice message table, Storage, Reveal, runtime object, staging, or production operation was introduced.
+
+Next required phase:
+- Phase 29E checkpoint verification. Harness execution, test data/user creation, runtime integration, staging, and production remain blocked until separate explicit GO.
