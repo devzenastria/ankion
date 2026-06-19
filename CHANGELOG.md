@@ -3391,3 +3391,24 @@ Candidate behavior:
 No DB command, SQL execution, local migration apply, RLS harness, test execution, test data/user, runtime integration, package/dependency change, Dev Console work, or commit was performed.
 
 ---
+
+## 2026-06-19 - Phase 29J Connection Primitive RLS Policy Local Apply Readiness Preflight
+
+**Type:** Backend Readiness / Local RLS Apply Preflight  
+**Status:** Completed  
+
+Completed local apply readiness checks for `supabase/migrations/20260619123000_create_connection_participant_select_rls_policies.sql`:
+
+- Confirmed the candidate exists and follows the connection primitive table and unsafe-grants corrective migrations.
+- Confirmed scope is limited to participant-only SELECT RLS policies for `public.connections` and `public.connection_participants`.
+- Confirmed `public.connections` SELECT is participant-bound through `anonymous_identities.owner_user_id = auth.uid()`.
+- Confirmed `public.connection_participants` SELECT is same-connection participant-bound.
+- Confirmed authenticated SELECT grant is narrow and RLS-bound.
+- Confirmed no anon/PUBLIC grant, direct write policy, `WITH CHECK`, `profiles_private` path, global list, profile/user search, room/chat-room model, Reveal, Storage, runtime object, APK/native, staging, or production scope.
+- Documented future local apply paths only: Supabase CLI local apply after target confirmation, or Docker + psql local-only apply against `supabase_db_ankion` with migration history recorded only after successful apply.
+
+Exact future GO: `GO: Start Phase 29K local connection participant select RLS policy apply.`
+
+No DB command, SQL execution, local migration apply, RLS harness, test execution, test data/user, runtime integration, package/dependency change, Dev Console work, or commit was performed.
+
+---

@@ -2702,6 +2702,34 @@ Explicitly not included:
 
 Next required gate: static SQL review before any checkpoint or local apply decision.
 
+## Phase 29J - Connection Primitive RLS Policy Local Apply Readiness Preflight (2026-06-19)
+
+Result: PASS - local apply readiness/preflight completed for the Phase 29I participant-only SELECT RLS policy candidate. No DB command, SQL execution, local migration apply, Supabase db push/reset/link, RLS harness, test execution, test data/user, runtime integration, Storage, Reveal, APK/native, package/dependency, staging, or production work occurred.
+
+Target migration:
+`supabase/migrations/20260619123000_create_connection_participant_select_rls_policies.sql`
+
+Readiness checks:
+- File exists.
+- Migration order follows `20260618190000_create_conversation_connection_primitives.sql` and `20260619103000_revoke_connection_primitive_unsafe_grants.sql`.
+- Scope is limited to participant-only SELECT RLS policies.
+- Targets only `public.connections` and `public.connection_participants`.
+- Authenticated SELECT grant is SELECT-only and paired with RLS.
+- No anon or PUBLIC grant exists in the candidate.
+- No INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER grant, direct write policy, or `WITH CHECK` exists.
+- No `profiles_private` policy/FK/read path, voice message table, Storage, Reveal, runtime object, global conversation list, public browsing, profile/user search, or room/chat-room model exists.
+
+Future local-only apply command notes, not run in Phase 29J:
+- Preferred later path: Supabase CLI local migration apply only if the local target is confirmed and no remote link/push is involved.
+- Fallback later path if CLI is unavailable: use local Docker container `supabase_db_ankion` with `docker cp` and `docker exec ... psql -f ...`, then record local migration history only after successful apply.
+
+Rollback/checkpoint expectation:
+- A clean checkpoint must exist before Phase 29K.
+- If local apply fails, stop and report the exact error; do not edit the migration without separate GO.
+
+Exact next GO:
+`GO: Start Phase 29K local connection participant select RLS policy apply.`
+
 ## Phase 29B - Conversation / Connection Primitive Local Apply Readiness Preflight (2026-06-19)
 
 Result: PASS - local apply readiness/preflight completed. No DB command, SQL execution, local migration apply, Supabase db push/reset/link, RLS harness, test execution, test data/user, runtime integration, Storage, Reveal, APK/native, package/dependency, staging, or production work occurred.

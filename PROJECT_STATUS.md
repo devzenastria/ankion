@@ -3444,3 +3444,30 @@ Candidate scope:
 - Adds no `profiles_private` FK/read path, global conversation list policy, profile/user search, room/chat-room model, Reveal, Storage, voice message table, function, view, trigger, runtime, APK/native, staging, or production behavior.
 
 Next safe step: Phase 29I static SQL review can run after human review.
+
+## Phase 29J - Connection Primitive RLS Policy Local Apply Readiness Preflight (2026-06-19)
+
+Status: PASS - local apply readiness/preflight completed for `supabase/migrations/20260619123000_create_connection_participant_select_rls_policies.sql`. No DB command, SQL execution, local migration apply, Supabase db push/reset/link, RLS harness, test execution, test data/user, runtime/Auth/Supabase client integration, Storage, Reveal, voice upload/storage, RPC/view/function/trigger runtime, APK/native, package/dependency, staging, production, Dev Console, or commit work occurred.
+
+Readiness result:
+- Migration file exists and is ordered after the connection primitive table migration and unsafe-grants corrective migration.
+- Candidate scope is limited to participant-only SELECT RLS policies for `public.connections` and `public.connection_participants`.
+- `public.connections` SELECT requires a matching participant row owned through `public.anonymous_identities.owner_user_id = auth.uid()`.
+- `public.connection_participants` SELECT requires caller participation in the same connection.
+- Authenticated SELECT grants are SELECT-only and paired with participant-only RLS.
+- No anon or PUBLIC grant, direct write policy, `WITH CHECK`, `profiles_private` policy/FK/read path, global conversation list, profile/user search, room/chat-room model, Reveal, Storage, runtime object, APK/native, staging, or production behavior is present.
+- `supabase/config.toml` and `supabase/migrations` exist for local-only apply readiness.
+
+Documented future local-only apply path, not run in Phase 29J:
+- Preferred later path: Supabase CLI local migration apply only after local target confirmation.
+- Fallback later path: Docker + psql local-only apply against `supabase_db_ankion`, with local migration history recorded only after successful apply.
+
+Future Phase 29L verification plan:
+- confirm policies exist after local apply.
+- confirm authenticated SELECT grant remains RLS-bound.
+- confirm anon/PUBLIC grants and write privileges remain absent.
+- confirm non-participant, unrelated connection, global list, and raw private profile access are denied.
+- keep persistent fake data at 0 unless a later explicit data-test GO approves temporary data with cleanup.
+
+Exact next GO:
+`GO: Start Phase 29K local connection participant select RLS policy apply.`

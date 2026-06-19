@@ -2291,3 +2291,30 @@ Future test expectations after static review and approved local apply:
 12. anon and PUBLIC remain without SELECT grants.
 
 Any execution of these assertions requires a later explicit harness GO. Persistent fake data must remain 0 in any future execution phase.
+
+## Phase 29J - Connection Primitive RLS Apply Readiness Test Plan (2026-06-19)
+
+Status: PASS - planning-only readiness note for future local apply and verification of participant-only SELECT policies. No DB command, SQL execution, local migration apply, RLS harness run, test execution, test data/user creation, runtime integration, Storage, Reveal, APK/native, package/dependency, staging, or production work occurred.
+
+Future Phase 29L verification checks after approved local apply:
+1. `connections_participant_select_own` policy exists on `public.connections`.
+2. `connection_participants_participant_select_same_connection` policy exists on `public.connection_participants`.
+3. authenticated SELECT grant exists only as required for RLS evaluation.
+4. anon and PUBLIC grants remain absent.
+5. INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, and TRIGGER grants remain absent for anon/authenticated/PUBLIC.
+6. unauthenticated caller cannot select either table.
+7. authenticated non-participant cannot select either table.
+8. participant can select only own eligible connection context.
+9. participant cannot select unrelated connection rows.
+10. global list behavior remains denied.
+11. raw `profiles_private` read remains denied.
+12. no direct write policy or `WITH CHECK` path exists.
+
+Execution boundary:
+- Phase 29J does not apply the migration and does not run tests.
+- Future Phase 29K local apply requires explicit DB-mutation GO.
+- Future data tests require a separate explicit harness GO and cleanup verification.
+- Persistent fake data must remain 0 unless a later data-test phase explicitly creates temporary rollback-scoped data.
+
+Exact future GO:
+`GO: Start Phase 29K local connection participant select RLS policy apply.`

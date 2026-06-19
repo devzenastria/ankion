@@ -1899,3 +1899,32 @@ Readiness checks:
 
 Next required gate:
 - Phase 29I static SQL review before checkpoint or local apply decision.
+
+## Phase 29J - Connection Primitive RLS Policy Local Apply Readiness (2026-06-19)
+
+Result: PASS - readiness/preflight completed. No DB command, SQL execution, migration apply, Supabase db push/reset/link, RLS harness, test execution, test data/user, Auth runtime, Supabase client runtime, Storage, Reveal, RPC/view/function/trigger runtime, APK/native, package/dependency, staging, production, Dev Console, or commit work occurred.
+
+Local project presence:
+- `supabase/config.toml` exists.
+- `supabase/migrations` exists.
+- Target migration exists: `supabase/migrations/20260619123000_create_connection_participant_select_rls_policies.sql`.
+
+Apply readiness checks:
+- Candidate targets only `public.connections` and `public.connection_participants`.
+- Candidate creates participant-only SELECT policies only.
+- `public.connections` SELECT requires caller ownership through a participant anonymous identity.
+- `public.connection_participants` SELECT requires caller participation in the same connection.
+- Authenticated SELECT grant is narrow and RLS-bound.
+- No anon/PUBLIC grant, INSERT/UPDATE/DELETE/TRUNCATE/REFERENCES/TRIGGER grant, direct write policy, `WITH CHECK`, raw `profiles_private` path, voice message table, Storage, Reveal, runtime object, global list, profile/user search, public browsing, room/chat-room model, staging, or production path exists.
+
+Future Phase 29L checks after any approved local apply:
+- policies exist after local apply.
+- authenticated SELECT grant is present only as RLS-bound access.
+- anon/PUBLIC grants and direct write privileges remain absent.
+- participant-only predicates are present.
+- non-participant, unrelated connection, global list, and raw private profile access are denied.
+- no raw private data is output.
+- persistent fake data cleanup is required if data tests are later approved.
+
+Exact next DB-mutation GO:
+`GO: Start Phase 29K local connection participant select RLS policy apply.`
