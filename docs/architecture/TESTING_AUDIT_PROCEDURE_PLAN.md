@@ -2615,3 +2615,43 @@ No migration apply, migration edit, schema change, staging, production, remote S
 
 Next required GO:
 `GO: Create Phase 29S docs checkpoint commit only.`
+
+## Phase 29T - Connection Participant RLS Closure Review (2026-06-19)
+
+Status: PASS - docs-only closure review completed for local participant-bound SELECT RLS on `public.connections` and `public.connection_participants`.
+
+Closure decision:
+
+- Connection participant RLS local closure: YES.
+- This is local-only closure. It does not claim staging, production, runtime/Auth, APK/native, Storage, voice upload, Reveal, monetization, or full backend readiness.
+
+Evidence chain:
+
+1. Phase 29M local RLS harness exposed `infinite recursion detected in policy for relation "connection_participants"`.
+2. Phase 29Q committed the private helper revision.
+3. Phase 29R applied the revised migration locally.
+4. Phase 29S reran the local transaction-wrapped harness and passed.
+5. Rollback/cleanup passed and deterministic Phase 29S rows remaining were 0.
+
+Behavior confirmed by Phase 29S:
+
+- `auth.uid()` simulation passed.
+- Recursion error was absent.
+- Participant connection SELECT passed.
+- Non-participant connection denial passed.
+- Cross-connection isolation passed.
+- Participant rows visibility passed for same-connection scope.
+- Non-participant participant-row denial passed.
+- Private helper execution through policies worked.
+
+Security and abuse boundary:
+
+- The helper is `private.is_connection_participant_for_current_user(target_connection_id uuid)`.
+- Public RPC helper exposure was removed and the public helper is absent.
+- Policies call the private helper, RLS remains enabled, no write policies were added, and no service-role dependency was introduced.
+- Instant-reply and voice-reply manipulation must remain backend/RLS-enforced. Android runtime/device phases must not assume UI state grants backend permission.
+
+Next recommended slice: Phase 30A - Owner-controlled creation path planning for `profiles_private` and `anonymous_identities`.
+
+Next required GO:
+`GO: Create Phase 29T docs checkpoint commit only.`

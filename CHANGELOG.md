@@ -3423,6 +3423,37 @@ No migration apply, migration edit, schema change, staging, production, remote S
 
 ---
 
+## 2026-06-19 - Phase 29T Connection Participant RLS Closure Review
+
+**Type:** Backend RLS Closure Review / Docs Only  
+**Status:** Completed
+
+Reviewed the Phase 29K-29S chain and recorded local-only closure for the connection participant SELECT RLS slice:
+
+- Phase 29M found the `connection_participants` recursive RLS blocker.
+- Phase 29Q moved the boolean membership helper to `private.is_connection_participant_for_current_user(target_connection_id uuid)`.
+- Phase 29R applied the revised migration locally.
+- Phase 29S reran the transaction-wrapped local RLS harness and passed.
+- Rollback/cleanup passed; persistent deterministic Phase 29S test data remaining is 0.
+- Participant SELECT, non-participant denial, cross-connection isolation, same-connection participant visibility, non-participant participant-row denial, and private helper policy execution are locally verified.
+
+Closure decision:
+
+- Connection participant RLS local closure: YES.
+- Scope is local-only. No staging, production, runtime/Auth, APK/native, Storage, voice upload, Reveal, monetization, or full backend readiness is claimed.
+
+Next recommended slice:
+
+- Phase 30A - Owner-controlled creation path planning for `profiles_private` and `anonymous_identities`.
+
+Exact next GO:
+
+`GO: Create Phase 29T docs checkpoint commit only.`
+
+No DB command, psql, Docker DB command, Supabase CLI execution, SQL execution, migration creation/editing/apply, RLS harness execution, auth simulation, test user/data creation, source/runtime change, package/env/APK/native change, staging, production, git add, commit, or push was performed.
+
+---
+
 ## 2026-06-19 - Phase 29K Local Connection Participant SELECT RLS Policy Apply
 
 **Type:** Backend Local DB Mutation / RLS SELECT Policy Apply  

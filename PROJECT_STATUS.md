@@ -3645,3 +3645,36 @@ Harness result:
 
 Next required GO:
 `GO: Create Phase 29S docs checkpoint commit only.`
+
+## Phase 29T - Connection Participant RLS Closure Review (2026-06-19)
+
+Status: PASS - docs-only closure review completed for the local connection participant SELECT RLS slice. Connection participant RLS local closure: YES, local-only. This does not claim staging, production, runtime/Auth, APK/native, Storage, voice upload, Reveal, monetization, or full backend readiness.
+
+Closure evidence:
+- Phase 29M found the recursion blocker: `infinite recursion detected in policy for relation "connection_participants"`.
+- Phase 29Q revised the recursion fix to use `private.is_connection_participant_for_current_user(target_connection_id uuid)` instead of a public helper.
+- Phase 29R applied the revised migration locally to `supabase_db_ankion` / `postgres`.
+- Phase 29S local transaction-wrapped RLS harness passed and rollback/cleanup left deterministic test rows at 0.
+
+Closed local behavior:
+- `auth.uid()` simulation passed during Phase 29S.
+- Recursion error was absent.
+- Participant connection SELECT, non-participant denial, cross-connection isolation, participant rows visibility, and non-participant participant-row denial passed.
+- Private helper execution through policies worked.
+
+Security boundary:
+- Public RPC helper exposure was removed; `public.is_connection_participant_for_current_user(uuid)` is absent.
+- `public.connections` and `public.connection_participants` SELECT policies call the private helper.
+- RLS remains enabled, no INSERT/UPDATE/DELETE policies were added, and no service-role dependency was introduced.
+- Instant-reply and voice-reply manipulation must still be enforced by backend/RLS, not UI state; Android runtime phases must not treat local UI permission as backend permission.
+
+Remaining blocked areas:
+- Staging/production remain NO-GO.
+- Runtime Supabase/Auth integration, APK/Android, Storage, voice upload, Reveal, feed/runtime binding, and broader abuse systems remain separate future work.
+
+Next recommended slice:
+- Phase 30A - Owner-controlled creation path planning for `profiles_private` and `anonymous_identities`.
+- Reason: the connection participant read boundary now passes locally, but owner-controlled creation for private profile and anonymous identity still needs planning before runtime/Auth integration.
+
+Next required GO:
+`GO: Create Phase 29T docs checkpoint commit only.`

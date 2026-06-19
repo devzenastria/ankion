@@ -2879,3 +2879,29 @@ Result: PASS - local transaction-wrapped RLS harness rerun completed against `su
 
 Next required GO:
 `GO: Create Phase 29S docs checkpoint commit only.`
+
+## Phase 29T - Connection Participant RLS Local Closure Matrix (2026-06-19)
+
+Result: PASS - docs-only closure review completed. Connection participant RLS local closure is YES for `public.connections` and `public.connection_participants` participant-bound SELECT. This is local-only closure and does not claim staging, production, runtime/Auth, APK/native, Storage, voice upload, Reveal, monetization, or full backend readiness.
+
+| Area | Closure result |
+| --- | --- |
+| Phase 29M blocker | recursion detected in `connection_participants` and documented |
+| Phase 29Q revision | helper moved to `private.is_connection_participant_for_current_user(target_connection_id uuid)` |
+| Phase 29R local apply | PASS on local `supabase_db_ankion` / `postgres` |
+| Phase 29S harness | PASS with rollback/cleanup and deterministic rows remaining 0 |
+| participant SELECT | PASS locally |
+| non-participant denial | PASS locally |
+| cross-connection isolation | PASS locally |
+| participant row visibility | PASS locally, same-connection only |
+| private helper policy execution | PASS locally |
+| public helper exposure | removed; public helper absent |
+| write boundary | no INSERT/UPDATE/DELETE policies added |
+| service role dependency | none introduced |
+
+Abuse carryover: instant-reply and voice-reply manipulation must remain backend/RLS-enforced, not UI-state-enforced. Android runtime/device phases must not assume local UI permission equals backend permission.
+
+Next recommended slice: Phase 30A - Owner-controlled creation path planning for `profiles_private` and `anonymous_identities`.
+
+Next required GO:
+`GO: Create Phase 29T docs checkpoint commit only.`
