@@ -3392,6 +3392,33 @@ No DB command, SQL execution, local migration apply, RLS harness, test execution
 
 ---
 
+## 2026-06-19 - Phase 29K Local Connection Participant SELECT RLS Policy Apply
+
+**Type:** Backend Local DB Mutation / RLS SELECT Policy Apply  
+**Status:** Completed  
+
+Applied `supabase/migrations/20260619123000_create_connection_participant_select_rls_policies.sql` only to local `supabase_db_ankion` using the Docker + psql local-only path:
+
+- `docker cp` copied the migration into the local DB container.
+- `docker exec ... psql -f ...` applied the migration locally.
+- Local migration history was recorded as `20260619123000|create_connection_participant_select_rls_policies` after successful apply.
+
+Verified after apply:
+
+- `public.connections` and `public.connection_participants` exist locally.
+- RLS remains enabled on both tables.
+- Participant-only SELECT policies exist on both target tables.
+- `public.connections` SELECT is participant-bound through `public.anonymous_identities.owner_user_id = auth.uid()`.
+- `public.connection_participants` SELECT is same-connection participant-bound.
+- No INSERT, UPDATE, DELETE, or `WITH CHECK` write policy exists.
+- No anon or PUBLIC grant exists.
+- `authenticated` has SELECT only; INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, and TRIGGER remain absent.
+- No `profiles_private` FK/read path, `voice_messages`, Storage, Reveal, runtime object, staging, or production behavior was introduced.
+
+No RLS harness, test execution, test data/user creation, runtime integration, APK/native work, package/dependency change, Dev Console work, migration edit, new migration creation, or commit was performed.
+
+---
+
 ## 2026-06-19 - Phase 29J Connection Primitive RLS Policy Local Apply Readiness Preflight
 
 **Type:** Backend Readiness / Local RLS Apply Preflight  

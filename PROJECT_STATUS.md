@@ -3471,3 +3471,21 @@ Future Phase 29L verification plan:
 
 Exact next GO:
 `GO: Start Phase 29K local connection participant select RLS policy apply.`
+
+## Phase 29K - Local Connection Participant SELECT RLS Policy Apply (2026-06-19)
+
+Status: PASS - `supabase/migrations/20260619123000_create_connection_participant_select_rls_policies.sql` was applied only to the local `supabase_db_ankion` Docker DB with `docker cp` + `docker exec ... psql -f ...`. No staging, production, remote Supabase command, Supabase db push/reset/link, RLS harness, test execution, test data/user creation, runtime/Auth/Supabase client integration, Storage, Reveal, voice upload/storage, RPC/view/function/trigger runtime, APK/native, package/dependency, Dev Console, migration edit, new migration creation, or commit work occurred.
+
+Apply result:
+- Local apply: PASS.
+- Local migration history recorded: `20260619123000|create_connection_participant_select_rls_policies`.
+- `public.connections` and `public.connection_participants` exist locally.
+- RLS remains enabled on both tables.
+- SELECT policies exist on both target tables and remain participant-bound through `public.anonymous_identities.owner_user_id = auth.uid()`.
+- `public.connection_participants` SELECT remains same-connection participant-bound.
+- No INSERT, UPDATE, DELETE, or `WITH CHECK` write policy exists.
+- No anon or PUBLIC grant exists.
+- `authenticated` has SELECT only; INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, and TRIGGER remain absent.
+- No `profiles_private` FK/read path, `voice_messages`, Storage, Reveal, runtime object, staging, or production behavior was introduced.
+
+Next safe step: Phase 29K checkpoint verification can run after human review.
