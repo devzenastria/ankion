@@ -922,3 +922,74 @@ Client boundary remains unchanged:
 - service role keys must never enter app code, web code, Expo public env, `.env.example`, screenshots, logs, or client-facing docs.
 
 A successful future local/staging migration apply will not by itself authorize app runtime binding.
+
+## Phase 31A - Auth / Session Client Boundary Readiness Plan (2026-06-20)
+
+Phase 31A plans the client-side Auth/session boundary only. It does not implement Supabase client runtime, install `@supabase/supabase-js`, add env files, wire screens, call backend functions, create test data, run SQL, run DB commands, change package/lockfiles, change APK/native files, touch staging/production, commit, or push.
+
+Client source-of-truth rule:
+- The mobile client is never the owner source.
+- `auth.uid()` inside the backend/RLS/function boundary remains the owner source.
+- Client state can represent UI loading, signed-in state, readiness, and recovery state only.
+- Local cached identity, fake entitlement, fake verification, optimistic UI, and Android local state cannot create owner authority.
+
+Planned future client state contracts:
+
+| Contract | Purpose | Boundary |
+| --- | --- | --- |
+| `AuthSessionState` | Session lifecycle and refresh state. | Does not expose raw tokens or grant access by itself. |
+| `AuthUserView` | Minimal safe current-user UI view. | Must not become public identity or owner override. |
+| `AnonymousIdentityReadiness` | Whether backend-safe anonymous identity readiness is known. | Local cache is not authority. |
+| `OwnerCreationReadiness` | Whether future owner creation call may be attempted. | Requires valid session and separate runtime GO. |
+| `AuthErrorState` | Safe error categories. | Does not leak sensitive backend/session internals. |
+| `SessionRecoveryState` | Refresh, expiry, logout, account switch recovery. | Clears sensitive caches before continuing. |
+
+Forbidden future client fields/actions:
+- client-selected `owner_user_id`.
+- owner override.
+- local-only owner switch.
+- target owner id for owner creation.
+- target profile id for owner creation.
+- target anonymous identity id for owner creation.
+- raw session token display or logging.
+- service role key or admin secret.
+
+Owner creation trigger boundary:
+- Do not call owner creation while unauthenticated.
+- Do not call owner creation while session is loading, refresh is pending, expired, or locally cached but untrusted.
+- A valid session can only make the user eligible for a future call.
+- Any future call must use the reviewed function shape and must not pass owner input.
+- Duplicate/idempotent owner creation response is acceptable only because Phase 30J proved bounded row counts and no orphan identity.
+
+Error/denial categories to preserve:
+- `AUTHENTICATED_OWNER_REQUIRED`.
+- session missing.
+- session expired.
+- session refresh failed.
+- anonymous identity creation pending.
+- duplicate/idempotent owner creation response.
+- network unavailable.
+- backend denial.
+- local cache mismatch.
+- replayed session suspected.
+- rooted/debug/offline trust risk.
+
+Abuse carryover:
+- Android cached identity manipulation, fake entitlement, fake verification, replayed session, clock manipulation, offline bypass, rooted/emulator manipulation, debug flag abuse, client-side trust abuse, fake anonymous identity ready state, fake profile created state, and local-only owner switch remain untrusted.
+- Instant-match manipulation, reveal state manipulation, connection state manipulation, local UI forcing, cooldown/rate bypass, fake presence, fake waiting/replyable transition, and local-only entitlement spoofing must not grant backend permission.
+- Uploaded voice spoofing, replay audio, manipulated local draft, fake recorder state, forged voice metadata, anonymous identity carryover, connection reply abuse, and storage boundary bypass remain future server-side concerns.
+
+Face verification remains future-only. `@veriff/react-native-sdk` is only a future provider direction, not a Phase 31A dependency. ANKION must store only verification result fields and must not store raw face images, selfie video, ID media, or biometric embeddings.
+
+Readiness gates before implementation:
+- Supabase client dependency GO.
+- package install GO.
+- env/client boundary GO.
+- runtime Auth integration GO.
+- owner creation runtime wiring GO.
+- local Auth test GO.
+- APK/native GO.
+- staging GO.
+- production GO.
+
+Phase 31B should be dependency/env preflight only and must not install packages.

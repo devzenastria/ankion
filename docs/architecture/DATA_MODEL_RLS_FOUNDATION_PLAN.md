@@ -1756,3 +1756,44 @@ Data/RLS interpretation:
 - This does not approve runtime Supabase/Auth integration, direct table write policies, Storage/voice upload, Reveal, staging, production, monetization readiness, package/env/APK/native work, or broader backend readiness.
 
 Abuse carryover remains required for instant-match/reveal/connection manipulation, voice spoofing and replay, Android local-state manipulation, spoofed verification/result fields, and later rate/cooldown/replay/cached-state harness phases. Face verification remains a separate future trust layer; `@veriff/react-native-sdk` is only a future provider direction, with no raw face image, selfie video, ID media, or biometric embedding storage by ANKION.
+
+## Phase 31A - Auth / Session Data And RLS Boundary Plan (2026-06-20)
+
+Status: PASS - Auth/session data and RLS boundary planning completed as docs-only. No DB command, SQL execution, DB connection, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, runtime/Auth integration, package/env/APK/native work, staging, production, commit, or push occurred.
+
+Data/RLS source-of-truth:
+- `auth.uid()` remains the only backend owner source.
+- `profiles_private.owner_user_id` and `anonymous_identities.owner_user_id` must be assigned only by backend/RLS/function boundaries, never by client local state.
+- Client-supplied `owner_user_id`, target owner id, target profile id, target anonymous identity id, owner override, or local owner switch remains forbidden.
+- Owner creation must preserve the Phase 30J behavior: no owner input, unauthenticated denial, owner spoofing denial, cross-user isolation, safe duplicate/idempotent behavior, rollback-safe test posture.
+
+Session readiness states that matter to data/RLS:
+- unknown/loading session: no owner creation or private query.
+- unauthenticated: deny owner creation and owner data access.
+- authenticated: owner eligibility may be evaluated, but owner still comes from `auth.uid()`.
+- session refresh pending: hold creation/query actions.
+- session expired: clear sensitive caches and deny owner actions.
+- local cached session present but untrusted: UI recovery only.
+- anonymous identity not created / ready: readiness is backend-confirmed, not local-authoritative.
+- profile creation pending / denied / complete: UI state only until backend-safe confirmation.
+
+Owner creation trigger rules:
+- No owner creation call without authenticated session.
+- No owner creation call during loading, expired, refresh-pending, or untrusted local-cache states.
+- Future function call requires separate runtime GO and cannot accept owner input.
+- Idempotent duplicate response is acceptable only if row counts remain bounded and no orphan identity appears.
+
+Error/denial states to preserve:
+- `AUTHENTICATED_OWNER_REQUIRED`.
+- session missing.
+- session expired.
+- session refresh failed.
+- anonymous identity creation pending.
+- duplicate/idempotent owner creation response.
+- network unavailable.
+- backend denial.
+- local cache mismatch.
+- replayed session suspected.
+- rooted/debug/offline trust risk.
+
+Abuse carryover remains required for Android local-state manipulation, instant-match/reveal/connection manipulation, voice spoofing and replay, spoofed verification/result fields, and future rate/cooldown/replay/cached-state harnesses. Face verification remains future-only; `@veriff/react-native-sdk` is not a Phase 31A dependency and ANKION must store only verification result fields, not raw face images, selfie video, ID media, or biometric embeddings.

@@ -2835,3 +2835,48 @@ Face verification remains future-only. A later provider direction may use `@veri
 
 Next required GO:
 `GO: Start Phase 30L owner-controlled creation behavior documentation checkpoint / commit only.`
+
+## Phase 31A - Auth / Session Boundary Test Planning Record (2026-06-20)
+
+Status: PASS - Auth/session boundary readiness planning added as docs-only. No DB command, SQL execution, psql, Docker DB command, Supabase CLI, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, runtime/Auth work, package/env/APK/native change, staging, production, commit, or push occurred.
+
+Future test targets:
+1. Backend owner source is `auth.uid()` only.
+2. Client cannot supply `owner_user_id`, owner override, target owner id, target profile id, target anonymous identity id, or local-only owner switch.
+3. Unknown/loading session does not call owner creation.
+4. Unauthenticated session does not call owner creation.
+5. Session refresh pending does not call owner creation.
+6. Expired session clears sensitive cache and does not call owner creation.
+7. Local cached session present but untrusted is not treated as backend authority.
+8. Valid authenticated session may evaluate readiness only; owner still comes from backend `auth.uid()`.
+9. Duplicate/idempotent owner creation response is accepted only when original IDs are returned and row counts stay bounded.
+10. `AUTHENTICATED_OWNER_REQUIRED`, session missing, session expired, refresh failed, network unavailable, backend denial, cache mismatch, replayed session suspected, and rooted/debug/offline trust risk are handled as safe denial/recovery states.
+
+Future DTO/state contract test coverage:
+- `AuthSessionState`.
+- `AuthUserView`.
+- `AnonymousIdentityReadiness`.
+- `OwnerCreationReadiness`.
+- `AuthErrorState`.
+- `SessionRecoveryState`.
+
+Abuse carryover for future tests:
+- Android cached identity manipulation, fake entitlement, fake verification, replayed session, clock manipulation, offline bypass, rooted/emulator manipulation, debug flag abuse, client-side trust abuse, fake anonymous identity ready state, fake profile created state, and local-only owner switch.
+- Instant-match manipulation, reveal state manipulation, connection state manipulation, local UI forcing, cooldown/rate bypass, fake presence, fake waiting/replyable transition, and local-only entitlement spoofing.
+- Uploaded voice spoofing, replay audio, manipulated local draft, fake recorder state, forged voice metadata, anonymous identity carryover, connection reply abuse, and storage boundary bypass.
+- Spoofed verification/result fields remain future trust-layer only. Rate/cooldown/replay/cached-state checks remain later policy/harness phases.
+
+Face verification remains future-only. A later provider direction may use `@veriff/react-native-sdk`, but future tests must confirm ANKION stores only verification result fields and never raw face images, selfie video, ID media, or biometric embeddings.
+
+Readiness gates before executable tests or runtime work:
+- Supabase client dependency GO.
+- package install GO.
+- env/client boundary GO.
+- runtime Auth integration GO.
+- owner creation runtime wiring GO.
+- local Auth test GO.
+- APK/native GO.
+- staging GO.
+- production GO.
+
+Next recommended phase: Phase 31B - Supabase client dependency and env preflight. Phase 31B must not install packages or run Auth tests.

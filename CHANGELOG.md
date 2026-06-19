@@ -16,6 +16,33 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-20 - Phase 31A Auth/Session Boundary Readiness Planning
+
+**Type:** Auth/Session Boundary Planning / Docs Only
+**Status:** Completed
+
+Planned the Auth/session boundary before runtime integration.
+
+Planning outcome:
+
+- `auth.uid()` remains the only backend owner source.
+- Client state, cached identity, local anonymous identity values, fake entitlement, fake verification, optimistic UI state, or Android local state cannot create backend owner authority.
+- The Phase 30J/30L owner-controlled creation boundary remains preserved: `public.create_owner_identity_foundation(text, text, text)` accepts no `owner_user_id`, derives ownership from `auth.uid()`, denies unauthenticated callers, and may safely return original IDs for duplicate owner creation.
+- Mobile session state is planned only for UI and request eligibility, not security authority.
+- Planned DTO/state boundaries include `AuthSessionState`, `AuthUserView`, `AnonymousIdentityReadiness`, `OwnerCreationReadiness`, `AuthErrorState`, and `SessionRecoveryState`.
+- Owner creation runtime wiring remains blocked until a separate explicit GO.
+- Readiness GO gates were documented for Supabase client dependency, package install, env/client boundary, runtime Auth integration, owner creation runtime wiring, local Auth tests, APK/native, staging, and production.
+
+Abuse carryover remains in force for Android local-state manipulation, instant-match/reveal/connection manipulation, voice spoofing and replay, spoofed verification/result fields, and later rate/cooldown/replay/cached-state policy phases. Face verification remains future-only; `@veriff/react-native-sdk` is only a future provider direction, and ANKION must store only verification result fields, not raw face images, selfie video, ID media, or biometric embeddings.
+
+No DB command, SQL execution, DB connection, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, runtime/Auth change, `@supabase/supabase-js` install, package/env/lockfile change, APK/native/Android change, app screen runtime wiring, staging, production, git add, commit, pull, or push occurred.
+
+Exact next GO:
+
+`GO: Start Phase 31B Supabase client dependency and env preflight only.`
+
+---
+
 ## 2026-06-20 - Phase 30K Document Local Owner-Controlled Creation Behavior Harness Results
 
 **Type:** Backend Behavior Harness Documentation / Owner Creation Boundary / Docs Only

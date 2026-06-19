@@ -710,3 +710,30 @@ Abuse carryover:
 - Spoofed verification/result fields are future trust-layer only; rate/cooldown/replay/cached-state checks remain later policy/harness phases.
 
 Face verification remains future-only. A later provider direction may use `@veriff/react-native-sdk`, but ANKION stores only verification result fields and must not store raw face images, selfie video, ID media, or biometric embeddings.
+
+## Phase 31A - Auth / Session Separation Boundary (2026-06-20)
+
+Phase 31A plans Auth/session readiness without implementation. No Supabase client runtime, package install, env file, DB command, SQL, migration, auth simulation, target function call, test data, app screen wiring, APK/native change, staging, production, commit, or push occurred.
+
+Separation rule:
+- Auth/session proves backend ownership only through `auth.uid()`.
+- Auth account identity must not become public identity.
+- Private profile remains real-profile infrastructure and stays hidden unless a later owner-approved reveal boundary allows safe profile output.
+- Anonymous identity remains app-facing and must not expose owner linkage, Auth user IDs, private profile IDs, or anonymous-to-real correlation.
+
+Client state boundary:
+- Mobile session state may guide UI loading, signed-out state, retry, and request eligibility.
+- Mobile session state must not decide owner identity, profile visibility, reveal visibility, connection permission, or storage access.
+- Cached anonymous identity, cached profile-created state, fake anonymous identity ready state, fake profile created state, or local-only owner switch cannot create backend authority.
+
+Owner creation boundary:
+- Future owner creation is allowed only after a valid authenticated session is known and a separate runtime GO exists.
+- The function call must not include `owner_user_id` or target-owner input.
+- Phase 30J already verified that duplicate private profile creation can be safe-idempotent when original IDs are returned, counts stay bounded, and no orphan identity is created.
+
+Abuse carryover:
+- Android local-state manipulation: cached identity manipulation, fake entitlement, fake verification, replayed session, clock manipulation, offline bypass, rooted/emulator manipulation, debug flag abuse, client-side trust abuse, fake anonymous identity ready state, fake profile created state, and local-only owner switch.
+- Instant abuse: instant-match manipulation, reveal state manipulation, connection state manipulation, local UI forcing, cooldown/rate bypass, fake presence, fake waiting/replyable transition, and local-only entitlement spoofing.
+- Voice abuse: uploaded voice spoofing, replay audio, manipulated local draft, fake recorder state, forged voice metadata, anonymous identity carryover, connection reply abuse, and storage boundary bypass.
+
+Face verification remains future-only and separate from Auth/session and owner-controlled creation. `@veriff/react-native-sdk` is only a future provider direction; ANKION stores only verification result fields and never raw face images, selfie video, ID media, or biometric embeddings.

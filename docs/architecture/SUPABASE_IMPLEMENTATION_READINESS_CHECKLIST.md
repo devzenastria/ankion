@@ -2065,3 +2065,79 @@ Abuse carryover remains required for instant-match/reveal/connection manipulatio
 
 Next required GO:
 `GO: Start Phase 30L owner-controlled creation behavior documentation checkpoint / commit only.`
+
+## Phase 31A - Auth / Session Boundary Readiness Planning (2026-06-20)
+
+Result: PASS - Auth/session boundary readiness was planned as docs-only. No DB command, SQL execution, DB connection, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, runtime/Auth change, `@supabase/supabase-js` install, package/env/lockfile change, APK/native/Android change, app screen runtime wiring, staging/production action, commit, push, or pull occurred.
+
+Readiness decision:
+- Auth/session implementation remains blocked.
+- Supabase client dependency and env decisions require a separate Phase 31B preflight.
+- Runtime Auth integration, owner creation runtime wiring, local Auth tests, APK/native, staging, and production each require separate explicit GO.
+
+Auth/session source of truth:
+- Backend owner source is `auth.uid()` only.
+- Client state, cached identity, fake entitlement, fake verification, optimistic UI, and Android local state cannot create owner authority.
+- `owner_user_id` must never be selected or overridden by the client.
+
+Planned session states:
+- unknown/loading session.
+- unauthenticated.
+- authenticated.
+- session refresh pending.
+- session expired.
+- local cached session present but untrusted.
+- anonymous identity not created.
+- anonymous identity ready.
+- profile creation pending.
+- profile creation denied.
+- profile creation complete.
+
+Planned DTO/state contracts:
+- `AuthSessionState`.
+- `AuthUserView`.
+- `AnonymousIdentityReadiness`.
+- `OwnerCreationReadiness`.
+- `AuthErrorState`.
+- `SessionRecoveryState`.
+
+Owner creation trigger boundary:
+- no call if unauthenticated.
+- no call while loading, refresh pending, expired, or local cached session is untrusted.
+- future call only after runtime GO.
+- future call accepts no owner input.
+- duplicate/idempotent response remains valid only when backend row counts stay bounded and no orphan identity is created.
+
+Error/denial state plan:
+- `AUTHENTICATED_OWNER_REQUIRED`.
+- session missing.
+- session expired.
+- session refresh failed.
+- anonymous identity creation pending.
+- duplicate/idempotent owner creation response.
+- network unavailable.
+- backend denial.
+- local cache mismatch.
+- replayed session suspected.
+- rooted/debug/offline trust risk.
+
+Abuse carryover:
+- Android local-state manipulation: cached identity manipulation, fake entitlement, fake verification, replayed session, clock manipulation, offline bypass, rooted/emulator manipulation, debug flag abuse, client-side trust abuse, fake anonymous identity ready state, fake profile created state, and local-only owner switch.
+- Instant abuse: instant-match manipulation, reveal state manipulation, connection state manipulation, local UI forcing, cooldown/rate bypass, fake presence, fake waiting/replyable transition, and local-only entitlement spoofing.
+- Voice abuse: uploaded voice spoofing, replay audio, manipulated local draft, fake recorder state, forged voice metadata, anonymous identity carryover, connection reply abuse, and storage boundary bypass.
+- Face verification remains future-only; provider direction may be `@veriff/react-native-sdk`, but Phase 31A has no implementation, package install, native change, or verification flow. ANKION must store only verification result fields and not raw face images, selfie video, ID media, or biometric embeddings.
+
+Required GO gates:
+- Supabase client dependency GO.
+- package install GO.
+- env/client boundary GO.
+- runtime Auth integration GO.
+- owner creation runtime wiring GO.
+- local Auth test GO.
+- APK/native GO.
+- staging GO.
+- production GO.
+
+Staging and production remain NO-GO.
+
+Next recommended phase: Phase 31B - Supabase client dependency and env preflight. Phase 31B must not install packages.

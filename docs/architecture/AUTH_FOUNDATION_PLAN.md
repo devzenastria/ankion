@@ -883,3 +883,143 @@ Phase 24 closure decision:
 - Auth/runtime/app integration remains NO-GO.
 - Staging and production remain NO-GO.
 - Phase 25 may begin in a new chat with a handoff prompt.
+
+## Phase 31A - Auth / Session Boundary Readiness Plan (2026-06-20)
+
+Status: PASS - Auth/session boundary readiness planned as docs-only. No Supabase client implementation, Auth runtime, package install, env file, SQL, migration, DB command, psql, Docker DB command, Supabase CLI, auth simulation, target function call, test user/data creation, runtime wiring, APK/native change, staging, production, commit, or push occurred.
+
+### Source Of Truth
+
+Backend owner authority must come only from `auth.uid()`.
+
+Rules:
+- Client state is not an owner source.
+- Cached identity is not an owner source.
+- Local `anonymous_identity_id` is not owner authority.
+- Fake entitlement, fake verification, debug flags, offline state, or rooted/emulator signals cannot produce backend authority.
+- `owner_user_id` must not be client-selected, client-overridden, or accepted as an owner creation input.
+- Owner assignment remains inside the backend function/RLS boundary.
+
+The Phase 30J verified boundary remains the reference point:
+- `public.create_owner_identity_foundation(text, text, text)`.
+- No `owner_user_id` argument.
+- Owner source is `auth.uid()`.
+- Unauthenticated calls raise `AUTHENTICATED_OWNER_REQUIRED`.
+- Duplicate owner creation may be safely idempotent by returning original IDs without creating duplicate or orphan rows.
+
+### Session Lifecycle States
+
+Planned future states:
+
+| State | Meaning | Security posture |
+| --- | --- | --- |
+| `unknown_loading_session` | App is checking session. | No owner creation, no private query, no trusted identity display. |
+| `unauthenticated` | No valid session. | No owner creation and no private/anonymous-owner access. |
+| `authenticated` | Valid auth context exists. | Eligibility can be evaluated; owner is still backend-derived from `auth.uid()`. |
+| `session_refresh_pending` | Refresh is in progress. | No owner creation until refresh result is known. |
+| `session_expired` | Previous session is invalid. | Clear sensitive owner/identity/reveal cache and require recovery. |
+| `local_cached_session_untrusted` | Local cached state exists but is not validated. | UI may show loading/recovery only; no backend authority. |
+| `anonymous_identity_not_created` | Auth exists but active anonymous identity readiness is missing. | Future provisioning may be eligible only after valid session. |
+| `anonymous_identity_ready` | Active anonymous identity is confirmed by backend-safe boundary. | Still not a real profile reveal. |
+| `profile_creation_pending` | Owner foundation creation is pending. | UI must not assume completion. |
+| `profile_creation_denied` | Backend denied creation or session is invalid. | Show safe error/recovery only. |
+| `profile_creation_complete` | Backend confirms owner foundation exists. | Client may proceed only through safe DTO/RPC boundaries. |
+
+### Planned DTO / State Boundary
+
+Future DTO/state names:
+- `AuthSessionState`.
+- `AuthUserView`.
+- `AnonymousIdentityReadiness`.
+- `OwnerCreationReadiness`.
+- `AuthErrorState`.
+- `SessionRecoveryState`.
+
+DTO rules:
+- If `owner_user_id` appears in any future owner-safe DTO, it must be read-only, server-derived, and never accepted back as authority.
+- Client payloads must not contain owner override, target owner, owner switch, target profile, or target anonymous identity fields.
+- `anonymous_identity_id` from local cache can only be a UI hint until backend confirms it.
+- UI optimistic state cannot replace backend truth.
+
+### Owner Creation Trigger Boundary
+
+Future flow:
+1. If unauthenticated, do not call owner creation.
+2. If session is loading or refresh is pending, do not call owner creation.
+3. If local cached session is present but untrusted, do not call owner creation.
+4. If session is valid, evaluate owner creation readiness.
+5. Call `public.create_owner_identity_foundation(text, text, text)` only after a separate runtime integration GO.
+6. Never send `owner_user_id` or target owner input.
+7. Treat duplicate/idempotent original-ID response as safe only when backend row counts remain bounded.
+
+Runtime integration remains a separate phase. Phase 31A does not wire screens, install packages, add env files, or call the function.
+
+### Error / Denial States
+
+Planned future handling:
+- `AUTHENTICATED_OWNER_REQUIRED`.
+- `session_missing`.
+- `session_expired`.
+- `session_refresh_failed`.
+- `anonymous_identity_creation_pending`.
+- `duplicate_idempotent_owner_creation_response`.
+- `network_unavailable`.
+- `backend_denial`.
+- `local_cache_mismatch`.
+- `replayed_session_suspected`.
+- `rooted_debug_offline_trust_risk`.
+
+### Abuse Carryover
+
+Android/local-state risks remain untrusted:
+- cached identity manipulation.
+- fake entitlement.
+- fake verification.
+- replayed session.
+- clock manipulation.
+- offline bypass.
+- rooted/emulator manipulation.
+- debug flag abuse.
+- client-side trust abuse.
+- fake anonymous identity ready state.
+- fake profile created state.
+- local-only owner switch.
+
+Instant abuse carryover:
+- instant-match manipulation.
+- reveal state manipulation.
+- connection state manipulation.
+- local UI forcing.
+- cooldown/rate bypass.
+- fake presence.
+- fake waiting/replyable transition.
+- local-only entitlement spoofing.
+
+Voice abuse carryover:
+- uploaded voice spoofing.
+- replay audio.
+- manipulated local draft.
+- fake recorder state.
+- forged voice metadata.
+- anonymous identity carryover.
+- connection reply abuse.
+- storage boundary bypass.
+
+Face verification remains future-only. A later provider direction may use `@veriff/react-native-sdk`, but ANKION must store only verification result fields and must not store raw face images, selfie video, ID media, or biometric embeddings. Spoofed verification/result fields remain future trust-layer risks only.
+
+### Readiness GO Gates
+
+Separate explicit GO remains required for:
+- Supabase client dependency GO.
+- package install GO.
+- env/client boundary GO.
+- runtime Auth integration GO.
+- owner creation runtime wiring GO.
+- local Auth test GO.
+- APK/native GO.
+- staging GO.
+- production GO.
+
+Staging and production remain NO-GO.
+
+Next recommended phase: Phase 31B - Supabase client dependency and env preflight. Phase 31B must not install packages and must stay at dependency/env decision preflight level.
