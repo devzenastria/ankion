@@ -16,6 +16,32 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-20 - Phase 31D Auth DTO/Source Implementation Planning
+
+**Type:** Auth DTO / Source Implementation Planning / Docs Only
+**Status:** Completed
+
+Planned the future inert TypeScript placement for the Phase 31C Auth DTO/session contract without creating or editing source files.
+
+Planning decisions:
+
+- Recommended initial future file: `apps/mobile/src/lib/authSessionBoundary.ts`.
+- Deferred broader folder split under `apps/mobile/src/lib/auth/` or `apps/mobile/src/lib/session/` until there is enough implemented surface to justify it.
+- Deferred split files: `authSessionTypes.ts`, `authSessionContract.ts`, `ownerCreationReadiness.ts`, `anonymousIdentityReadiness.ts`, and `authErrors.ts`.
+- Planned type/interface names: `AuthSessionState`, `AuthSessionStatus`, `AuthUserView`, `AnonymousIdentityReadiness`, `AnonymousIdentityReadinessStatus`, `OwnerCreationReadiness`, `OwnerCreationReadinessStatus`, `AuthErrorState`, `AuthErrorCode`, `SessionRecoveryState`, and `SessionRecoveryStatus`.
+- Forbidden DTO/source fields remain blocked: `client_owner_user_id`, `owner_user_id_override`, `force_authenticated`, `force_identity_ready`, `force_profile_created`, `local_entitlement_override`, `verification_override`, and `debug_auth_bypass`.
+- Source trust boundaries were documented for local-only UI state, server-derived state, request eligibility state, display-only state, and forbidden authority state.
+
+Read-only inspection confirmed `apps/mobile/src/lib` contains only `.gitkeep`, `env.ts`, and `supabaseBoundary.ts`; no auth/session source implementation or `@supabase` screen import was found.
+
+No source code, `apps/` path edit, TypeScript file creation/edit, package install, package.json edit, lockfile edit, `.env` creation/edit, runtime Supabase/Auth binding, app screen wiring, DB command, SQL execution, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, migration creation/edit/apply, RLS harness execution, APK/native change, staging, production, git add, commit, pull, or push occurred.
+
+Exact next GO:
+
+`GO: Start Phase 31E Auth DTO/source inert implementation only.`
+
+---
+
 ## 2026-06-20 - Phase 31C Auth DTO/Session Contract Preflight
 
 **Type:** Auth DTO / Session Contract Preflight / Docs Only

@@ -16,6 +16,67 @@ ChatGPT / User / Codex-assisted
 
 # Current Phase
 
+## Phase 31D - Auth DTO/Source Implementation Planning (2026-06-20)
+
+Status: PASS - Auth DTO/source implementation planning completed as docs-only. No source code implementation, TypeScript file creation/edit, `apps/` path change, package install, package.json edit, lockfile edit, `.env` creation/edit, runtime Supabase/Auth binding, app screen wiring, Supabase client screen import, DB command, SQL execution, DB connection, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, APK/native/Android change, staging/production action, commit, push, or pull occurred.
+
+Preflight:
+- Expected HEAD `73b0189` confirmed.
+- Initial `git status --short` and `git diff --name-only` were clean.
+- `git status -sb` showed `master...origin/master`.
+
+Read-only source inspection:
+- `apps/mobile/src/lib` currently contains `.gitkeep`, `env.ts`, and `supabaseBoundary.ts`.
+- `apps/mobile/src/lib/env.ts` exposes public Supabase env key reading only.
+- `apps/mobile/src/lib/supabaseBoundary.ts` remains inert and does not create a Supabase client.
+- Auth/session source search found no existing auth/session implementation.
+- Supabase screen import search found no `@supabase` imports and no screen runtime Supabase imports; matches remain limited to inert lib boundary/env references.
+
+Future source placement plan:
+- Recommended initial placement for Phase 31E is one inert source file: `apps/mobile/src/lib/authSessionBoundary.ts`.
+- `apps/mobile/src/lib/auth/` and `apps/mobile/src/lib/session/` remain valid later expansion paths, but they are heavier than needed for the first inert DTO boundary.
+- Runtime screen imports, Supabase client runtime imports, and Auth wiring remain NO-GO.
+
+Future file plan:
+- Selected path: one file, `apps/mobile/src/lib/authSessionBoundary.ts`.
+- Deferred split files: `authSessionTypes.ts`, `authSessionContract.ts`, `ownerCreationReadiness.ts`, `anonymousIdentityReadiness.ts`, and `authErrors.ts`.
+- Reason: a single inert boundary file keeps Phase 31E narrow, reviewable, and free of premature module structure.
+
+Future type/interface plan:
+- Planned names: `AuthSessionState`, `AuthSessionStatus`, `AuthUserView`, `AnonymousIdentityReadiness`, `AnonymousIdentityReadinessStatus`, `OwnerCreationReadiness`, `OwnerCreationReadinessStatus`, `AuthErrorState`, `AuthErrorCode`, `SessionRecoveryState`, and `SessionRecoveryStatus`.
+
+Forbidden DTO/source fields:
+- `client_owner_user_id`, `owner_user_id_override`, `force_authenticated`, `force_identity_ready`, `force_profile_created`, `local_entitlement_override`, `verification_override`, and `debug_auth_bypass` must not appear in the DTO/source contract.
+- `owner_user_id` may only be server-derived/read-only where explicitly needed; the client cannot assign ownership.
+
+Source trust boundary:
+- Local-only UI state, cache, optimistic state, debug flags, offline state, rooted/emulator state, and user-controlled values are not backend truth.
+- Server-derived state is trusted only after Auth/RLS/RPC confirmation.
+- Request eligibility can decide whether the UI may ask for an action, but backend authorization remains authoritative.
+- Display-only state cannot authorize owner creation, profile visibility, reveal, connection, Storage, voice, or entitlement behavior.
+- `anonymous_identity_id` from cache is not authority until server-confirmed.
+- Owner assignment remains only through backend `auth.uid()`.
+
+Phase 31E acceptance criteria:
+- Source change only under the approved path.
+- No package install, runtime Auth wiring, Supabase client screen import, `owner_user_id` client authority, forbidden fields, `.env` change, APK/native, DB command, or SQL.
+- Implementation must be type-only/inert and compile/typecheck-ready.
+
+Future typecheck/test plan:
+- Future implementation should inspect available scripts and use `tsc --noEmit` or the existing typecheck script when explicitly approved.
+- Phase 31D does not execute typecheck, tests, APK build, auth simulation, or runtime checks.
+
+Runtime NO-GO:
+- No login, signup, session provider, owner creation runtime call, Supabase client import to screens, Storage, voice, reveal, APK/native, staging, or production.
+
+Abuse carryover:
+- Android local-state risks remain: cached identity, fake entitlement, fake verification, replayed session, clock manipulation, offline bypass, rooted/emulator manipulation, debug flag abuse, client-side trust abuse, fake profile created state, fake anonymous identity ready state, local-only owner switch, and local auth bypass.
+- Instant abuse risks remain: instant-match manipulation, reveal state manipulation, connection state manipulation, local UI forcing, cooldown/rate bypass, fake presence, fake waiting/replyable transition, and local-only entitlement spoofing.
+- Voice abuse risks remain: uploaded voice spoofing, replay audio, manipulated local draft, fake recorder state, forged voice metadata, anonymous identity carryover, connection reply abuse, and storage boundary bypass.
+- Face verification remains future-only; provider direction may be `@veriff/react-native-sdk`, ANKION stores only verification result fields, raw face image/selfie video/ID media/biometric embedding storage remains forbidden, and verification result fields cannot be client-overridden.
+
+Next recommended phase: Phase 31E - Auth DTO/source inert implementation. Phase 31E requires separate explicit GO and must remain limited to inert DTO/source work unless separately approved.
+
 ## Phase 31C - Auth DTO/Session Contract Preflight (2026-06-20)
 
 Status: PASS - Auth DTO/session contract preflight completed as docs-only. No source code implementation, TypeScript interface/type file creation or edit, runtime Supabase/Auth binding, `@supabase/supabase-js` install, package.json edit, lockfile edit, `.env` creation/edit, app screen wiring, DB command, SQL execution, DB connection, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, APK/native/Android change, staging/production action, commit, push, or pull occurred.

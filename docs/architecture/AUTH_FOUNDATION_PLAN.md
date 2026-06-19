@@ -1199,3 +1199,138 @@ Face verification remains future-only. `@veriff/react-native-sdk` is only a futu
 Future GO gates: DTO/source implementation GO, Supabase dependency install GO, env/client boundary update GO, runtime Auth integration GO, owner creation runtime wiring GO, local Auth test GO, APK/native GO, staging GO, and production GO. Staging and production remain NO-GO.
 
 Next recommended phase: Phase 31D - Auth DTO/source implementation planning. Phase 31D must not implement source code.
+
+## Phase 31D - Auth DTO / Source Implementation Planning (2026-06-20)
+
+Status: PASS - Auth DTO/source implementation planning completed as docs-only. This phase does not create or edit TypeScript files, change `apps/`, install packages, change env files, bind runtime Supabase/Auth, wire screens, run DB/SQL commands, invoke backend functions, execute auth simulation, create test data, create/apply migrations, run RLS harnesses, build APK/native artifacts, touch staging/production, commit, pull, or push.
+
+### Read-Only Source Inspection
+
+Observed source state:
+
+- `apps/mobile/src/lib` contains `.gitkeep`, `env.ts`, and `supabaseBoundary.ts`.
+- `env.ts` reads only public Supabase env placeholders and exposes no secret or runtime client.
+- `supabaseBoundary.ts` exposes `InertSupabaseBoundary` with `clientAvailable: false`.
+- Auth/session source search found no existing auth/session implementation.
+- Supabase screen import search found no `@supabase` imports and no runtime Supabase screen imports.
+
+### Future Source Placement Plan
+
+Recommended Phase 31E placement:
+
+```txt
+apps/mobile/src/lib/authSessionBoundary.ts
+```
+
+This single inert boundary file is the lowest-risk first source step because it keeps DTO/session contracts close to the existing inert Supabase/env boundary without creating a broader auth module tree too early.
+
+Alternatives considered:
+
+- `apps/mobile/src/lib/auth/` can be used later when runtime Auth, providers, or helpers exist.
+- `apps/mobile/src/lib/session/` can be used later if session handling becomes a separate domain.
+
+Phase 31D selects the single-file boundary approach. Runtime screen imports, Supabase client imports, login/signup/session provider wiring, and owner creation runtime calls remain NO-GO.
+
+### Future File Plan
+
+Selected future file:
+
+- `authSessionBoundary.ts`
+
+Deferred split files:
+
+- `authSessionTypes.ts`
+- `authSessionContract.ts`
+- `ownerCreationReadiness.ts`
+- `anonymousIdentityReadiness.ts`
+- `authErrors.ts`
+
+The split files should be introduced only if the single boundary file becomes too large or if runtime implementation creates separate ownership boundaries.
+
+### Type And Interface Plan
+
+Future inert source may define these names:
+
+- `AuthSessionState`
+- `AuthSessionStatus`
+- `AuthUserView`
+- `AnonymousIdentityReadiness`
+- `AnonymousIdentityReadinessStatus`
+- `OwnerCreationReadiness`
+- `OwnerCreationReadinessStatus`
+- `AuthErrorState`
+- `AuthErrorCode`
+- `SessionRecoveryState`
+- `SessionRecoveryStatus`
+
+These names must remain inert DTO/source contract names until runtime Auth integration receives explicit GO.
+
+### Forbidden DTO / Source Fields
+
+Future DTO/source contracts must not include:
+
+- `client_owner_user_id`
+- `owner_user_id_override`
+- `force_authenticated`
+- `force_identity_ready`
+- `force_profile_created`
+- `local_entitlement_override`
+- `verification_override`
+- `debug_auth_bypass`
+
+`owner_user_id` may only appear as server-derived/read-only where explicitly justified. Client owner assignment is forbidden. Backend owner source remains `auth.uid()`.
+
+### Source Trust Boundary Plan
+
+Trust classes:
+
+- local-only UI state
+- server-derived state
+- request eligibility state
+- display-only state
+- forbidden authority state
+
+Rules:
+
+- UI optimistic state is not backend truth.
+- Local cache is not backend authority.
+- Cached `anonymous_identity_id` is not authority without server confirmation.
+- Provider metadata, debug flags, verification display flags, and local entitlement flags cannot authorize owner creation or identity readiness.
+- Request eligibility can permit a client request, but backend Auth/RLS/RPC remains authoritative.
+- Owner assignment happens only through the backend `auth.uid()` boundary.
+
+### Future Implementation Acceptance Criteria
+
+Phase 31E or later source implementation requires explicit GO and must satisfy:
+
+- source change only under the approved path
+- no package install
+- no runtime Auth wiring
+- no Supabase client screen import
+- no client-authoritative `owner_user_id`
+- no forbidden DTO/source fields
+- no `.env` change
+- type-only/inert implementation
+- TypeScript compile/typecheck plan documented before execution
+- no APK/native
+- no DB/SQL
+
+### Future Typecheck / Test Plan
+
+Phase 31D does not run tests or typecheck.
+
+Future GO may allow read-only script inspection followed by the approved project typecheck command, such as `tsc --noEmit` or an existing typecheck script if present. Typecheck execution requires explicit approval in the implementation phase. APK builds, auth simulations, RLS harnesses, and runtime tests remain outside Phase 31D.
+
+### Runtime NO-GO
+
+No login, signup, session provider, owner creation runtime call, Supabase client import to screens, Storage/voice/reveal runtime, APK/native, staging, or production work is allowed by this plan.
+
+### Abuse Carryover
+
+Android local-state risks remain: cached identity, fake entitlement, fake verification, replayed session, clock manipulation, offline bypass, rooted/emulator manipulation, debug flag abuse, client-side trust abuse, fake profile created state, fake anonymous identity ready state, local-only owner switch, and local auth bypass.
+
+Instant abuse risks remain: instant-match manipulation, reveal state manipulation, connection state manipulation, local UI forcing, cooldown/rate bypass, fake presence, fake waiting/replyable transition, and local-only entitlement spoofing.
+
+Voice abuse risks remain: uploaded voice spoofing, replay audio, manipulated local draft, fake recorder state, forged voice metadata, anonymous identity carryover, connection reply abuse, and storage boundary bypass.
+
+Face verification remains future-only. Provider direction may be `@veriff/react-native-sdk`. ANKION must not store raw face images, selfie video, ID media, or biometric embeddings. Only verification result fields may be stored, and verification result fields cannot be client-overridden.

@@ -1,5 +1,29 @@
 # Testing / Audit Procedure Plan
 
+## Phase 31D - Auth DTO / Source Implementation Test Planning Note (2026-06-20)
+
+Phase 31D is docs-only and does not execute tests, typecheck, auth simulation, RLS harnesses, DB/SQL commands, APK builds, or runtime checks.
+
+Future typecheck/test plan:
+
+- Before Phase 31E source implementation, inspect available package scripts without changing package files.
+- After explicit GO, validate the inert DTO/source file with the approved project typecheck path, such as `tsc --noEmit` or an existing typecheck script if present.
+- No runtime Auth test is allowed for the inert DTO phase.
+- No Supabase client screen import test is allowed unless a later phase explicitly approves runtime wiring.
+- No DB connection, SQL execution, migration apply, target function invocation, auth simulation, test user/data creation, or mutation is allowed.
+- No APK/native build is allowed.
+
+Future acceptance checks for source implementation:
+
+- diff limited to approved source path and required docs tracking
+- no forbidden DTO/source fields
+- no client-authoritative `owner_user_id`
+- no package or env changes
+- no runtime Supabase/Auth wiring
+- no staging/production contact
+
+Abuse carryover must remain represented in future tests: Android local-state manipulation, instant abuse, voice abuse, and face verification spoofed-result boundaries.
+
 ## 1. Testing / Audit Purpose
 
 This document defines the future testing and audit procedure required before Supabase/Auth/RLS/Storage implementation can begin.

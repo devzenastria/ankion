@@ -1101,3 +1101,43 @@ Abuse carryover remains required for Android local-state manipulation, instant m
 Future GO gates: DTO/source implementation GO, Supabase dependency install GO, env/client boundary update GO, runtime Auth integration GO, owner creation runtime wiring GO, local Auth test GO, APK/native GO, staging GO, and production GO.
 
 Next recommended phase: Phase 31D - Auth DTO/source implementation planning. Phase 31D must remain planning/preflight only.
+
+## Phase 31D - Auth DTO / Source Boundary Placement Plan (2026-06-20)
+
+Phase 31D is docs-only. It does not create/edit source files, change `apps/`, install `@supabase/supabase-js`, change package or lock files, change `.env`, bind runtime Auth, create a Supabase client, import Supabase into screens, call owner creation, run DB/SQL commands, create migrations, run RLS harnesses, build APK/native artifacts, touch staging/production, commit, pull, or push.
+
+Read-only inspection confirmed:
+
+- `apps/mobile/src/lib/env.ts` remains a public env reader only.
+- `apps/mobile/src/lib/supabaseBoundary.ts` remains inert with `clientAvailable: false`.
+- No auth/session source implementation exists.
+- No `@supabase` package import or runtime Supabase screen import exists.
+
+Selected future placement:
+
+```txt
+apps/mobile/src/lib/authSessionBoundary.ts
+```
+
+Reason:
+
+- It keeps the first DTO/source implementation adjacent to the existing inert Supabase boundary.
+- It avoids creating a premature `auth/` or `session/` module hierarchy.
+- It keeps Phase 31E narrow, reviewable, and type-only.
+
+Deferred future expansion:
+
+- `apps/mobile/src/lib/auth/`
+- `apps/mobile/src/lib/session/`
+- split files such as `authSessionTypes.ts`, `authSessionContract.ts`, `ownerCreationReadiness.ts`, `anonymousIdentityReadiness.ts`, and `authErrors.ts`
+
+Import/export boundary:
+
+- The future file may export inert types and constants only.
+- It must not import `@supabase/supabase-js`.
+- It must not create or export a runtime Supabase client.
+- It must not be imported into app screens during the inert DTO phase unless a later explicit GO allows that narrow source wiring.
+
+Forbidden fields remain blocked in source contracts: `client_owner_user_id`, `owner_user_id_override`, `force_authenticated`, `force_identity_ready`, `force_profile_created`, `local_entitlement_override`, `verification_override`, and `debug_auth_bypass`.
+
+Runtime Auth remains NO-GO: no login, signup, session provider, owner creation runtime call, Storage/voice/reveal runtime, APK/native, staging, or production.

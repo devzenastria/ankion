@@ -1,5 +1,39 @@
 # Supabase Implementation Readiness Checklist
 
+## Phase 31D - Auth DTO / Source Implementation Planning Readiness Note (2026-06-20)
+
+Status: PASS for docs-only planning. Phase 31D plans future inert Auth DTO/source placement without implementing source code.
+
+Readiness decisions:
+
+- Future initial source placement is planned as `apps/mobile/src/lib/authSessionBoundary.ts`.
+- Broader `apps/mobile/src/lib/auth/` or `apps/mobile/src/lib/session/` placement is deferred.
+- Future split files are deferred until the single inert boundary becomes insufficient.
+- Planned type/interface names are `AuthSessionState`, `AuthSessionStatus`, `AuthUserView`, `AnonymousIdentityReadiness`, `AnonymousIdentityReadinessStatus`, `OwnerCreationReadiness`, `OwnerCreationReadinessStatus`, `AuthErrorState`, `AuthErrorCode`, `SessionRecoveryState`, and `SessionRecoveryStatus`.
+- Forbidden DTO/source fields remain blocked: `client_owner_user_id`, `owner_user_id_override`, `force_authenticated`, `force_identity_ready`, `force_profile_created`, `local_entitlement_override`, `verification_override`, and `debug_auth_bypass`.
+- `auth.uid()` remains the backend owner source of truth.
+- Client owner spoofing remains forbidden.
+
+Phase 31E acceptance gate:
+
+- explicit source implementation GO is required
+- source change only under the approved path
+- type-only/inert implementation
+- no package install
+- no runtime Auth wiring
+- no Supabase client screen import
+- no `.env` change
+- no DB/SQL
+- no APK/native
+- no staging/production
+
+Testing gate:
+
+- Phase 31D does not run typecheck or tests.
+- Future implementation may inspect scripts and run `tsc --noEmit` or an existing typecheck script only after explicit GO.
+
+Runtime remains NO-GO for login, signup, session provider, owner creation runtime call, Storage, voice, reveal, APK/native, staging, and production.
+
 ## Phase
 
 Phase 18A — Documentation-only Supabase Implementation Readiness Checklist
