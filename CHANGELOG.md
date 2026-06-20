@@ -16,6 +16,30 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-20 - Phase 31M Auth DTO Type-Only Import Usage Planning
+
+**Type:** Auth DTO / Type-Only Import Usage Planning / Docs Only
+**Status:** Completed
+
+Planned how `apps/mobile/src/lib/authSessionBoundary.ts` may be used in future source work through type-only imports without adding any imports or changing source files.
+
+Planning decisions:
+
+- First integration must use `import type`.
+- Runtime import from the DTO file remains forbidden.
+- Future allowed targets are limited to an inert mapper, a view-state adapter, and future tests/type assertions, each requiring a separate GO.
+- Screen-level Supabase client imports, direct screen Auth runtime imports, screen owner creation calls, runtime value imports from the DTO file, local-cache truth, client owner authority, and early Storage/voice/reveal runtime coupling remain forbidden.
+- DTO usage boundaries were documented for `AuthSessionState`, `AuthUserView`, `AnonymousIdentityReadiness`, `OwnerCreationReadiness`, `AuthErrorState`, and `SessionRecoveryState`.
+- Owner creation future usage remains limited to `p_chosen_display_name`, `p_short_bio`, and `p_age_band`; client payload must not include `owner_user_id`; backend owner source remains `auth.uid()`.
+
+No source code, `apps/` path, import, package/env, runtime Auth, Supabase client, DB/SQL, APK/native, staging, production, commit, pull, or push changed or executed.
+
+Exact next GO:
+
+`GO: Start Phase 31N Auth DTO type-only import usage documentation checkpoint / commit only.`
+
+---
+
 ## 2026-06-20 - Phase 31K Auth DTO/Source Integration Boundary Planning
 
 **Type:** Auth DTO / Source Integration Boundary Planning / Docs Only

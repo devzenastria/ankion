@@ -169,6 +169,42 @@ Phase 31L readiness gate:
 - no source/package/env/runtime/DB/APK/staging/production changes
 - no push unless separately approved
 
+## Phase 31M - Auth DTO Type-Only Import Usage Planning Readiness (2026-06-20)
+
+Status: PASS for docs-only type-only import usage planning.
+
+Readiness decisions:
+
+- Future first use of `authSessionBoundary.ts` must prefer `import type`.
+- No import was added in Phase 31M.
+- Future allowed targets are `authSessionMapper.ts`, `authSessionViewState.ts`, and future tests/type assertions, each behind separate GO.
+- Screen routes remain forbidden targets for Supabase client imports, direct Auth runtime imports, and owner creation calls.
+- DTO types may support UI/request eligibility only and cannot create backend authority.
+- Forbidden DTO/source fields remain blocked for all future type-only usage.
+
+Owner creation readiness:
+
+- Future args remain `p_chosen_display_name`, `p_short_bio`, and `p_age_band`.
+- Client payload must not include `owner_user_id`.
+- Backend owner source remains `auth.uid()`.
+- Runtime owner creation wiring remains NO-GO until separate explicit GO.
+
+Future GO gates:
+
+- Phase 31N documentation checkpoint / commit
+- type-only import implementation
+- inert mapper implementation
+- view-state adapter implementation
+- typecheck
+- Supabase dependency install
+- runtime Auth provider
+- owner creation runtime wiring
+- APK
+- staging
+- production
+
+Staging and production remain NO-GO.
+
 ## Phase
 
 Phase 18A — Documentation-only Supabase Implementation Readiness Checklist

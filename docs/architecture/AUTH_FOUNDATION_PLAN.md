@@ -1563,3 +1563,84 @@ Client payload must never include `owner_user_id`. Backend owner source remains 
 Staging and production remain NO-GO.
 
 Security carryover remains unchanged: `auth.uid()` is backend owner source-of-truth; client `owner_user_id` is not authority; public anon key is not authorization; Auth context, RLS, and safe DTO/RPC boundaries remain required; the inert DTO file cannot assign ownership; forbidden DTO/source fields remain blocked; Android local-state abuse, instant abuse, voice abuse, and face verification future-only boundaries remain in force.
+
+## Phase 31M - Auth DTO Type-Only Import Usage Planning (2026-06-20)
+
+Status: PASS - Type-only import usage planning completed as docs-only. No source file, import, package/env, runtime Auth, Supabase client, DB/SQL, APK/native, staging/production, commit, pull, or push action occurred.
+
+### Type-Only Import Principle
+
+First integration of `authSessionBoundary.ts` must use `import type`. Runtime imports remain forbidden.
+
+`authSessionBoundary.ts` does not produce runtime values for authority, side effects, owner assignment, network calls, or backend truth. Its DTO contracts may support UI/request eligibility only. Backend owner source remains `auth.uid()`.
+
+### Future Allowed Type-Only Import Targets
+
+Planned but not implemented:
+
+- `apps/mobile/src/lib/authSessionMapper.ts`: type-only DTO import, inert/local state mapping, no Supabase runtime, no storage/network, separate GO required.
+- `apps/mobile/src/lib/authSessionViewState.ts`: type-only DTO import, UI copy/state mapping only, no backend authority, separate GO required.
+- Future tests/type assertions: type-only import only, no runtime Auth, no DB/SQL, separate GO required.
+
+### Future Forbidden Type / Import Targets
+
+Forbidden:
+
+- screen-level Supabase client import
+- direct Auth runtime import in route/screen files
+- owner creation call inside screens
+- runtime value import from the DTO file
+- DTO type use as local cache truth
+- DTO type use as client owner authority
+- early Storage/voice/reveal runtime coupling
+
+### Import Style Rules
+
+Preferred future form:
+
+```ts
+import type { AuthSessionState } from "./authSessionBoundary";
+```
+
+Rules:
+
+- no runtime import
+- no side-effect import
+- no default export
+- no barrel export unless separately planned
+- no type-only import implementation without explicit source GO
+
+### DTO Usage Boundaries
+
+- `AuthSessionState`: UI/request eligibility only.
+- `AuthUserView`: server/auth-derived view only, not backend owner source.
+- `AnonymousIdentityReadiness`: UX readiness only until server-confirmed.
+- `OwnerCreationReadiness`: owner creation eligibility only, not owner assignment.
+- `AuthErrorState`: denial/error display and recovery only.
+- `SessionRecoveryState`: cache recovery guidance only, not backend truth.
+
+### Forbidden Field Carryover
+
+Future type-only usage must never introduce `client_owner_user_id`, `owner_user_id_override`, `force_authenticated`, `force_identity_ready`, `force_profile_created`, `local_entitlement_override`, `verification_override`, or `debug_auth_bypass`.
+
+### Owner Creation Future Usage Boundary
+
+Future owner creation call args remain `p_chosen_display_name`, `p_short_bio`, and `p_age_band`. Client payload must not include `owner_user_id`. Backend owner source remains `auth.uid()`. Duplicate private profile idempotent existing response is considered safe from prior behavior testing. Phase 31M does not call owner creation; runtime wiring requires separate explicit GO.
+
+### Future GO Gates
+
+- Phase 31N - Auth DTO type-only import usage documentation checkpoint / commit.
+- Future type-only import implementation GO.
+- Future inert mapper implementation GO.
+- Future view-state adapter implementation GO.
+- Future typecheck GO.
+- Future Supabase dependency install GO.
+- Future runtime Auth provider GO.
+- Future owner creation runtime wiring GO.
+- Future APK GO.
+- Future staging GO.
+- Future production GO.
+
+Staging and production remain NO-GO.
+
+Security carryover remains unchanged: `auth.uid()` is backend owner source-of-truth; client `owner_user_id` is not authority; public anon key is not authorization; Auth context, RLS, and safe DTO/RPC boundaries remain required; the inert DTO file cannot assign ownership. Android local-state abuse, instant abuse, voice abuse, and face verification future-only boundaries remain in force.

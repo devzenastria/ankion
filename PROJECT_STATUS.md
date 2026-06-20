@@ -16,6 +16,88 @@ ChatGPT / User / Codex-assisted
 
 # Current Phase
 
+## Phase 31M - Auth DTO Type-Only Import Usage Planning (2026-06-20)
+
+Status: PASS - Auth DTO type-only import usage planning completed as docs-only. No source code edit, `apps/` path edit, new TypeScript file, `import type` addition, runtime import, Supabase import, React import, app screen wiring, session provider, runtime Auth integration, owner creation runtime call, package install, package.json edit, lockfile edit, `.env` creation/edit, DB command, SQL execution, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, APK/native/Android change, staging/production action, commit, push, or pull occurred.
+
+Preflight:
+- Expected HEAD `67d5555` confirmed.
+- Initial `git status --short` and `git diff --name-only` were clean.
+- `git status -sb` showed `master...origin/master`.
+
+Read-only source inspection:
+- `apps/mobile/src/lib/authSessionBoundary.ts` remains inert, imports-free, and forbidden-field-free.
+- `apps/mobile/src/lib/env.ts` remains public Supabase env boundary only.
+- `apps/mobile/src/lib/supabaseBoundary.ts` remains inert and does not create a Supabase client.
+- Mobile route/component import inspection found existing Expo/React Native/component/data imports only; no `authSessionBoundary` screen usage and no screen-level Supabase/Auth runtime import.
+
+Type-only import principle:
+- First integration must use `import type`.
+- Runtime imports remain forbidden.
+- `authSessionBoundary.ts` does not produce runtime authority, side effects, owner assignment, network calls, or backend truth.
+- DTO contracts may support UI/request eligibility only.
+- Backend owner source remains `auth.uid()`.
+
+Future allowed type-only import targets:
+- `apps/mobile/src/lib/authSessionMapper.ts`: future inert mapper, type-only DTO import, no Supabase runtime, no storage/network, separate GO required.
+- `apps/mobile/src/lib/authSessionViewState.ts`: future view-state adapter, type-only DTO import, UI copy/state mapping only, no backend authority, separate GO required.
+- Future tests/type assertions: type-only import only, no runtime Auth, no DB/SQL, separate GO required.
+
+Future forbidden import targets and patterns:
+- no screen-level Supabase client import
+- no direct Auth runtime import in route/screen files
+- no owner creation call inside screens
+- no runtime value import from the DTO file
+- no DTO type use as local cache truth or client owner authority
+- no early Storage/voice/reveal runtime coupling
+
+Import style rules:
+- Preferred shape: `import type { ... } from "./authSessionBoundary";`
+- No side-effect import.
+- No default export.
+- Barrel export requires separate planning and is not part of Phase 31M.
+- Type-only import source implementation requires separate GO.
+
+DTO usage boundaries:
+- `AuthSessionState`: UI/request eligibility only.
+- `AuthUserView`: server/auth-derived view only, not backend owner source.
+- `AnonymousIdentityReadiness`: UX readiness only until server-confirmed.
+- `OwnerCreationReadiness`: owner creation eligibility only, not owner assignment.
+- `AuthErrorState`: denial/error display and recovery only.
+- `SessionRecoveryState`: cache recovery guidance only, not backend truth.
+
+Owner creation future usage boundary:
+- Future args remain `p_chosen_display_name`, `p_short_bio`, and `p_age_band`.
+- Client payload must not include `owner_user_id`.
+- Backend owner source remains `auth.uid()`.
+- Duplicate private profile idempotent existing response remains safe from prior behavior testing.
+- Runtime owner creation wiring remains NO-GO in Phase 31M and requires separate explicit GO.
+
+Future GO gates:
+- Phase 31N - Auth DTO type-only import usage documentation checkpoint / commit.
+- Future type-only import implementation GO.
+- Future inert mapper implementation GO.
+- Future view-state adapter implementation GO.
+- Future typecheck GO.
+- Future Supabase dependency install GO.
+- Future runtime Auth provider GO.
+- Future owner creation runtime wiring GO.
+- Future APK GO.
+- Future staging GO.
+- Future production GO.
+
+Staging and production remain NO-GO.
+
+Security carryover:
+- `auth.uid()` remains backend owner source-of-truth.
+- Client `owner_user_id` remains non-authoritative.
+- Public anon key is not authorization.
+- Auth context, RLS, and safe DTO/RPC boundaries remain required.
+- The inert DTO file cannot assign ownership.
+- Android local-state, instant abuse, voice abuse, and face verification future-only boundaries remain in force.
+
+Next recommended phase: Phase 31N - Auth DTO type-only import usage documentation checkpoint / commit. Phase 31N must be commit-only/checkpoint-only and requires explicit GO.
+
 ## Phase 31K - Auth DTO/Source Integration Boundary Planning (2026-06-20)
 
 Status: PASS - Auth DTO/source integration boundary planning completed as docs-only. No source code edit, TypeScript file creation, `apps/` path edit, app screen wiring, Supabase import, React import, runtime Auth integration, session provider, owner creation runtime call, package install, package.json edit, lockfile edit, `.env` creation/edit, DB command, SQL execution, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, APK/native/Android change, staging/production action, commit, push, or pull occurred.

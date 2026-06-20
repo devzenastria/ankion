@@ -131,6 +131,36 @@ Security carryover remains required for auth/owner boundaries, forbidden DTO/sou
 
 Next audit checkpoint: Phase 31L should be checkpoint/commit-only after explicit GO.
 
+## Phase 31M - Auth DTO Type-Only Import Usage Test Planning Note (2026-06-20)
+
+Phase 31M plans type-only import usage only. It does not implement imports, edit source, run typecheck, run tests, integrate runtime Auth, create Supabase clients, call owner creation, run DB/SQL, build APK/native artifacts, touch staging/production, commit, pull, or push.
+
+Future audit checks after separate GO:
+
+- first integration uses `import type`
+- no runtime import from `authSessionBoundary.ts`
+- no side-effect import
+- no default export dependency
+- no barrel export unless separately planned
+- screen routes do not import Supabase/Auth runtime directly
+- DTO types are used only for UI/request eligibility
+- local cache is not treated as backend truth
+- client state does not create owner authority
+- owner creation payload excludes `owner_user_id`
+- backend owner source remains `auth.uid()`
+
+Future allowed audit targets:
+
+- inert mapper type-only import
+- view-state adapter type-only import
+- type assertions/tests without runtime Auth or DB/SQL
+
+Forbidden field carryover remains required for `client_owner_user_id`, `owner_user_id_override`, `force_authenticated`, `force_identity_ready`, `force_profile_created`, `local_entitlement_override`, `verification_override`, and `debug_auth_bypass`.
+
+Security carryover remains required for Android local-state manipulation, instant abuse, voice abuse, and face verification future-only boundaries.
+
+Next audit checkpoint: Phase 31N should be checkpoint/commit-only after explicit GO.
+
 ## 1. Testing / Audit Purpose
 
 This document defines the future testing and audit procedure required before Supabase/Auth/RLS/Storage implementation can begin.

@@ -1262,3 +1262,34 @@ Forbidden integration patterns:
 - Storage/voice/reveal runtime coupling before Auth boundary
 
 Supabase/Auth remains NO-GO until separate explicit GO for package/env/client boundary, runtime Auth provider, owner creation runtime wiring, and tests. Staging and production remain NO-GO.
+
+## Phase 31M - Auth DTO Type-Only Import Usage Boundary (2026-06-20)
+
+Phase 31M is docs-only. It does not edit source, add `import type`, add runtime imports, wire screens, create a session provider, integrate runtime Auth, install packages, change env files, create a Supabase client, run DB/SQL, build APK/native artifacts, touch staging/production, commit, pull, or push.
+
+Type-only import boundary:
+
+- Future first usage of `authSessionBoundary.ts` should be `import type`.
+- Runtime value imports from the DTO file are forbidden for the first integration.
+- DTO types can model UI/request eligibility only.
+- DTO types cannot replace backend owner truth.
+- `auth.uid()` remains backend owner source-of-truth.
+
+Allowed future type-only targets:
+
+- `apps/mobile/src/lib/authSessionMapper.ts`
+- `apps/mobile/src/lib/authSessionViewState.ts`
+- future tests/type assertions
+
+Forbidden future targets/patterns:
+
+- screen-level Supabase client import
+- route/screen direct Auth runtime import
+- owner creation call from screens
+- DTO type use as local cache truth
+- DTO type use as client owner authority
+- early Storage/voice/reveal runtime coupling
+
+Import style must use explicit `import type { ... } from "./authSessionBoundary";`. Side-effect imports, default exports, and barrel exports are out of scope until separately planned.
+
+Supabase/Auth runtime, package/env work, owner creation runtime wiring, APK/native, staging, and production remain NO-GO.
