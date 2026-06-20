@@ -1294,6 +1294,53 @@ Import style must use explicit `import type { ... } from "./authSessionBoundary"
 
 Supabase/Auth runtime, package/env work, owner creation runtime wiring, APK/native, staging, and production remain NO-GO.
 
+## Sprint 32-Alpha - Auth DTO Mapper / View-State Inert Implementation Boundary (2026-06-20)
+
+Sprint 32-Alpha created two inert source files:
+
+```txt
+apps/mobile/src/lib/authSessionMapper.ts
+apps/mobile/src/lib/authSessionViewState.ts
+```
+
+Boundary result:
+
+- type-only imports from `./authSessionBoundary` only
+- no Supabase import
+- no React import
+- no Expo import
+- no runtime Auth provider
+- no session provider
+- no owner creation runtime call
+- no screen wiring
+- no package/env change
+- no DB/SQL
+- no APK/native
+- no staging/production
+
+The mapper and view-state adapter may translate DTO state into UI/request-eligibility signals only. They do not create backend truth, owner assignment, payment authority, reveal authority, boost authority, trust badge authority, or entitlement authority.
+
+Typecheck was not executed in this sprint. Next sprint should run the mobile typecheck after explicit GO.
+
+## Sprint 32-Gamma - Mapper / View-State Typecheck Result Boundary (2026-06-20)
+
+Sprint 32-Gamma documents the Sprint 32-Beta typecheck PASS result and checkpoints the inert mapper/view-state source. It does not add runtime Auth, Supabase client integration, screen wiring, package/env changes, DB/SQL behavior, APK/native behavior, staging, or production behavior.
+
+Documented typecheck result:
+
+- Command: `& 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck`
+- Working directory: `C:\ankion`
+- Exit result: `0`
+- TypeScript errors: none
+
+Boundary interpretation:
+
+- Mapper/view-state source is TypeScript-valid under mobile typecheck.
+- Typecheck PASS does not prove runtime Auth, Supabase client, owner creation runtime, DB/RLS, Storage, APK/native, staging, or production behavior.
+- The sandbox `EPERM` note is tooling/permission only; approved sandbox-outside `npm.cmd` execution passed.
+
+Supabase/Auth boundaries remain unchanged: no Supabase import, no runtime Auth provider, no owner creation runtime call, no service role key in client/repo, and no screen wiring.
+
 ## Sprint 31-Omega - Auth DTO Mapper / View-State Integration Boundary (2026-06-20)
 
 Sprint 31-Omega is docs-only planning. It does not create `authSessionMapper.ts`, create `authSessionViewState.ts`, add `import type`, add runtime imports, wire screens, create a session provider, integrate runtime Auth, install packages, change env files, create a Supabase client, run DB/SQL, typecheck, build APK/native artifacts, touch staging/production, commit, pull, or push.

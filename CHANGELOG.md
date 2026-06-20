@@ -16,6 +16,66 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-20 - Sprint 32-Gamma Document Mapper/View-State Typecheck Result and Checkpoint
+
+**Type:** Auth DTO / Mapper and View-State Typecheck Result / Checkpoint
+**Status:** Completed
+
+Documented Sprint 32-Alpha and Sprint 32-Beta results, then prepared the checkpoint commit for the inert mapper/view-state source.
+
+Recorded Sprint 32-Alpha:
+
+- `apps/mobile/src/lib/authSessionMapper.ts` added.
+- `apps/mobile/src/lib/authSessionViewState.ts` added.
+- Both files are inert, pure, side-effect-free, and use type-only imports from `./authSessionBoundary`.
+- No Supabase/React/Expo/runtime Auth import, owner assignment, package/env change, DB/SQL, APK/native, staging, or production behavior was added.
+
+Recorded Sprint 32-Beta:
+
+- Command: `& 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck`
+- Working directory: `C:\ankion`
+- Exit result: `0`
+- TypeScript errors: none
+- Source/package/env/runtime unchanged during Beta
+
+Tooling note: the sandbox attempt hit TypeScript binary read `EPERM`; approved sandbox-outside `npm.cmd` execution passed. This is not a source/runtime/Auth risk.
+
+Typecheck PASS proves TypeScript validity only. It does not prove runtime Auth, Supabase client, owner creation runtime, DB/RLS, Storage, APK/native, staging, or production behavior.
+
+Checkpoint commit message:
+
+`feat: add inert auth dto mapper view-state`
+
+Push remains separate explicit GO.
+
+---
+
+## 2026-06-20 - Sprint 32-Alpha Auth DTO Mapper/View-State Inert Implementation
+
+**Type:** Auth DTO / Mapper and View-State Inert Implementation
+**Status:** Completed
+
+Created the approved inert source files:
+
+- `apps/mobile/src/lib/authSessionMapper.ts`
+- `apps/mobile/src/lib/authSessionViewState.ts`
+
+Implementation summary:
+
+- `authSessionMapper.ts` exports mapper result types and pure mapping helpers for session request eligibility, anonymous identity UX state, owner creation eligibility, auth error category, and session recovery guidance.
+- `authSessionViewState.ts` exports view-state types and pure helpers for session, anonymous identity, owner creation, and combined Auth boundary UI state.
+- Both files use `import type` only from `./authSessionBoundary`.
+- Both files are inert, pure, and side-effect-free.
+- Neither file assigns ownership, creates backend authority, grants payment/reveal/entitlement authority, calls runtime Auth, imports Supabase/React/Expo, or performs fetch/network or storage API behavior.
+
+No package/env changes, DB/SQL, typecheck, npm/yarn/pnpm/tsc execution, APK/native change, staging, production, commit, pull, or push occurred.
+
+Exact next GO:
+
+`GO: Start Sprint 32-Beta Auth DTO mapper/view-state inert typecheck execution only.`
+
+---
+
 ## 2026-06-20 - Sprint 31-Omega Auth DTO Mapper/View-State Integration Planning
 
 **Type:** Auth DTO / Mapper and View-State Integration Planning / Docs Only

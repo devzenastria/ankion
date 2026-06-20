@@ -16,6 +16,81 @@ ChatGPT / User / Codex-assisted
 
 # Current Phase
 
+## Sprint 32-Gamma - Document Mapper/View-State Typecheck Result and Checkpoint Commit (2026-06-20)
+
+Status: PASS - Sprint 32-Alpha inert mapper/view-state implementation and Sprint 32-Beta mobile typecheck PASS result documented, then checkpointed. Gamma did not edit source, rerun typecheck, execute npm/yarn/pnpm/tsc, install packages, change package/env/lockfiles, wire runtime Auth, add Supabase/React/Expo imports, call owner creation, run DB/SQL, touch APK/native, touch staging/production, push, or pull.
+
+Documented Sprint 32-Alpha result:
+- PASS.
+- Created mapper source: `apps/mobile/src/lib/authSessionMapper.ts`.
+- Created view-state source: `apps/mobile/src/lib/authSessionViewState.ts`.
+- Both files are inert, pure, and side-effect-free.
+- Both use only type-only imports from `./authSessionBoundary`.
+- No Supabase, React, Expo, runtime Auth, storage, fetch/network, owner assignment, payment/reveal/boost entitlement authority, package/env, DB/SQL, or APK/native behavior was added.
+
+Documented Sprint 32-Beta result:
+- PASS.
+- Command: `& 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck`.
+- Working directory: `C:\ankion`.
+- Exit result: `0`.
+- TypeScript errors: none.
+- Source changed during Beta: NO.
+- Package/env/runtime changed during Beta: NO.
+
+Tooling note:
+- The first sandbox attempt hit TypeScript binary read `EPERM`.
+- Approved sandbox-outside `npm.cmd` execution passed.
+- This is tooling/permission only, not a source/runtime/Auth risk.
+
+Runtime disclaimer:
+- Typecheck proves TypeScript validity only.
+- It does not prove runtime Auth behavior, Supabase client integration, owner creation runtime behavior, DB/RLS behavior, Storage behavior, APK/native behavior, staging behavior, or production behavior.
+
+Security carryover:
+- `auth.uid()` remains backend owner source-of-truth.
+- Client `owner_user_id` remains forbidden as authority.
+- Public anon key is not authorization.
+- Local cache is not backend truth.
+- Mapper/view-state helpers cannot create premium, reveal, boost, payment, or entitlement authority.
+- Android local-state, instant abuse, voice abuse, and face verification future-only risks remain tracked.
+
+Checkpoint:
+- Commit message: `feat: add inert auth dto mapper view-state`.
+- Push remains NO-GO until separate explicit GO.
+
+Next recommended step: GitHub push GO for this checkpoint, then Sprint 33-Alpha - Supabase dependency/env install readiness package.
+
+## Sprint 32-Alpha - Auth DTO Mapper/View-State Inert Implementation (2026-06-20)
+
+Status: PASS - Auth DTO mapper/view-state inert implementation completed. Created only the approved source files `apps/mobile/src/lib/authSessionMapper.ts` and `apps/mobile/src/lib/authSessionViewState.ts`, and updated approved docs. No `authSessionBoundary.ts` edit, other source edit, screen/route/component edit, runtime import, Supabase import, React import, Expo import, fetch/network call, storage API use, runtime Auth integration, session provider, owner creation runtime call, package install, package.json edit, lockfile edit, `.env` creation/edit, typecheck, npm/yarn/pnpm/tsc execution, DB command, SQL execution, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, APK/native/Android change, staging/production action, commit, push, or pull occurred.
+
+Created source files:
+- `apps/mobile/src/lib/authSessionMapper.ts`.
+- `apps/mobile/src/lib/authSessionViewState.ts`.
+
+Mapper exports:
+- Types: `AuthRequestEligibility`, `AnonymousIdentityUxState`, `OwnerCreationEligibility`, `AuthErrorCategory`, `SessionRecoveryGuidance`.
+- Pure functions: `mapAuthSessionToRequestEligibility`, `mapAnonymousIdentityToUxState`, `mapOwnerCreationToEligibility`, `mapAuthErrorToCategory`, `mapSessionRecoveryToGuidance`.
+
+View-state exports:
+- Types: `AuthSessionViewState`, `AnonymousIdentityViewState`, `OwnerCreationViewState`, `AuthBoundaryViewState`.
+- Pure functions: `getAuthSessionViewState`, `getAnonymousIdentityViewState`, `getOwnerCreationViewState`, `getAuthBoundaryViewState`.
+
+Boundary preserved:
+- Both new files use `import type` only from `./authSessionBoundary`.
+- Both files are inert and side-effect-free.
+- Neither file creates backend authority.
+- Backend owner source remains `auth.uid()`.
+- Client state cannot assign `owner_user_id`.
+- Local readiness is not payment/reveal/entitlement authority.
+- No Supabase, React, Expo, storage API, fetch/network, runtime Auth, DB/SQL, package/env, APK/native, staging, or production behavior was added.
+
+Typecheck note:
+- Typecheck was not executed in Sprint 32-Alpha.
+- Next sprint should execute mobile typecheck after explicit GO.
+
+Next recommended phase: Sprint 32-Beta - Auth DTO mapper/view-state inert typecheck execution. Sprint 32-Beta requires separate explicit GO.
+
 ## Sprint 31-Omega - Auth DTO Mapper/View-State Integration Planning (2026-06-20)
 
 Status: PASS - Auth DTO mapper/view-state integration planning completed as docs-only. No source code edit, `apps/` path edit, `authSessionBoundary.ts` edit, `import type` addition, new TypeScript file, runtime import, Supabase import, React import, app screen wiring, session provider, runtime Auth integration, owner creation runtime call, package install, package.json edit, lockfile edit, `.env` creation/edit, typecheck, npm/yarn/pnpm/tsc execution, DB command, SQL execution, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, APK/native/Android change, staging/production action, commit, push, or pull occurred.

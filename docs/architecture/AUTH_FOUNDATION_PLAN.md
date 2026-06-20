@@ -1738,3 +1738,70 @@ Future implementation GO requires: only approved source paths changed, `import t
 - Sprint 33-Alpha - Supabase dependency/env install readiness package.
 
 Security carryover remains unchanged: `auth.uid()` is backend owner source-of-truth; client `owner_user_id` is not authority; public anon key is not authorization; Auth context, RLS, and safe DTO/RPC boundaries remain required; DTO mapper/view-state adapter cannot assign ownership. Android local-state, instant, voice, and face verification future-only risks remain in force.
+
+## Sprint 32-Alpha - Auth DTO Mapper / View-State Inert Implementation (2026-06-20)
+
+Status: PASS - The planned inert mapper and view-state adapter files were added under `apps/mobile/src/lib`.
+
+Created files:
+
+```txt
+apps/mobile/src/lib/authSessionMapper.ts
+apps/mobile/src/lib/authSessionViewState.ts
+```
+
+`authSessionMapper.ts` exports:
+
+- `AuthRequestEligibility`
+- `AnonymousIdentityUxState`
+- `OwnerCreationEligibility`
+- `AuthErrorCategory`
+- `SessionRecoveryGuidance`
+- `mapAuthSessionToRequestEligibility`
+- `mapAnonymousIdentityToUxState`
+- `mapOwnerCreationToEligibility`
+- `mapAuthErrorToCategory`
+- `mapSessionRecoveryToGuidance`
+
+`authSessionViewState.ts` exports:
+
+- `AuthSessionViewState`
+- `AnonymousIdentityViewState`
+- `OwnerCreationViewState`
+- `AuthBoundaryViewState`
+- `getAuthSessionViewState`
+- `getAnonymousIdentityViewState`
+- `getOwnerCreationViewState`
+- `getAuthBoundaryViewState`
+
+Both files use `import type` only from `./authSessionBoundary`. Both files are inert, pure, and side-effect-free. They do not import Supabase, React, Expo, or storage/network APIs. They do not create runtime Auth behavior, owner creation calls, backend authority, owner assignment, payment authority, reveal authority, or entitlement authority.
+
+Security boundary remains unchanged: backend owner source remains `auth.uid()`, client state cannot assign `owner_user_id`, public anon key is not authorization, Auth context plus RLS plus safe DTO/RPC boundaries remain required, and local readiness cannot become backend truth.
+
+Typecheck was not executed in Sprint 32-Alpha. Sprint 32-Beta should run mobile typecheck after explicit GO.
+
+## Sprint 32-Gamma - Mapper / View-State Typecheck Result and Checkpoint (2026-06-20)
+
+Status: PASS - Sprint 32-Beta mobile typecheck result was documented and the mapper/view-state implementation was checkpointed.
+
+Sprint 32-Alpha source result:
+
+- `apps/mobile/src/lib/authSessionMapper.ts` created.
+- `apps/mobile/src/lib/authSessionViewState.ts` created.
+- Both helpers are inert, pure, side-effect-free, and type-only-boundary based.
+- Neither helper creates backend authority, owner assignment, payment/reveal/boost entitlement, runtime Auth behavior, Supabase behavior, DB/SQL behavior, or APK/native behavior.
+
+Sprint 32-Beta typecheck result:
+
+```txt
+Command: & 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck
+Working directory: C:\ankion
+Exit result: 0
+TypeScript errors: none
+```
+
+Tooling note: the sandbox attempt hit TypeScript binary read `EPERM`; approved sandbox-outside `npm.cmd` execution passed. This is an environment/permission note, not a source/runtime/Auth risk.
+
+Runtime disclaimer: typecheck proves TypeScript validity only. It does not prove runtime Auth behavior, Supabase client integration, owner creation runtime behavior, DB/RLS behavior, Storage behavior, APK/native behavior, staging behavior, or production behavior.
+
+Security carryover remains unchanged: `auth.uid()` is backend owner source-of-truth; client `owner_user_id` is not authority; public anon key is not authorization; local cache is not backend truth; mapper/view-state helpers cannot create premium/reveal/boost entitlement. Android local-state, instant, voice, and face verification future-only risks remain tracked.

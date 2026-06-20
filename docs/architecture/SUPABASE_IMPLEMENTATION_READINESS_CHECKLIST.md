@@ -251,6 +251,69 @@ Future sequence:
 
 Runtime Auth, Supabase client, owner creation runtime wiring, APK/native, staging, and production remain NO-GO.
 
+## Sprint 32-Alpha - Auth DTO Mapper / View-State Inert Implementation Readiness (2026-06-20)
+
+Status: PASS for the approved inert source implementation step.
+
+Completed:
+
+- Added `apps/mobile/src/lib/authSessionMapper.ts`.
+- Added `apps/mobile/src/lib/authSessionViewState.ts`.
+- Preserved type-only boundary from `authSessionBoundary.ts`.
+- Preserved `auth.uid()` as backend owner source.
+- Preserved client owner spoofing restrictions.
+- Preserved local-readiness non-authority boundaries.
+- Updated approved docs.
+
+Not performed:
+
+- `authSessionBoundary.ts` edit
+- route/screen/component edit
+- package install
+- package/lockfile edit
+- `.env` change
+- Supabase/React/Expo import
+- runtime Auth wiring
+- owner creation runtime call
+- DB/SQL
+- typecheck
+- APK/native
+- staging/production
+- commit/push
+
+Sprint 32-Beta readiness gate:
+
+- explicit GO required
+- run mobile typecheck only
+- no source mutation unless a later fix GO is given
+- no package/env/runtime/DB/APK/staging/production work
+
+## Sprint 32-Gamma - Mapper / View-State Typecheck Result Readiness (2026-06-20)
+
+Status: PASS for checkpoint readiness.
+
+Recorded:
+
+- Sprint 32-Alpha mapper/view-state source added.
+- Sprint 32-Beta mobile typecheck passed.
+- Command: `& 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck`.
+- Exit result: `0`.
+- TypeScript errors: none.
+- Source/package/env/runtime unchanged during Beta.
+
+Tooling note:
+
+- Sandbox attempt hit TypeScript binary read `EPERM`.
+- Approved sandbox-outside `npm.cmd` execution passed.
+- This is not a source/runtime/Auth risk.
+
+Readiness interpretation:
+
+- The inert mapper/view-state source is valid for TypeScript compilation.
+- Runtime Auth, Supabase client integration, owner creation runtime calls, DB/RLS, Storage, APK/native, staging, and production remain unverified and NO-GO until separately approved.
+
+Next readiness step: push this checkpoint only after explicit GO, then continue to Sprint 33-Alpha Supabase dependency/env install readiness package.
+
 ## Phase
 
 Phase 18A — Documentation-only Supabase Implementation Readiness Checklist

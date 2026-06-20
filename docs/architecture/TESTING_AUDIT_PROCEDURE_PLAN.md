@@ -191,6 +191,45 @@ Security audit carryover remains required for `auth.uid()` owner source, no clie
 
 Next audit checkpoint: Phase 31-Omega-Commit should be checkpoint/commit-only after explicit GO.
 
+## Sprint 32-Alpha - Auth DTO Mapper / View-State Inert Implementation Validation Note (2026-06-20)
+
+Sprint 32-Alpha created the planned inert mapper and view-state source files. It did not run typecheck, tests, npm/yarn/pnpm/tsc, auth simulation, DB/SQL commands, RLS harnesses, APK builds, staging checks, production checks, commits, or pushes.
+
+Static validation requirements for this sprint:
+
+- changed source paths limited to `apps/mobile/src/lib/authSessionMapper.ts` and `apps/mobile/src/lib/authSessionViewState.ts`
+- docs changes limited to approved docs
+- forbidden DTO/source fields absent
+- forbidden imports/references absent
+- no runtime Auth wiring
+- no Supabase/React/Expo imports
+- no network or storage API behavior
+- no owner assignment
+- no payment/reveal/entitlement authority
+- `git diff --check` passes
+
+Sprint 32-Beta should execute mobile typecheck after explicit GO and should not mutate source unless a separate fix phase is approved.
+
+## Sprint 32-Gamma - Mapper / View-State Typecheck Result Audit Note (2026-06-20)
+
+Sprint 32-Gamma records the Sprint 32-Beta typecheck result and checkpoint status. It does not rerun typecheck, mutate source, run tests, execute npm/yarn/pnpm/tsc, run auth simulation, run DB/SQL commands, run RLS harnesses, build APK/native artifacts, touch staging/production, or push.
+
+Documented Sprint 32-Beta result:
+
+- PASS
+- Command: `& 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck`
+- Working directory: `C:\ankion`
+- Exit result: `0`
+- TypeScript errors: none
+
+Audit interpretation:
+
+- Typecheck PASS confirms TypeScript validity for the inert mapper/view-state source.
+- It does not confirm runtime Auth, Supabase client behavior, owner creation runtime behavior, DB/RLS behavior, Storage behavior, APK/native behavior, staging behavior, or production behavior.
+- Sandbox `EPERM` was tooling/permission only; approved sandbox-outside execution passed.
+
+Security carryover remains required for `auth.uid()` owner source, no client owner authority, public anon key not being authorization, local cache not being backend truth, no local monetization entitlement, Android local-state manipulation, instant abuse, voice abuse, and face verification future-only boundaries.
+
 ## 1. Testing / Audit Purpose
 
 This document defines the future testing and audit procedure required before Supabase/Auth/RLS/Storage implementation can begin.
