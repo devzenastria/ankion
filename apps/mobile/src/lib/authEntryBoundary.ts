@@ -73,6 +73,7 @@ export async function requestEmailAuthEntry(
     const { error } = await boundary.client.auth.signInWithOtp({
       email: normalizedEmail,
       options: {
+        emailRedirectTo: "ankion://auth-callback",
         shouldCreateUser: true,
       },
     });
