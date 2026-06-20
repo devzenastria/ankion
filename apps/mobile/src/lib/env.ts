@@ -16,13 +16,14 @@ export const PUBLIC_SUPABASE_ENV_KEYS = [
 
 declare const process:
   | {
-      env?: Partial<Record<PublicSupabaseEnvKey, string | undefined>>;
+      env?: {
+        EXPO_PUBLIC_SUPABASE_URL?: string;
+        EXPO_PUBLIC_SUPABASE_ANON_KEY?: string;
+      };
     }
   | undefined;
 
-function readPublicEnvValue(key: PublicSupabaseEnvKey): string | null {
-  const rawValue =
-    typeof process === "undefined" ? undefined : process.env?.[key];
+function normalizePublicEnvValue(rawValue: string | undefined): string | null {
   const value = typeof rawValue === "string" ? rawValue.trim() : "";
 
   return value.length > 0 ? value : null;
@@ -30,9 +31,15 @@ function readPublicEnvValue(key: PublicSupabaseEnvKey): string | null {
 
 export function getSupabasePublicEnv(): SupabasePublicEnv {
   const values: Record<PublicSupabaseEnvKey, string | null> = {
-    EXPO_PUBLIC_SUPABASE_URL: readPublicEnvValue("EXPO_PUBLIC_SUPABASE_URL"),
-    EXPO_PUBLIC_SUPABASE_ANON_KEY: readPublicEnvValue(
-      "EXPO_PUBLIC_SUPABASE_ANON_KEY",
+    EXPO_PUBLIC_SUPABASE_URL: normalizePublicEnvValue(
+      typeof process === "undefined" || process.env === undefined
+        ? undefined
+        : process.env.EXPO_PUBLIC_SUPABASE_URL,
+    ),
+    EXPO_PUBLIC_SUPABASE_ANON_KEY: normalizePublicEnvValue(
+      typeof process === "undefined" || process.env === undefined
+        ? undefined
+        : process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
     ),
   };
 
