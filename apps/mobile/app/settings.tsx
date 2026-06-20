@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { BackHandler, StyleSheet, Text, View } from "react-native";
 
 import { AppHeader } from "../src/components/AppHeader";
+import { AuthEntryCard } from "../src/components/AuthEntryCard";
 import { AuthSessionProbeCard } from "../src/components/AuthSessionProbeCard";
 import { ScreenContainer } from "../src/components/ScreenContainer";
 
@@ -102,6 +103,8 @@ export default function SettingsScreen() {
           </View>
         </View>
       ))}
+
+      <AuthEntryCard />
 
       <AuthSessionProbeCard />
 

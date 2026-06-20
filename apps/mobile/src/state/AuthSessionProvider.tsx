@@ -13,6 +13,10 @@ import type {
   SessionRecoveryState,
 } from "../lib/authSessionBoundary";
 import {
+  requestEmailAuthEntry,
+  type AuthEntryBoundaryResult,
+} from "../lib/authEntryBoundary";
+import {
   readAuthSessionBoundary,
   type AuthSessionReadBoundaryResult,
 } from "../lib/authSessionReadBoundary";
@@ -63,9 +67,11 @@ export type AuthSessionProviderValue = Readonly<{
   viewState: AuthBoundaryViewState;
   phaseGate: "auth_provider_skeleton";
   isRuntimeAuthEnabled: false;
+  isAuthEntryBoundaryEnabled: true;
   isRuntimeAuthReadBoundaryAvailable: true;
   isRuntimeAuthListenerEnabled: false;
   readSessionBoundary: () => Promise<AuthSessionReadBoundaryResult>;
+  requestEmailAuthEntry: (email: string) => Promise<AuthEntryBoundaryResult>;
 }>;
 
 const AuthSessionContext = createContext<AuthSessionProviderValue | null>(null);
@@ -85,9 +91,11 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       }),
       phaseGate: "auth_provider_skeleton",
       isRuntimeAuthEnabled: false,
+      isAuthEntryBoundaryEnabled: true,
       isRuntimeAuthReadBoundaryAvailable: true,
       isRuntimeAuthListenerEnabled: false,
       readSessionBoundary: readAuthSessionBoundary,
+      requestEmailAuthEntry: (email) => requestEmailAuthEntry({ email }),
     };
   }, []);
 
