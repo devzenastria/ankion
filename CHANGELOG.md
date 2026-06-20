@@ -16,6 +16,34 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-20 - Phase 31G Auth DTO/Source Inert Typecheck Planning
+
+**Type:** Auth DTO / Source Inert Typecheck Planning / Docs Only
+**Status:** Completed
+
+Planned future typecheck execution for `apps/mobile/src/lib/authSessionBoundary.ts` without running typecheck, `tsc`, npm, yarn, pnpm, or any package-manager command.
+
+Read-only findings:
+
+- Root `package.json` has `typecheck`: `turbo run typecheck`.
+- `apps/mobile/package.json` has `typecheck`: `tsc --noEmit`.
+- `apps/web/package.json` has `typecheck`: `tsc --noEmit`.
+- Root `pnpm-lock.yaml` exists; root `package-lock.json` and `yarn.lock` are absent.
+- Mobile tsconfig exists and includes `src`.
+- `authSessionBoundary.ts` remains imports-free, forbidden-field-free, and free of obvious runtime side-effect tokens.
+
+Future command plan:
+
+- Preferred Phase 31H candidate: existing mobile typecheck script for the mobile-only inert source file.
+- Root Turbo typecheck remains a broader fallback if explicitly requested.
+- No command execution occurred in Phase 31G.
+
+Exact next GO:
+
+`GO: Start Phase 31H Auth DTO/source inert typecheck execution only.`
+
+---
+
 ## 2026-06-20 - Phase 31E Auth DTO/Source Inert Implementation
 
 **Type:** Auth DTO / Source Inert Implementation

@@ -69,6 +69,35 @@ Phase 31F readiness gate:
 - no new source implementation beyond the existing inert file unless separately approved
 - no package/env/runtime/DB/APK/staging/production work
 
+## Phase 31G - Auth DTO / Source Inert Typecheck Planning Readiness Result (2026-06-20)
+
+Status: PASS for docs-only typecheck planning.
+
+Read-only readiness findings:
+
+- Root package script: `typecheck` -> `turbo run typecheck`.
+- Mobile package script: `typecheck` -> `tsc --noEmit`.
+- Mobile tsconfig exists and includes `src`.
+- Root `pnpm-lock.yaml` exists; root `package-lock.json` and `yarn.lock` are absent.
+- `authSessionBoundary.ts` remains inert, imports-free, forbidden-field-free, and side-effect-free by static search.
+
+Phase 31H readiness gate:
+
+- explicit GO required
+- typecheck command execution allowed only within the approved command scope
+- no source mutation
+- no package install
+- no package/env change
+- no runtime Supabase/Auth wiring
+- no DB/SQL
+- no APK/native
+- no staging/production
+- no commit unless a later checkpoint GO is given
+
+Failure review gate:
+
+- Any typecheck failure must be classified before fixes: missing script, missing tsconfig, type-only syntax, export mismatch, strictness issue, module resolution issue, unused export policy, forbidden import, forbidden field, or runtime side-effect detection.
+
 ## Phase
 
 Phase 18A — Documentation-only Supabase Implementation Readiness Checklist

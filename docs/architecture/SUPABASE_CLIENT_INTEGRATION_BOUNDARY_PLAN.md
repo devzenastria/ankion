@@ -1165,3 +1165,25 @@ The new file is an inert DTO/session boundary. It exports type contracts and ine
 Client owner spoofing remains blocked. The source boundary does not include forbidden fields and does not allow client owner assignment. Backend owner source remains `auth.uid()`.
 
 Next phase remains a checkpoint only: Phase 31F - Auth DTO/source inert implementation checkpoint / commit, with explicit GO required.
+
+## Phase 31G - Auth DTO / Source Inert Typecheck Planning Boundary (2026-06-20)
+
+Phase 31G is docs-only. It does not run typecheck, `tsc`, npm, yarn, pnpm, install packages, change package files, change lockfiles, edit source, change env files, create a Supabase client, add Supabase imports, wire screens, run DB/SQL commands, build APK/native artifacts, touch staging/production, commit, pull, or push.
+
+Typecheck planning boundary:
+
+- Preferred future execution is the existing mobile package `typecheck` script because `authSessionBoundary.ts` lives under `apps/mobile/src/lib`.
+- Root Turbo typecheck remains a broader fallback for workspace-wide validation if explicitly selected.
+- Typecheck execution is deferred to Phase 31H with explicit GO.
+
+Supabase/Auth boundary remains unchanged:
+
+- no `@supabase/supabase-js` install
+- no Supabase import
+- no runtime Auth session provider
+- no login/signup flow
+- no owner creation runtime call
+- no screen wiring
+- no service role key in client/repo
+
+Static inspection confirms the inert source boundary still has no forbidden imports/references, no forbidden fields, and no runtime side-effect tokens.

@@ -1380,3 +1380,34 @@ Forbidden DTO/source fields remain absent from the new source file: `client_owne
 Owner creation remains future-only. Future payload shape is limited to `p_chosen_display_name`, `p_short_bio`, and `p_age_band`; client owner assignment remains forbidden; backend owner source remains `auth.uid()`. Phase 31E does not call `public.create_owner_identity_foundation` and does not create an RPC wrapper.
 
 Next recommended phase: Phase 31F - Auth DTO/source inert implementation checkpoint / commit. Phase 31F requires explicit GO and must be commit-only/checkpoint-only.
+
+## Phase 31G - Auth DTO / Source Inert Typecheck Planning (2026-06-20)
+
+Status: PASS - Typecheck strategy planning completed as docs-only. No typecheck command, `tsc`, npm, yarn, pnpm, source edit, package edit, env edit, runtime Auth, Supabase client wiring, DB/SQL, APK/native, staging/production, commit, push, or pull occurred.
+
+Read-only findings:
+
+- Root `package.json` exposes `typecheck` as `turbo run typecheck`.
+- `apps/mobile/package.json` exposes `typecheck` as `tsc --noEmit`.
+- `apps/mobile/tsconfig.json` exists and includes `src`.
+- `apps/mobile/src/lib/authSessionBoundary.ts` remains imports-free, forbidden-field-free, and free of runtime side-effect tokens.
+
+Typecheck command discovery plan:
+
+- Future Phase 31H should prefer the existing mobile package typecheck script because the changed inert source is under `apps/mobile/src/lib`.
+- Workspace root typecheck through Turbo is a broader fallback and should be used only if Phase 31H explicitly chooses workspace-wide coverage.
+- Direct `tsc --noEmit` is the underlying script target but should not bypass the existing package script without a reason.
+
+Scope:
+
+- Validate the inert DTO/source file against the mobile TypeScript project.
+- Do not test or implement runtime Auth, Supabase client behavior, owner creation calls, DB/SQL behavior, APK/native behavior, or package/env behavior.
+
+Failure interpretation:
+
+- Missing script or missing tsconfig is a planning/config gap.
+- Type-only syntax, export mismatch, strictness, or module resolution errors require scoped diagnosis before any source/config fix.
+- Forbidden imports, forbidden fields, or runtime side-effect tokens are security NO-GO findings.
+- Unused export warnings only count as failure if the current TS/project configuration treats them as errors.
+
+Phase 31H requires separate explicit GO and may execute typecheck only. Source mutation, package install, package/env changes, runtime Auth, DB/SQL, APK/native, staging/production, and commit remain forbidden unless separately approved.

@@ -39,6 +39,39 @@ Validation requirements for this phase:
 
 Future Phase 31F is checkpoint/commit only and does not expand test scope. Future typecheck execution still requires a separate explicit GO.
 
+## Phase 31G - Auth DTO / Source Inert Typecheck Planning Note (2026-06-20)
+
+Phase 31G plans typecheck execution only. It does not execute typecheck, `tsc`, npm, yarn, pnpm, tests, auth simulation, DB/SQL commands, RLS harnesses, APK builds, staging, or production checks.
+
+Candidate command plan for Phase 31H:
+
+- Preferred: existing mobile package typecheck script, because `apps/mobile/package.json` maps `typecheck` to `tsc --noEmit` and `apps/mobile/tsconfig.json` includes `src`.
+- Fallback: root `typecheck` script through Turbo for broader workspace coverage if explicitly selected.
+- Direct `tsc --noEmit` should be considered the underlying command and not run independently unless the Phase 31H GO selects it.
+
+Typecheck scope:
+
+- inert DTO/source file type safety
+- exported type/constant compatibility
+- mobile tsconfig strictness
+- no runtime Auth behavior
+- no Supabase client behavior
+- no APK/native behavior
+- no DB/SQL behavior
+
+Failure interpretation:
+
+- Missing script: command discovery failure.
+- Missing tsconfig: project configuration gap.
+- Type-only syntax error: inert source contract issue.
+- Export mismatch: source/docs contract alignment issue.
+- Strictness issue: TypeScript configuration compatibility issue.
+- Module resolution issue: project config/dependency boundary issue.
+- Unused export warning: failure only if current config treats it as an error.
+- Forbidden import, forbidden field, or runtime side-effect detection: security NO-GO.
+
+Phase 31H requires explicit GO and must not mutate source, packages, env, DB, APK/native, staging, production, or Git history.
+
 ## 1. Testing / Audit Purpose
 
 This document defines the future testing and audit procedure required before Supabase/Auth/RLS/Storage implementation can begin.

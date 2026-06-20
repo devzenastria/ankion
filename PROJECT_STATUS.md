@@ -16,6 +16,60 @@ ChatGPT / User / Codex-assisted
 
 # Current Phase
 
+## Phase 31G - Auth DTO/Source Inert Typecheck Planning (2026-06-20)
+
+Status: PASS - Auth DTO/source inert typecheck planning completed as docs-only. No typecheck, `tsc`, npm, yarn, pnpm, package install, package edit, lockfile edit, source edit, `apps/` path edit, `.env` creation/edit, runtime Supabase/Auth binding, Supabase import, app screen wiring, DB command, SQL execution, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, APK/native/Android change, staging/production action, commit, push, or pull occurred.
+
+Preflight:
+- Expected HEAD `9312a1b` confirmed.
+- Initial `git status --short` and `git diff --name-only` were clean.
+- `git status -sb` showed `master...origin/master`.
+
+Read-only inspection:
+- Root `package.json` exists and has `typecheck`: `turbo run typecheck`.
+- `apps/mobile/package.json` exists and has `typecheck`: `tsc --noEmit`.
+- `apps/web/package.json` exists and has `typecheck`: `tsc --noEmit`.
+- Root `pnpm-lock.yaml` exists.
+- Root `package-lock.json` and `yarn.lock` are absent.
+- `tsconfig.base.json`, `apps/mobile/tsconfig.json`, and `apps/web/tsconfig.json` exist.
+- `apps/mobile/tsconfig.json` includes `src`, so the inert boundary file is in future mobile typecheck scope.
+- `apps/mobile/src/lib/authSessionBoundary.ts` remains imports-free and inert.
+- Forbidden fields, forbidden imports/references, and runtime side-effect tokens remain absent.
+
+Typecheck command discovery plan:
+- Preferred future command for Phase 31H: run the existing mobile package typecheck script from `apps/mobile`, using the project package manager, because the changed source file is mobile-only and `apps/mobile/package.json` maps `typecheck` to `tsc --noEmit`.
+- Root `typecheck` through Turbo remains a broader fallback if Phase 31H explicitly wants workspace-wide coverage.
+- Direct `tsc --noEmit` is the underlying command but should be executed through the existing script unless the script is unavailable.
+
+Typecheck scope:
+- Scope is limited to static type safety for `apps/mobile/src/lib/authSessionBoundary.ts` and its inclusion in the mobile TS project.
+- Runtime Auth, Supabase client, APK/native, DB/SQL, package installation, and env behavior remain out of scope.
+
+Failure interpretation plan:
+- Missing script: planning/config gap; do not install packages or edit package files without a new GO.
+- Missing tsconfig: planning/config gap; do not create config in Phase 31H unless separately approved.
+- Type-only syntax error: source contract fix candidate for a later source-fix GO.
+- Export mismatch: contract/doc/source alignment issue.
+- Strictness issue: source contract shape needs a scoped source-fix review.
+- Module resolution issue: config/dependency boundary issue, not permission to install packages.
+- Unused export warning: failure only if current project config treats it as an error.
+- Forbidden import, forbidden field, or runtime side-effect detection: security NO-GO.
+
+Phase 31H GO gate:
+- Phase 31H - Auth DTO/source inert typecheck execution requires separate explicit GO.
+- Allowed in Phase 31H: typecheck command execution only.
+- Still forbidden in Phase 31H: source mutation, package install, package/env change, runtime Auth, Supabase client wiring, DB/SQL, APK/native, staging/production, and commit unless a later checkpoint GO is given.
+
+Security carryover:
+- `auth.uid()` remains backend owner source-of-truth.
+- Client `owner_user_id` remains non-authoritative.
+- Public anon key is not authorization.
+- Auth context, RLS, and safe DTO/RPC boundaries remain required.
+- The inert DTO file cannot assign ownership.
+- Android local-state, instant abuse, voice abuse, and face verification future-only boundaries remain in force.
+
+Next recommended phase: Phase 31H - Auth DTO/source inert typecheck execution. Phase 31H requires separate explicit GO.
+
 ## Phase 31E - Auth DTO/Source Inert Implementation (2026-06-20)
 
 Status: PASS - Auth DTO/source inert implementation completed. Created only the approved source file `apps/mobile/src/lib/authSessionBoundary.ts` and updated approved docs. No package install, package.json edit, lockfile edit, `.env` creation/edit, Supabase client creation/import, runtime Auth integration, login/signup/session provider implementation, app screen wiring, owner creation runtime call, DB command, SQL execution, DB connection, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, APK/native/Android change, staging/production action, commit, push, or pull occurred.
