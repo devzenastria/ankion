@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { BackHandler, StyleSheet, Text, View } from "react-native";
 
 import { AppHeader } from "../src/components/AppHeader";
+import { AuthSessionProbeCard } from "../src/components/AuthSessionProbeCard";
 import { ScreenContainer } from "../src/components/ScreenContainer";
 
 const settingsSections = [
@@ -101,6 +102,8 @@ export default function SettingsScreen() {
           </View>
         </View>
       ))}
+
+      <AuthSessionProbeCard />
 
       <View style={styles.note}>
         <Text style={styles.noteTitle}>Henüz kalıcı ayar yok</Text>
