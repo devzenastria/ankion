@@ -3,32 +3,35 @@ import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppBottomNav } from "../src/components/AppBottomNav";
+import { AuthSessionProvider } from "../src/state/AuthSessionProvider";
 
 export default function RootLayout() {
   const insets = useSafeAreaInsets();
   const bottomInset = Math.max(insets.bottom, 8);
 
   return (
-    <View style={styles.root}>
-      <Stack
-        screenOptions={{
-          animation: "none",
-          contentStyle: { backgroundColor: "#050509" },
-          headerShown: false,
-        }}
-      />
-      <View
-        pointerEvents="box-none"
-        style={[
-          styles.navSlot,
-          {
-            paddingBottom: bottomInset,
-          },
-        ]}
-      >
-        <AppBottomNav />
+    <AuthSessionProvider>
+      <View style={styles.root}>
+        <Stack
+          screenOptions={{
+            animation: "none",
+            contentStyle: { backgroundColor: "#050509" },
+            headerShown: false,
+          }}
+        />
+        <View
+          pointerEvents="box-none"
+          style={[
+            styles.navSlot,
+            {
+              paddingBottom: bottomInset,
+            },
+          ]}
+        >
+          <AppBottomNav />
+        </View>
       </View>
-    </View>
+    </AuthSessionProvider>
   );
 }
 
