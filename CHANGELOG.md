@@ -17,3 +17,9 @@ This changelog records public-safe project updates only. Detailed internal task 
 - Do not include internal gate results, exact security procedures, or detailed test matrices.
 - Do not include credentials, environment values, deployment procedures, or private implementation sequencing.
 - Prefer release-style summaries over internal task logs.
+
+## Permanent Changelog Rule
+
+`CHANGELOG.md` is release-style and public-safe.
+
+It may summarize public outcomes such as documentation posture improvements, broad architecture updates, or user-facing direction. It must not publish internal security procedures, detailed validation matrices, private gate status, command transcripts, or implementation ordering that should remain private.

@@ -28,3 +28,24 @@ This file does not publish internal task history, gate results, commit planning,
 ## Security Note
 
 If a public document appears to expose credentials or operational security details, treat it as a documentation security issue and sanitize it before any commit or push.
+
+## Permanent Public Status Rule
+
+`PROJECT_STATUS.md` is public-safe only.
+
+Allowed content:
+
+- broad product and development status
+- high-level privacy and safety posture
+- general note that internal implementation details are maintained privately
+
+Forbidden content:
+
+- detailed sprint logs
+- exact internal gate states
+- private implementation sequencing
+- detailed security procedures or test matrices
+- internal database, access-control, or runtime operation details
+- command transcripts or local operational history
+
+Detailed project state belongs in private/internal documentation outside the public repository.

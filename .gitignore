@@ -106,6 +106,17 @@ apps/mobile/android/.gradle/
 /mobile-typecheck-error.txt
 /docs_tree_report.txt
 
+# Private/internal documentation kept outside public repo
+/ankion-private/
+/private/
+/internal/
+/internal-docs/
+/private-docs/
+*.private.md
+*.internal.md
+*_PRIVATE.md
+*_INTERNAL.md
+
 # Keep env example tracked, block real env files
 !.env.example
 # AUTODEV generated runtime artifacts
