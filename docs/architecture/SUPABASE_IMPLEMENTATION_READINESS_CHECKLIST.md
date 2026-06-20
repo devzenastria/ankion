@@ -314,6 +314,51 @@ Readiness interpretation:
 
 Next readiness step: push this checkpoint only after explicit GO, then continue to Sprint 33-Alpha Supabase dependency/env install readiness package.
 
+## Sprint 33-Alpha - Supabase Dependency / Env Install Readiness (2026-06-20)
+
+Status: PASS for docs-only install readiness.
+
+Read-only readiness findings:
+
+- Root package manager: `pnpm@11.0.0`.
+- Workspace file: `pnpm-workspace.yaml`.
+- Lockfile: `pnpm-lock.yaml`.
+- Root `package-lock.json`: absent.
+- Root `yarn.lock`: absent.
+- Mobile package: `@ankion/mobile`.
+- Current Supabase dependency: absent from root, mobile, and web packages.
+- `.env.example`: placeholder-only public Supabase env names.
+- Real root `.env`: absent.
+- Mobile env boundary: inert/public-only.
+- Mobile Supabase boundary: inert, no client creation.
+- Runtime screen Supabase/Auth imports: absent.
+
+Future install GO acceptance criteria:
+
+- explicit command and package scope
+- preferred command `pnpm --filter @ankion/mobile add @supabase/supabase-js`
+- no service role key
+- no real env value
+- expected mobile package and `pnpm-lock.yaml` diff reviewed
+- no runtime Auth wiring
+- no screen imports
+- no DB/SQL/APK
+- post-install validation and rollback plan ready
+
+Future post-install validation:
+
+- changed-path review
+- package diff review
+- lockfile diff review
+- dependency presence in intended package only
+- no source import added
+- no `.env` added
+- no service-role/no-secret scan
+- mobile typecheck in separate GO
+- commit after validation PASS and checkpoint GO
+
+Sprint 33-Beta must be install-only plus package/lockfile validation. Runtime Auth wiring remains NO-GO.
+
 ## Phase
 
 Phase 18A — Documentation-only Supabase Implementation Readiness Checklist

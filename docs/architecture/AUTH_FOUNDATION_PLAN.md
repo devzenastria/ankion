@@ -1805,3 +1805,36 @@ Tooling note: the sandbox attempt hit TypeScript binary read `EPERM`; approved s
 Runtime disclaimer: typecheck proves TypeScript validity only. It does not prove runtime Auth behavior, Supabase client integration, owner creation runtime behavior, DB/RLS behavior, Storage behavior, APK/native behavior, staging behavior, or production behavior.
 
 Security carryover remains unchanged: `auth.uid()` is backend owner source-of-truth; client `owner_user_id` is not authority; public anon key is not authorization; local cache is not backend truth; mapper/view-state helpers cannot create premium/reveal/boost entitlement. Android local-state, instant, voice, and face verification future-only risks remain tracked.
+
+## Sprint 33-Alpha - Supabase Dependency / Env Install Readiness Package (2026-06-20)
+
+Status: PASS - Supabase dependency/env install readiness completed as docs-only. No package install, package/env/source/runtime/DB/SQL/APK/staging/production work occurred.
+
+Auth/security readiness decisions:
+
+- Future Supabase dependency install must remain separate from runtime Auth integration.
+- Future install may only add dependency metadata and lockfile changes after explicit GO.
+- Runtime Auth provider, session observer, owner creation runtime calls, screen wiring, DB/SQL, and APK/native work remain out of scope for the install phase.
+- `auth.uid()` remains backend owner source-of-truth.
+- Client `owner_user_id` remains forbidden as authority.
+- Public anon key is not authorization.
+- Auth context, RLS, and safe DTO/RPC boundaries remain required.
+- Mapper/view-state helpers cannot create entitlement.
+- Local cache is not backend truth.
+- `create_owner_identity_foundation` is not called.
+
+Env readiness:
+
+- `EXPO_PUBLIC_SUPABASE_URL` may be public client config.
+- `EXPO_PUBLIC_SUPABASE_ANON_KEY` may be public anon client config.
+- Service role keys, JWT secrets, storage signing secrets, provider secrets, admin tokens, and production credentials remain forbidden in mobile/client/repo/docs/logs/commits/screenshots.
+- Real env values must not be written into docs or committed files.
+
+Product/monetization planning:
+
+- Supabase client dependency is a prerequisite for future Auth runtime.
+- Auth runtime may later support backend-confirmed profile and anonymous identity readiness.
+- Premium/reveal/boost entitlement must be backend-confirmed, never local state.
+- Sprint 33-Alpha does not implement monetization, payment, paywall, boost, or reveal rights.
+
+Abuse carryover remains in force for Android local-state manipulation, instant abuse, voice abuse, and face verification future-only boundaries.

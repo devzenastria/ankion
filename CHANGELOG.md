@@ -16,6 +16,39 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-20 - Sprint 33-Alpha Supabase Dependency/Env Install Readiness Package
+
+**Type:** Supabase Dependency / Env Install Readiness / Docs Only
+**Status:** Completed
+
+Prepared the install readiness package for future `@supabase/supabase-js` installation without installing packages or changing package/env/source files.
+
+Read-only findings:
+
+- Root package manager is `pnpm@11.0.0`.
+- `pnpm-workspace.yaml` exists with `apps/*` and `packages/*`.
+- `pnpm-lock.yaml` exists; root `package-lock.json` and `yarn.lock` are absent.
+- Mobile package name is `@ankion/mobile`.
+- `@supabase/supabase-js` is not currently listed in root, mobile, or web package files.
+- `.env.example` is placeholder-only; no real root `.env` file was found.
+- `env.ts` remains public env boundary only.
+- `supabaseBoundary.ts` remains inert with no Supabase client creation.
+- No mobile screen/runtime Supabase/Auth import was found.
+
+Future install decision:
+
+- Preferred future command: `pnpm --filter @ankion/mobile add @supabase/supabase-js`.
+- Npm fallback only after explicit approval if pnpm tooling is unavailable: `npm --prefix apps/mobile install @supabase/supabase-js`.
+- Sprint 33-Alpha does not execute install commands.
+
+Security boundary remains: public anon key is not authorization, service role keys remain forbidden, `auth.uid()` remains backend owner source, and runtime Auth/owner creation wiring remains NO-GO.
+
+Exact next GO:
+
+`GO: Start Sprint 33-Beta Supabase dependency install execution only.`
+
+---
+
 ## 2026-06-20 - Sprint 32-Gamma Document Mapper/View-State Typecheck Result and Checkpoint
 
 **Type:** Auth DTO / Mapper and View-State Typecheck Result / Checkpoint

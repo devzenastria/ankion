@@ -230,6 +230,34 @@ Audit interpretation:
 
 Security carryover remains required for `auth.uid()` owner source, no client owner authority, public anon key not being authorization, local cache not being backend truth, no local monetization entitlement, Android local-state manipulation, instant abuse, voice abuse, and face verification future-only boundaries.
 
+## Sprint 33-Alpha - Supabase Dependency / Env Install Readiness Test Plan (2026-06-20)
+
+Sprint 33-Alpha is docs-only readiness planning. It does not install packages, run npm/pnpm/yarn, run typecheck, edit package files, edit lockfiles, create `.env`, add secrets, edit source, add Supabase imports, wire runtime Auth, run DB/SQL, run RLS harnesses, build APK/native artifacts, touch staging/production, commit, pull, or push.
+
+Future post-install validation plan after explicit GO:
+
+- `git diff --name-only`
+- package diff check
+- lockfile diff check
+- confirm `@supabase/supabase-js` dependency in intended mobile package only
+- confirm no source import added
+- confirm no `.env` added
+- run service-role/no-secret string search
+- run mobile typecheck in separate GO
+- checkpoint commit only after validation PASS
+
+Failure conditions for future install validation:
+
+- unexpected package scope
+- wrong package manager
+- service role or real secret introduced
+- source import added during install phase
+- `.env` added
+- runtime Auth wiring added
+- DB/SQL/APK/staging/production touched
+
+Security/product carryover remains required: public anon key is not authorization, `auth.uid()` remains backend owner source, mapper/view-state cannot create entitlement, local cache is not backend truth, and monetization entitlement must be backend-confirmed in a later approved phase.
+
 ## 1. Testing / Audit Purpose
 
 This document defines the future testing and audit procedure required before Supabase/Auth/RLS/Storage implementation can begin.

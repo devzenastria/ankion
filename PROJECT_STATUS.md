@@ -16,6 +16,93 @@ ChatGPT / User / Codex-assisted
 
 # Current Phase
 
+## Sprint 33-Alpha - Supabase Dependency/Env Install Readiness Package (2026-06-20)
+
+Status: PASS - Supabase dependency/env install readiness package completed as docs-only. No package install, npm install/add, pnpm install/add, yarn install/add, package.json edit, lockfile edit, `.env` creation/edit, secret write, service role key introduction, source code edit, `apps/` path edit, Supabase client creation, Supabase import, runtime Auth integration, app screen wiring, session provider, owner creation runtime call, typecheck, npm/yarn/pnpm/tsc execution, DB command, SQL execution, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, APK/native/Android change, staging/production action, commit, push, or pull occurred.
+
+Preflight:
+- Expected HEAD `a28d687` confirmed.
+- Initial `git status --short` and `git diff --name-only` were clean.
+- `git status -sb` showed `master...origin/master`.
+
+Read-only package/env/source inspection:
+- Root `package.json` exists and declares `packageManager: pnpm@11.0.0`.
+- `pnpm-workspace.yaml` exists and includes `apps/*` and `packages/*`.
+- `turbo.json` exists and defines `typecheck`.
+- `apps/mobile/package.json` exists with name `@ankion/mobile`, script `typecheck: tsc --noEmit`, and no `@supabase/supabase-js` dependency.
+- `apps/web/package.json` exists and has no `@supabase/supabase-js` dependency.
+- `pnpm-lock.yaml` exists.
+- Root `package-lock.json` and `yarn.lock` are absent.
+- `.env.example` exists and contains only public Supabase placeholders plus a no-secret/service-role warning.
+- Real root `.env` files are absent; only `.env.example` was found.
+- `apps/mobile/src/lib/env.ts` remains the public env boundary for `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY`.
+- `apps/mobile/src/lib/supabaseBoundary.ts` remains inert with `clientAvailable: false` and does not create a Supabase client.
+- Existing Supabase dependency/import search found no `@supabase/supabase-js`, `supabase-js`, `createClient`, or `@supabase` dependency/import in package/mobile runtime scope.
+- Runtime screen Supabase/Auth import search found no mobile screen/runtime Supabase/Auth import.
+- Service-role/secret string search found existing prohibition/planning/config-placeholder references, not a newly introduced key.
+
+Package manager readiness decision:
+- Future install should use pnpm because the repo declares `pnpm@11.0.0`, has `pnpm-lock.yaml`, and uses `pnpm-workspace.yaml`.
+- Future package scope should target mobile package `@ankion/mobile`.
+- Preferred future install command: `pnpm --filter @ankion/mobile add @supabase/supabase-js`.
+- Npm fallback, only if pnpm tooling is unavailable and explicitly approved: `npm --prefix apps/mobile install @supabase/supabase-js`.
+- Sprint 33-Alpha does not execute either command.
+
+Env boundary readiness:
+- `EXPO_PUBLIC_SUPABASE_URL` may be public client config.
+- `EXPO_PUBLIC_SUPABASE_ANON_KEY` may be public anon client config.
+- Public anon key is not authorization.
+- Service role key, JWT secrets, storage signing secrets, provider secrets, admin tokens, and production credentials are forbidden in client code, repo files, docs/logs/commits/screenshots, and Expo public env.
+- `.env` must not be committed.
+- `.env.example` must remain placeholder-only.
+- Real env values must not be written into prompts, logs, docs, or committed files.
+- Runtime env loading remains future work.
+
+Future package install acceptance criteria:
+- Correct package manager selected.
+- Package scope selected.
+- Install command explicit.
+- No service role key or real env value introduced.
+- Expected `apps/mobile/package.json` and `pnpm-lock.yaml` diff understood.
+- No runtime Auth wiring in install phase.
+- No screen import in install phase.
+- No DB/SQL/APK work.
+- Post-install typecheck plan ready.
+- Rollback plan ready: if install is wrong, revert package and lockfile diffs only.
+
+Future post-install validation plan:
+- Inspect `git diff --name-only`.
+- Check package diff.
+- Check lockfile diff.
+- Confirm `@supabase/supabase-js` dependency presence in intended package only.
+- Confirm no source import was added.
+- Confirm no `.env` was added.
+- Run no-service-role/no-secret string search.
+- Execute mobile typecheck only in a separate explicit GO.
+- Commit only after install validation PASS and explicit checkpoint GO.
+
+Security invariants:
+- `auth.uid()` remains backend owner source-of-truth.
+- Client cannot send `owner_user_id`.
+- Public anon key is not authorization.
+- Auth context, RLS, and safe DTO/RPC boundaries remain required.
+- Mapper/view-state helpers cannot create entitlement.
+- Local cache is not backend truth.
+- Owner creation runtime call remains NO-GO in Sprint 33-Alpha.
+- `create_owner_identity_foundation` is not called.
+
+Product/monetization relation:
+- Supabase client dependency is a prerequisite for future Auth runtime work.
+- Future Auth runtime may support backend-confirmed private profile and anonymous identity readiness.
+- Premium, reveal, and boost entitlement must not come from local state.
+- Future monetization requires backend-confirmed entitlement.
+- Sprint 33-Alpha does not implement monetization, payment, paywall, boost, or reveal rights.
+- This sprint prepares the safe env/client dependency gate for later revenue infrastructure.
+
+Abuse carryover remains in force for Android local-state manipulation, instant abuse, voice abuse, and face verification future-only boundaries.
+
+Next recommended phase: Sprint 33-Beta - Supabase dependency install execution. Sprint 33-Beta requires separate explicit GO and should be package install plus package/lockfile validation only; runtime Auth wiring remains out of scope.
+
 ## Sprint 32-Gamma - Document Mapper/View-State Typecheck Result and Checkpoint Commit (2026-06-20)
 
 Status: PASS - Sprint 32-Alpha inert mapper/view-state implementation and Sprint 32-Beta mobile typecheck PASS result documented, then checkpointed. Gamma did not edit source, rerun typecheck, execute npm/yarn/pnpm/tsc, install packages, change package/env/lockfiles, wire runtime Auth, add Supabase/React/Expo imports, call owner creation, run DB/SQL, touch APK/native, touch staging/production, push, or pull.

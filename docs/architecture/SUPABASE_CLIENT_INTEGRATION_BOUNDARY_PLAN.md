@@ -1341,6 +1341,62 @@ Boundary interpretation:
 
 Supabase/Auth boundaries remain unchanged: no Supabase import, no runtime Auth provider, no owner creation runtime call, no service role key in client/repo, and no screen wiring.
 
+## Sprint 33-Alpha - Supabase Dependency / Env Install Readiness Package (2026-06-20)
+
+Sprint 33-Alpha is docs-only readiness planning. It does not install `@supabase/supabase-js`, change package files, change lockfiles, create or edit `.env`, add secrets, create a Supabase client, add Supabase imports, wire screens, implement runtime Auth, run typecheck, run DB/SQL commands, touch APK/native, touch staging/production, commit, pull, or push.
+
+### Package Manager Readiness
+
+Read-only inspection confirms:
+
+- root `package.json` declares `packageManager: pnpm@11.0.0`
+- `pnpm-workspace.yaml` exists
+- `pnpm-lock.yaml` exists
+- root `package-lock.json` and `yarn.lock` are absent
+- mobile package name is `@ankion/mobile`
+- mobile package currently does not list `@supabase/supabase-js`
+- root and web package files do not list `@supabase/supabase-js`
+
+Preferred future install command:
+
+```txt
+pnpm --filter @ankion/mobile add @supabase/supabase-js
+```
+
+Npm fallback only if pnpm tooling is unavailable and separately approved:
+
+```txt
+npm --prefix apps/mobile install @supabase/supabase-js
+```
+
+### Env Boundary Readiness
+
+`EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` may be public client config values. The public anon key is not authorization.
+
+Service role keys, JWT secrets, storage signing secrets, provider secrets, admin tokens, and production credentials remain forbidden in client code, Expo public env, repo files, docs, logs, screenshots, and commits. `.env.example` must remain placeholder-only, and real `.env` files must not be committed or documented.
+
+### Existing Inert Boundary Alignment
+
+`apps/mobile/src/lib/env.ts` remains the public env reader. `apps/mobile/src/lib/supabaseBoundary.ts` remains inert with `clientAvailable: false`. No Supabase client is created. No screen/runtime Supabase/Auth import exists. Auth DTO mapper/view-state files remain inert and do not import runtime Supabase/Auth.
+
+### Future Install Acceptance Criteria
+
+- correct package manager selected
+- package scope selected
+- install command explicit
+- no service role
+- no real env value
+- package and lockfile diff expected and reviewed
+- no runtime Auth wiring
+- no screen import
+- no DB/SQL/APK
+- post-install typecheck plan ready
+- rollback plan ready for package/lockfile revert
+
+### Future Post-Install Validation Plan
+
+After a future explicit install GO: inspect changed paths, package diff, lockfile diff, intended dependency presence, absence of source imports, absence of `.env`, no service-role/no-secret strings, and run mobile typecheck only in a separate GO before checkpoint commit.
+
 ## Sprint 31-Omega - Auth DTO Mapper / View-State Integration Boundary (2026-06-20)
 
 Sprint 31-Omega is docs-only planning. It does not create `authSessionMapper.ts`, create `authSessionViewState.ts`, add `import type`, add runtime imports, wire screens, create a session provider, integrate runtime Auth, install packages, change env files, create a Supabase client, run DB/SQL, typecheck, build APK/native artifacts, touch staging/production, commit, pull, or push.
