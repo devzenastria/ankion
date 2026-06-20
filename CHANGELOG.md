@@ -16,6 +16,32 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-20 - Sprint 31-Omega Auth DTO Mapper/View-State Integration Planning
+
+**Type:** Auth DTO / Mapper and View-State Integration Planning / Docs Only
+**Status:** Completed
+
+Planned the future inert mapper and view-state adapter integration path for `apps/mobile/src/lib/authSessionBoundary.ts` without changing source.
+
+Planning decisions:
+
+- Future mapper file: `apps/mobile/src/lib/authSessionMapper.ts`.
+- Future view-state adapter file: `apps/mobile/src/lib/authSessionViewState.ts`.
+- Both future files require separate explicit implementation GO.
+- Both must use type-only imports from `authSessionBoundary.ts`.
+- Runtime imports, Supabase imports, React imports, storage/network, owner assignment, screen wiring, package/env changes, DB/SQL, APK/native, staging, and production remain forbidden.
+- Product flow relation was planned for Home, Feed, Chat/Connections, Reveal, and monetization readiness.
+- Monetization readiness remains backend-confirmed only; Auth/session DTO mapper cannot create premium/reveal/boost entitlement.
+- Future acceptance criteria and sprint sequence were documented.
+
+No source code, `apps/` path, imports, package/env, runtime Auth, Supabase client, DB/SQL, typecheck, APK/native, staging, production, commit, pull, or push changed or executed.
+
+Exact next GO:
+
+`GO: Start Phase 31-Omega-Commit Auth DTO mapper/view-state planning checkpoint / commit only.`
+
+---
+
 ## 2026-06-20 - Phase 31M Auth DTO Type-Only Import Usage Planning
 
 **Type:** Auth DTO / Type-Only Import Usage Planning / Docs Only

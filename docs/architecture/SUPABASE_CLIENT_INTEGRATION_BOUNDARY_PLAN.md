@@ -1293,3 +1293,38 @@ Forbidden future targets/patterns:
 Import style must use explicit `import type { ... } from "./authSessionBoundary";`. Side-effect imports, default exports, and barrel exports are out of scope until separately planned.
 
 Supabase/Auth runtime, package/env work, owner creation runtime wiring, APK/native, staging, and production remain NO-GO.
+
+## Sprint 31-Omega - Auth DTO Mapper / View-State Integration Boundary (2026-06-20)
+
+Sprint 31-Omega is docs-only planning. It does not create `authSessionMapper.ts`, create `authSessionViewState.ts`, add `import type`, add runtime imports, wire screens, create a session provider, integrate runtime Auth, install packages, change env files, create a Supabase client, run DB/SQL, typecheck, build APK/native artifacts, touch staging/production, commit, pull, or push.
+
+Future mapper boundary:
+
+- planned path: `apps/mobile/src/lib/authSessionMapper.ts`
+- type-only DTO imports only
+- pure mapping only if needed
+- no Supabase, React, storage, network, owner assignment, package/env change, or runtime screen wiring
+
+Future view-state boundary:
+
+- planned path: `apps/mobile/src/lib/authSessionViewState.ts`
+- converts Auth/session readiness to UI copy/state only
+- display/request eligibility only
+- no backend truth, entitlement, premium/reveal grant, server confirmation, or `owner_user_id` selection
+
+Forbidden integration patterns:
+
+- screen-level Supabase client import
+- screen-level owner creation call
+- local `owner_user_id` authority
+- local cache as backend truth
+- fake anonymous identity ready/profile-created state
+- fake entitlement or monetization authority
+- verification override
+- debug auth bypass
+- offline owner creation
+- Storage/voice/reveal runtime coupling before Auth boundary
+
+Monetization readiness remains backend-confirmed only. The Auth/session DTO mapper may display eligibility but cannot grant premium, reveal, boost, visibility, verification, trust, or payment authority.
+
+Supabase/Auth runtime, package/env work, owner creation runtime wiring, APK/native, staging, and production remain NO-GO.

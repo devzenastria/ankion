@@ -1644,3 +1644,97 @@ Future owner creation call args remain `p_chosen_display_name`, `p_short_bio`, a
 Staging and production remain NO-GO.
 
 Security carryover remains unchanged: `auth.uid()` is backend owner source-of-truth; client `owner_user_id` is not authority; public anon key is not authorization; Auth context, RLS, and safe DTO/RPC boundaries remain required; the inert DTO file cannot assign ownership. Android local-state abuse, instant abuse, voice abuse, and face verification future-only boundaries remain in force.
+
+## Sprint 31-Omega - Auth DTO Mapper / View-State Integration Planning (2026-06-20)
+
+Status: PASS - Mapper/view-state integration planning completed as docs-only. No source, import, package/env, runtime Auth, Supabase client, DB/SQL, typecheck, APK/native, staging/production, commit, pull, or push action occurred.
+
+### Sprint Strategy
+
+Sprint 31-Omega is a larger planning package that consolidates the smaller Auth DTO documentation phases into a source-readiness plan. It is not implementation. Source implementation, commit checkpoint, and push each require separate explicit GO.
+
+### Future Inert Mapper Plan
+
+Planned future file:
+
+```txt
+apps/mobile/src/lib/authSessionMapper.ts
+```
+
+The mapper may:
+
+- normalize `AuthSessionState` for UI/request eligibility
+- convert `AnonymousIdentityReadiness` to local UX readiness
+- interpret `OwnerCreationReadiness` for button/CTA eligibility
+- map `AuthErrorState` to safe error categories
+- map `SessionRecoveryState` to recovery guidance
+
+The mapper must not import Supabase, call the network, read/write storage, assign owners, replace `auth.uid()` with local user ids, produce `owner_user_id`, wire runtime screens, or treat profile/identity-created state as backend truth.
+
+### Future View-State Adapter Plan
+
+Planned future file:
+
+```txt
+apps/mobile/src/lib/authSessionViewState.ts
+```
+
+The adapter may convert Auth/session readiness into UI copy/state models, expose display/request-eligibility signals for Home/Feed/Chat, represent anonymous identity readiness safely, and describe owner creation pending/complete/denied states.
+
+The adapter must not produce backend truth, entitlement, premium/reveal rights, server confirmation, trust in fake profile-created state, or any `owner_user_id` choice.
+
+### Type-Only Import Plan
+
+Future source usage must start with:
+
+```ts
+import type { AuthSessionState } from "./authSessionBoundary";
+```
+
+Runtime import, default export, side-effect import, and barrel export are out of scope. DTO types are compile-time contracts only.
+
+### Allowed Future Source Files
+
+- `apps/mobile/src/lib/authSessionMapper.ts`
+- `apps/mobile/src/lib/authSessionViewState.ts`
+
+Allowed future behavior after explicit GO: type-only imports, pure functions if needed, no side effects, no Supabase, no React, no storage, no network, no owner assignment, and no package/env change.
+
+### Forbidden Future Integration Patterns
+
+Forbidden:
+
+- screen-level Supabase client import
+- screen-level owner creation call
+- local `owner_user_id` authority
+- `owner_user_id` override
+- local cache as backend truth
+- fake anonymous identity ready state
+- fake profile created state
+- fake entitlement
+- verification override
+- debug auth bypass
+- offline owner creation
+- Storage/voice/reveal runtime coupling before Auth boundary
+- monetization entitlement from local state
+
+### Product Flow And Monetization Relation
+
+Home may use session/readiness state only for CTA eligibility. Feed voice or camera draft state is not backend authority. Chat/Connections waiting/replyable state must be backend-confirmed. Reveal eligibility must not come from local state.
+
+Future premium, reveal, boost, visibility, and trust/verification entitlement must be backend-confirmed. Auth/session DTOs may display eligibility but cannot grant payment, premium, reveal, boost, or trust authority. Sprint 31-Omega preserves monetization direction but does not implement monetization.
+
+### Future Implementation Acceptance Criteria
+
+Future implementation GO requires: only approved source paths changed, `import type` only, no forbidden fields, no runtime imports, no Supabase import, no React import, no fetch/storage/network, no owner assignment, no package/env change, no DB/SQL, no APK/native, separate mobile typecheck PASS, docs updated, and checkpoint commit only after explicit GO.
+
+### Future Sprint Sequence
+
+- Phase 31N already committed current type-only import usage docs.
+- Sprint 31-Omega docs-only planning completes now.
+- Phase 31-Omega-Commit - Auth DTO mapper/view-state planning checkpoint / commit.
+- Sprint 32-Alpha - Auth DTO mapper/view-state inert implementation.
+- Sprint 32-Beta - Auth DTO mapper/view-state typecheck execution and result documentation.
+- Sprint 33-Alpha - Supabase dependency/env install readiness package.
+
+Security carryover remains unchanged: `auth.uid()` is backend owner source-of-truth; client `owner_user_id` is not authority; public anon key is not authorization; Auth context, RLS, and safe DTO/RPC boundaries remain required; DTO mapper/view-state adapter cannot assign ownership. Android local-state, instant, voice, and face verification future-only risks remain in force.

@@ -205,6 +205,52 @@ Future GO gates:
 
 Staging and production remain NO-GO.
 
+## Sprint 31-Omega - Auth DTO Mapper / View-State Integration Readiness (2026-06-20)
+
+Status: PASS for docs-only mapper/view-state planning.
+
+Planned future source files:
+
+- `apps/mobile/src/lib/authSessionMapper.ts`
+- `apps/mobile/src/lib/authSessionViewState.ts`
+
+These files may only be created after explicit implementation GO.
+
+Future implementation criteria:
+
+- only approved source paths changed
+- `import type` only
+- no forbidden fields
+- no runtime imports
+- no Supabase import
+- no React import
+- no fetch/storage/network
+- no owner assignment
+- no package/env change
+- no DB/SQL
+- no APK/native
+- mobile typecheck must pass in a separate GO
+- docs updated
+- checkpoint commit after PASS and explicit GO
+
+Product/readiness constraints:
+
+- Home can show CTA eligibility only.
+- Feed drafts are not backend authority.
+- Chat/Connections waiting/replyable state must be backend-confirmed.
+- Reveal eligibility must not come from local state.
+- Premium/reveal/boost entitlement must be backend-confirmed.
+- Auth DTO mapper/view-state adapter cannot create monetization entitlement.
+
+Future sequence:
+
+- Phase 31-Omega-Commit - documentation checkpoint / commit
+- Sprint 32-Alpha - inert mapper/view-state implementation
+- Sprint 32-Beta - typecheck execution and result documentation
+- Sprint 33-Alpha - Supabase dependency/env install readiness package
+
+Runtime Auth, Supabase client, owner creation runtime wiring, APK/native, staging, and production remain NO-GO.
+
 ## Phase
 
 Phase 18A — Documentation-only Supabase Implementation Readiness Checklist

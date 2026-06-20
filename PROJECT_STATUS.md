@@ -16,6 +16,113 @@ ChatGPT / User / Codex-assisted
 
 # Current Phase
 
+## Sprint 31-Omega - Auth DTO Mapper/View-State Integration Planning (2026-06-20)
+
+Status: PASS - Auth DTO mapper/view-state integration planning completed as docs-only. No source code edit, `apps/` path edit, `authSessionBoundary.ts` edit, `import type` addition, new TypeScript file, runtime import, Supabase import, React import, app screen wiring, session provider, runtime Auth integration, owner creation runtime call, package install, package.json edit, lockfile edit, `.env` creation/edit, typecheck, npm/yarn/pnpm/tsc execution, DB command, SQL execution, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, APK/native/Android change, staging/production action, commit, push, or pull occurred.
+
+Preflight:
+- Expected HEAD `236ec92` confirmed.
+- Initial `git status --short` and `git diff --name-only` were clean.
+- `git status -sb` showed `master...origin/master [ahead 1]`.
+
+Read-only source inspection:
+- `apps/mobile/src/lib/authSessionBoundary.ts` remains inert, imports-free, and forbidden-field-free.
+- `apps/mobile/src/lib/env.ts` remains public Supabase env boundary only.
+- `apps/mobile/src/lib/supabaseBoundary.ts` remains inert and does not create a Supabase client.
+- Mobile route/screen/component import inspection found existing Expo, React Native, component, and local data imports; no new import was added.
+- Forbidden DTO/source field search returned no matches.
+- Forbidden import search in `authSessionBoundary.ts` returned no matches.
+
+Sprint strategy:
+- Sprint 31-Omega combines the prior small docs phases into a larger planning package.
+- This sprint is not implementation.
+- Source implementation requires separate explicit GO.
+- Commit checkpoint requires separate explicit GO.
+- Push requires separate explicit GO after a checkpoint.
+
+Future inert mapper plan:
+- Planned future file: `apps/mobile/src/lib/authSessionMapper.ts`.
+- The mapper may normalize `AuthSessionState` for UI/request eligibility, convert `AnonymousIdentityReadiness` to local UX readiness, interpret `OwnerCreationReadiness` for owner creation CTA eligibility, map `AuthErrorState` to safe error categories, and map `SessionRecoveryState` to recovery guidance.
+- The mapper cannot import Supabase, call the network, read/write storage, assign owners, replace `auth.uid()` with local ids, produce `owner_user_id`, wire runtime screens, or treat profile/identity-created state as backend truth.
+
+Future view-state adapter plan:
+- Planned future file: `apps/mobile/src/lib/authSessionViewState.ts`.
+- The adapter may convert Auth/session readiness into UI copy/state models, expose display/request-eligibility signals for Home/Feed/Chat, safely display anonymous identity readiness, and explain owner creation pending/complete/denied states.
+- The adapter cannot produce backend truth, entitlement, premium/reveal rights, trusted server confirmation, fake profile created trust, or choose `owner_user_id`.
+
+Type-only import plan:
+- First future source usage must use `import type`, for example `import type { AuthSessionState } from "./authSessionBoundary";`.
+- Runtime import, default export, side-effect import, and barrel export remain out of scope.
+- DTO types are compile-time contracts only.
+
+Allowed future source files:
+- `apps/mobile/src/lib/authSessionMapper.ts`.
+- `apps/mobile/src/lib/authSessionViewState.ts`.
+- These may only be created after explicit implementation GO and must use type-only imports, pure functions if needed, no side effects, no Supabase, no React, no storage, no network, no owner assignment, and no package/env changes.
+
+Forbidden future integration patterns:
+- screen-level Supabase client import
+- screen-level owner creation call
+- local `owner_user_id` authority
+- `owner_user_id` override
+- local cache as backend truth
+- fake anonymous identity ready state
+- fake profile created state
+- fake entitlement
+- verification override
+- debug auth bypass
+- offline owner creation
+- Storage/voice/reveal runtime coupling before Auth boundary
+- monetization entitlement from local state
+
+Product flow relation planning:
+- Home may show CTA eligibility only.
+- Feed voice/camera drafts are not backend authority.
+- Chat/Connections waiting/replyable state must be backend-confirmed.
+- Reveal eligibility must not come from local state.
+- Monetization premium/reveal/boost entitlement must be backend-confirmed; Auth DTO mapper cannot create local premium authority; public anon key is not authorization.
+
+Monetization readiness relation:
+- Free/premium entitlement must be backend-confirmed in a future approved phase.
+- Reveal rights, boost/visibility, and trust badges cannot be granted by local state.
+- Verification/trust badge remains a future layer.
+- Auth/session DTO can display eligibility but cannot provide payment or entitlement authority.
+- Monetization direction is preserved, but Sprint 31-Omega is not monetization implementation.
+
+Future implementation acceptance criteria:
+- Only approved source paths changed.
+- `import type` only.
+- No forbidden fields.
+- No runtime imports.
+- No Supabase import.
+- No React import.
+- No fetch/storage/network.
+- No owner assignment.
+- No package/env change.
+- No DB/SQL.
+- No APK/native.
+- Mobile typecheck must pass in a separate GO.
+- Docs updated.
+- Commit checkpoint only after PASS and explicit GO.
+
+Future sprint sequence:
+- Phase 31N already committed current type-only import usage docs.
+- Sprint 31-Omega docs-only planning completes now.
+- Next: Phase 31-Omega-Commit - Auth DTO mapper/view-state planning checkpoint / commit.
+- Then: Sprint 32-Alpha - Auth DTO mapper/view-state inert implementation.
+- Then: Sprint 32-Beta - Auth DTO mapper/view-state typecheck execution and result documentation.
+- Then: Sprint 33-Alpha - Supabase dependency/env install readiness package.
+
+Security carryover:
+- `auth.uid()` remains backend owner source-of-truth.
+- Client `owner_user_id` remains non-authoritative.
+- Public anon key is not authorization.
+- Auth context, RLS, and safe DTO/RPC boundaries remain required.
+- DTO mapper/view-state adapter cannot assign ownership.
+- Android local-state, instant abuse, voice abuse, and face verification future-only boundaries remain in force.
+
+Next recommended phase: Phase 31-Omega-Commit - Auth DTO mapper/view-state planning checkpoint / commit. This must be commit-only/checkpoint-only and requires explicit GO.
+
 ## Phase 31M - Auth DTO Type-Only Import Usage Planning (2026-06-20)
 
 Status: PASS - Auth DTO type-only import usage planning completed as docs-only. No source code edit, `apps/` path edit, new TypeScript file, `import type` addition, runtime import, Supabase import, React import, app screen wiring, session provider, runtime Auth integration, owner creation runtime call, package install, package.json edit, lockfile edit, `.env` creation/edit, DB command, SQL execution, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, APK/native/Android change, staging/production action, commit, push, or pull occurred.

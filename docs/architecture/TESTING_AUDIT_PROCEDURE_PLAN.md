@@ -161,6 +161,36 @@ Security carryover remains required for Android local-state manipulation, instan
 
 Next audit checkpoint: Phase 31N should be checkpoint/commit-only after explicit GO.
 
+## Sprint 31-Omega - Auth DTO Mapper / View-State Integration Test Planning Note (2026-06-20)
+
+Sprint 31-Omega plans future mapper/view-state testing only. It does not implement source, add imports, run typecheck, run tests, integrate runtime Auth, create Supabase clients, call owner creation, run DB/SQL, build APK/native artifacts, touch staging/production, commit, pull, or push.
+
+Future implementation audit criteria:
+
+- only `apps/mobile/src/lib/authSessionMapper.ts` and/or `apps/mobile/src/lib/authSessionViewState.ts` change
+- type-only imports only
+- no runtime imports
+- no Supabase import
+- no React import
+- no fetch/storage/network
+- no owner assignment
+- no package/env changes
+- no forbidden DTO/source fields
+- mobile typecheck passes in a separate GO
+
+Future product-flow audit:
+
+- Home readiness can drive CTA eligibility only
+- Feed drafts cannot become backend authority
+- Chat/Connections waiting/replyable state must be backend-confirmed
+- Reveal eligibility must not be local-only
+- premium/reveal/boost entitlement must be backend-confirmed
+- Auth/session DTO mapper cannot create payment or entitlement authority
+
+Security audit carryover remains required for `auth.uid()` owner source, no client owner authority, public anon key not being authorization, Android local-state manipulation, instant abuse, voice abuse, and face verification future-only boundaries.
+
+Next audit checkpoint: Phase 31-Omega-Commit should be checkpoint/commit-only after explicit GO.
+
 ## 1. Testing / Audit Purpose
 
 This document defines the future testing and audit procedure required before Supabase/Auth/RLS/Storage implementation can begin.
