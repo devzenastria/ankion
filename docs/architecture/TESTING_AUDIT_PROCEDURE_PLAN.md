@@ -72,6 +72,34 @@ Failure interpretation:
 
 Phase 31H requires explicit GO and must not mutate source, packages, env, DB, APK/native, staging, production, or Git history.
 
+## Phase 31I - Auth DTO / Source Inert Typecheck Result Documentation Note (2026-06-20)
+
+Phase 31I records the Phase 31H typecheck result. It does not execute typecheck, `tsc`, npm, yarn, pnpm, tests, auth simulation, DB/SQL commands, RLS harnesses, APK builds, staging, production checks, commits, or pushes.
+
+Phase 31H documented result:
+
+- PASS
+- Command: `& 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck`
+- Working directory: `C:\ankion`
+- Exit result: `0`
+- TypeScript errors: none
+- Working tree clean before and after: YES
+
+Tooling note:
+
+- PowerShell `npm.ps1` execution policy blocked the first npm call.
+- Sandbox `npm.cmd` execution hit TypeScript binary read `EPERM`.
+- Approved sandbox-outside `npm.cmd` execution passed.
+- This is an execution environment note only.
+
+Audit interpretation:
+
+- PASS confirms TypeScript validity for the inert DTO/source boundary.
+- PASS does not confirm runtime Auth, Supabase client behavior, owner creation behavior, DB/SQL behavior, Storage behavior, APK/native behavior, staging behavior, or production behavior.
+- Security carryover remains required for auth/owner boundaries, forbidden DTO/source fields, Android local-state manipulation, instant abuse, voice abuse, and face verification future-only boundaries.
+
+Next audit checkpoint: Phase 31J should be checkpoint/commit-only after explicit GO.
+
 ## 1. Testing / Audit Purpose
 
 This document defines the future testing and audit procedure required before Supabase/Auth/RLS/Storage implementation can begin.

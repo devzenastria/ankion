@@ -98,6 +98,40 @@ Failure review gate:
 
 - Any typecheck failure must be classified before fixes: missing script, missing tsconfig, type-only syntax, export mismatch, strictness issue, module resolution issue, unused export policy, forbidden import, forbidden field, or runtime side-effect detection.
 
+## Phase 31I - Auth DTO / Source Inert Typecheck Result Documentation Readiness (2026-06-20)
+
+Status: PASS for docs-only documentation of Phase 31H typecheck result.
+
+Recorded readiness result:
+
+- Phase 31H result: PASS.
+- Command: `& 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck`.
+- Working directory: `C:\ankion`.
+- Exit result: `0`.
+- TypeScript errors: none.
+- Working tree clean before and after: YES.
+
+Environment note:
+
+- PowerShell `npm.ps1` execution policy blocked the first npm call.
+- Sandbox `npm.cmd` attempt hit TypeScript binary read `EPERM`.
+- Approved sandbox-outside `npm.cmd` execution passed.
+- This is not a source/runtime risk.
+
+Readiness interpretation:
+
+- The inert Auth DTO/source boundary is TypeScript-valid under the mobile typecheck command.
+- This does not prove runtime Auth, Supabase client, owner creation, DB/SQL, APK/native, staging, or production behavior.
+- Runtime/Auth/Supabase/DB/APK/staging/production remain NO-GO until separately approved.
+
+Phase 31J readiness gate:
+
+- explicit GO required
+- checkpoint/commit only
+- no typecheck execution
+- no source/package/env/runtime/DB/APK/staging/production changes
+- no push unless separately approved
+
 ## Phase
 
 Phase 18A — Documentation-only Supabase Implementation Readiness Checklist

@@ -16,6 +16,46 @@ ChatGPT / User / Codex-assisted
 
 # Current Phase
 
+## Phase 31I - Document Auth DTO/Source Inert Typecheck Result (2026-06-20)
+
+Status: PASS - Phase 31H Auth DTO/source inert typecheck result documented as docs-only. No typecheck, `tsc`, npm, yarn, pnpm, source edit, `apps/` path edit, package install, package.json edit, lockfile edit, `.env` creation/edit, runtime Supabase/Auth binding, Supabase import, app screen wiring, DB command, SQL execution, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, APK/native/Android change, staging/production action, commit, push, or pull occurred in Phase 31I.
+
+Documented Phase 31H result:
+- Result: PASS.
+- Typecheck command: `& 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck`.
+- Working directory: `C:\ankion`.
+- Exit result: `0`.
+- TypeScript errors: none.
+- Working tree clean before and after: YES.
+- Source changed: NO.
+- Package/env changed: NO.
+- Runtime/Auth changed: NO.
+- DB/SQL changed or executed: NO.
+- APK/native changed: NO.
+- Commit/push: NO.
+
+Tooling/environment note:
+- First npm call through PowerShell `npm.ps1` did not pass because local script execution policy blocked it.
+- `npm.cmd` sandbox attempt reached the package script but hit TypeScript binary read `EPERM`.
+- Final approved sandbox-outside `npm.cmd` execution passed with exit result `0`.
+- This is a tooling/environment note, not a runtime or source risk.
+
+Typecheck interpretation:
+- Typecheck PASS proves TypeScript validity for the inert mobile DTO/source boundary.
+- Typecheck PASS is not runtime/Auth behavior proof.
+- Runtime Auth, Supabase client integration, owner creation runtime call, DB/SQL, APK/native, staging, and production remain NO-GO.
+
+Security carryover:
+- `auth.uid()` remains backend owner source-of-truth.
+- Client `owner_user_id` is not source of truth.
+- Public anon key is not authorization.
+- Auth context, RLS, and safe DTO/RPC boundaries remain required.
+- The inert DTO file cannot assign ownership.
+- Forbidden DTO/source fields remain blocked: `client_owner_user_id`, `owner_user_id_override`, `force_authenticated`, `force_identity_ready`, `force_profile_created`, `local_entitlement_override`, `verification_override`, and `debug_auth_bypass`.
+- Android local-state, instant abuse, voice abuse, and face verification future-only boundaries remain in force.
+
+Next recommended phase: Phase 31J - Auth DTO/source inert typecheck documentation checkpoint / commit. Phase 31J must be commit-only/checkpoint-only and requires explicit GO.
+
 ## Phase 31G - Auth DTO/Source Inert Typecheck Planning (2026-06-20)
 
 Status: PASS - Auth DTO/source inert typecheck planning completed as docs-only. No typecheck, `tsc`, npm, yarn, pnpm, package install, package edit, lockfile edit, source edit, `apps/` path edit, `.env` creation/edit, runtime Supabase/Auth binding, Supabase import, app screen wiring, DB command, SQL execution, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, APK/native/Android change, staging/production action, commit, push, or pull occurred.

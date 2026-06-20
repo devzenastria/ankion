@@ -16,6 +16,37 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-20 - Phase 31I Document Auth DTO/Source Inert Typecheck Result
+
+**Type:** Auth DTO / Source Inert Typecheck Result Documentation / Docs Only
+**Status:** Completed
+
+Documented the Phase 31H mobile typecheck PASS result.
+
+Recorded result:
+
+- Command: `& 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck`
+- Working directory: `C:\ankion`
+- Exit result: `0`
+- TypeScript errors: none
+- Working tree clean before and after: YES
+- Source, package, env, runtime/Auth, DB/SQL, APK/native, staging, production, commit, and push: not changed or executed
+
+Tooling note:
+
+- PowerShell `npm.ps1` was blocked by execution policy.
+- Sandbox `npm.cmd` execution hit TypeScript binary read `EPERM`.
+- Approved sandbox-outside `npm.cmd` execution passed.
+- This environment/tooling note is not a runtime or source risk.
+
+Typecheck PASS documents TypeScript validity only. It does not prove runtime Auth behavior, Supabase client behavior, owner creation behavior, DB/SQL behavior, APK/native behavior, staging behavior, or production behavior.
+
+Exact next GO:
+
+`GO: Start Phase 31J Auth DTO/source inert typecheck documentation checkpoint / commit only.`
+
+---
+
 ## 2026-06-20 - Phase 31G Auth DTO/Source Inert Typecheck Planning
 
 **Type:** Auth DTO / Source Inert Typecheck Planning / Docs Only

@@ -1411,3 +1411,33 @@ Failure interpretation:
 - Unused export warnings only count as failure if the current TS/project configuration treats them as errors.
 
 Phase 31H requires separate explicit GO and may execute typecheck only. Source mutation, package install, package/env changes, runtime Auth, DB/SQL, APK/native, staging/production, and commit remain forbidden unless separately approved.
+
+## Phase 31I - Document Auth DTO / Source Inert Typecheck Result (2026-06-20)
+
+Status: PASS - Phase 31H mobile typecheck result documented. Phase 31I is docs-only and does not run typecheck, `tsc`, npm, yarn, pnpm, edit source, edit packages, change env, wire runtime Auth, add Supabase imports, run DB/SQL, build APK/native artifacts, touch staging/production, commit, pull, or push.
+
+Documented Phase 31H execution:
+
+```txt
+Command: & 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck
+Working directory: C:\ankion
+Exit result: 0
+TypeScript errors: none
+```
+
+Working tree was clean before and after Phase 31H. Source, package/env, runtime/Auth, DB/SQL, APK/native, commit, and push were not changed or executed.
+
+Tooling note:
+
+- PowerShell `npm.ps1` was blocked by local execution policy.
+- `npm.cmd` inside the sandbox reached the script but hit TypeScript binary read `EPERM`.
+- Approved sandbox-outside `npm.cmd` execution passed.
+- This note is an environment/tooling constraint, not a source or runtime risk.
+
+Typecheck PASS means the inert DTO/source boundary is TypeScript-valid in the mobile package typecheck. It is not proof of login, signup, session provider, owner creation runtime, Supabase client behavior, DB/SQL behavior, storage behavior, APK/native behavior, staging behavior, or production behavior.
+
+Auth/owner carryover remains unchanged: `auth.uid()` is backend owner source-of-truth, client `owner_user_id` is not authority, public anon key is not authorization, Auth context plus RLS plus safe DTO/RPC boundaries remain required, and the inert DTO file cannot assign ownership.
+
+Forbidden DTO/source fields remain blocked: `client_owner_user_id`, `owner_user_id_override`, `force_authenticated`, `force_identity_ready`, `force_profile_created`, `local_entitlement_override`, `verification_override`, and `debug_auth_bypass`.
+
+Android local-state abuse, instant abuse, voice abuse, and face verification future-only boundaries remain in force. Face verification provider direction may remain `@veriff/react-native-sdk`, but ANKION does not store raw face image, selfie video, ID media, or biometric embedding; only verification result fields may be stored in a future approved phase.

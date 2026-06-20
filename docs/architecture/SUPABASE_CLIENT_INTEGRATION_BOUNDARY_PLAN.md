@@ -1187,3 +1187,33 @@ Supabase/Auth boundary remains unchanged:
 - no service role key in client/repo
 
 Static inspection confirms the inert source boundary still has no forbidden imports/references, no forbidden fields, and no runtime side-effect tokens.
+
+## Phase 31I - Auth DTO / Source Inert Typecheck Result Boundary (2026-06-20)
+
+Phase 31I documents the Phase 31H typecheck PASS result only. It does not execute typecheck, install packages, edit source, change env files, create a Supabase client, add Supabase imports, wire screens, run DB/SQL commands, build APK/native artifacts, touch staging/production, commit, pull, or push.
+
+Documented result:
+
+- Command: `& 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck`
+- Working directory: `C:\ankion`
+- Exit result: `0`
+- TypeScript errors: none
+- Working tree clean before/after: YES
+
+Tooling note:
+
+- PowerShell `npm.ps1` was blocked by local execution policy.
+- Sandbox `npm.cmd` attempt hit TypeScript binary read `EPERM`.
+- Approved sandbox-outside `npm.cmd` execution passed.
+
+Supabase/Auth boundary remains unchanged:
+
+- no `@supabase/supabase-js` install
+- no Supabase import
+- no runtime Auth session provider
+- no login/signup flow
+- no owner creation runtime call
+- no screen wiring
+- no service role key in client/repo
+
+Typecheck PASS proves TypeScript validity only and is not runtime/Auth/Supabase behavior proof.
