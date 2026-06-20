@@ -1,4 +1,4 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 import {
   getSupabasePublicEnv,
@@ -10,9 +10,12 @@ export type SupabaseBoundaryReason =
   | "missing_env"
   | "unconfigured"
   | "dependency_ready"
+  | "runtime_client_ready"
   | "disabled_by_phase_gate";
 
-export type SupabaseBoundaryPhaseGate = "inert_client_boundary";
+export type SupabaseBoundaryPhaseGate =
+  | "inert_client_boundary"
+  | "runtime_client_boundary";
 
 export type SupabaseBoundaryDebugSafeDescriptor = Readonly<{
   dependencyReady: true;
@@ -21,44 +24,126 @@ export type SupabaseBoundaryDebugSafeDescriptor = Readonly<{
   urlConfigured: boolean;
   anonKeyConfigured: boolean;
   missingKeys: readonly PublicSupabaseEnvKey[];
+  clientAvailable: boolean;
+  isAuthSessionBoundaryEnabled: false;
 }>;
 
-export type InertSupabaseBoundary = Readonly<{
-  kind: "inert_supabase_boundary";
-  status: "configured" | "missing_public_env";
+type SupabaseBoundaryBase = Readonly<{
   env: SupabasePublicEnv;
-  clientAvailable: false;
-  client: SupabaseClient | null;
   dependencyReady: true;
   phaseGate: SupabaseBoundaryPhaseGate;
   reason: SupabaseBoundaryReason;
   urlConfigured: boolean;
   anonKeyConfigured: boolean;
   debugSafeDescriptor: SupabaseBoundaryDebugSafeDescriptor;
+  isAuthSessionBoundaryEnabled: false;
 }>;
 
-function getBoundaryReason(env: SupabasePublicEnv): SupabaseBoundaryReason {
+export type InertSupabaseBoundary = SupabaseBoundaryBase &
+  Readonly<{
+    kind: "inert_supabase_boundary";
+    status: "configured" | "missing_public_env";
+    clientAvailable: false;
+    client: null;
+    phaseGate: "inert_client_boundary";
+    reason: "missing_env" | "disabled_by_phase_gate";
+  }>;
+
+export type RuntimeSupabaseBoundary = SupabaseBoundaryBase &
+  Readonly<{
+    kind: "runtime_supabase_boundary";
+    status: "ready";
+    clientAvailable: true;
+    client: SupabaseClient;
+    phaseGate: "runtime_client_boundary";
+    reason: "runtime_client_ready";
+  }>;
+
+export type MissingRuntimeSupabaseBoundary = SupabaseBoundaryBase &
+  Readonly<{
+    kind: "runtime_supabase_boundary";
+    status: "missing_public_env";
+    clientAvailable: false;
+    client: null;
+    phaseGate: "runtime_client_boundary";
+    reason: "missing_env";
+  }>;
+
+export type SupabaseBoundary =
+  | InertSupabaseBoundary
+  | RuntimeSupabaseBoundary
+  | MissingRuntimeSupabaseBoundary;
+
+function isSupabaseEnvConfigured(
+  env: SupabasePublicEnv,
+): env is SupabasePublicEnv &
+  Readonly<{
+    supabaseUrl: string;
+    supabaseAnonKey: string;
+    isConfigured: true;
+  }> {
+  return (
+    env.isConfigured &&
+    env.supabaseUrl !== null &&
+    env.supabaseAnonKey !== null
+  );
+}
+
+function getInertBoundaryReason(
+  env: SupabasePublicEnv,
+): InertSupabaseBoundary["reason"] {
   return env.isConfigured ? "disabled_by_phase_gate" : "missing_env";
 }
 
-function getDebugSafeDescriptor(
+function getRuntimeBoundaryReason(
   env: SupabasePublicEnv,
-): SupabaseBoundaryDebugSafeDescriptor {
-  const reason = getBoundaryReason(env);
+): RuntimeSupabaseBoundary["reason"] | MissingRuntimeSupabaseBoundary["reason"] {
+  return isSupabaseEnvConfigured(env) ? "runtime_client_ready" : "missing_env";
+}
 
+function getDebugSafeDescriptor(input: {
+  env: SupabasePublicEnv;
+  phaseGate: SupabaseBoundaryPhaseGate;
+  reason: SupabaseBoundaryReason;
+  clientAvailable: boolean;
+}): SupabaseBoundaryDebugSafeDescriptor {
   return {
     dependencyReady: true,
-    phaseGate: "inert_client_boundary",
-    reason,
-    urlConfigured: env.supabaseUrl !== null,
-    anonKeyConfigured: env.supabaseAnonKey !== null,
-    missingKeys: env.missingKeys,
+    phaseGate: input.phaseGate,
+    reason: input.reason,
+    urlConfigured: input.env.supabaseUrl !== null,
+    anonKeyConfigured: input.env.supabaseAnonKey !== null,
+    missingKeys: input.env.missingKeys,
+    clientAvailable: input.clientAvailable,
+    isAuthSessionBoundaryEnabled: false,
   };
+}
+
+function createRuntimeSupabaseClient(
+  env: SupabasePublicEnv,
+): SupabaseClient | null {
+  if (!isSupabaseEnvConfigured(env)) {
+    return null;
+  }
+
+  return createClient(env.supabaseUrl, env.supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  });
 }
 
 export function getInertSupabaseBoundary(): InertSupabaseBoundary {
   const env = getSupabasePublicEnv();
-  const debugSafeDescriptor = getDebugSafeDescriptor(env);
+  const reason = getInertBoundaryReason(env);
+  const debugSafeDescriptor = getDebugSafeDescriptor({
+    env,
+    phaseGate: "inert_client_boundary",
+    reason,
+    clientAvailable: false,
+  });
 
   return {
     kind: "inert_supabase_boundary",
@@ -68,10 +153,58 @@ export function getInertSupabaseBoundary(): InertSupabaseBoundary {
     client: null,
     dependencyReady: true,
     phaseGate: "inert_client_boundary",
-    reason: debugSafeDescriptor.reason,
+    reason,
     urlConfigured: debugSafeDescriptor.urlConfigured,
     anonKeyConfigured: debugSafeDescriptor.anonKeyConfigured,
     debugSafeDescriptor,
+    isAuthSessionBoundaryEnabled: false,
+  };
+}
+
+export function getRuntimeSupabaseBoundary():
+  | RuntimeSupabaseBoundary
+  | MissingRuntimeSupabaseBoundary {
+  const env = getSupabasePublicEnv();
+  const client = createRuntimeSupabaseClient(env);
+  const clientAvailable = client !== null;
+  const reason = getRuntimeBoundaryReason(env);
+  const debugSafeDescriptor = getDebugSafeDescriptor({
+    env,
+    phaseGate: "runtime_client_boundary",
+    reason,
+    clientAvailable,
+  });
+
+  if (client === null) {
+    return {
+      kind: "runtime_supabase_boundary",
+      status: "missing_public_env",
+      env,
+      clientAvailable: false,
+      client: null,
+      dependencyReady: true,
+      phaseGate: "runtime_client_boundary",
+      reason: "missing_env",
+      urlConfigured: debugSafeDescriptor.urlConfigured,
+      anonKeyConfigured: debugSafeDescriptor.anonKeyConfigured,
+      debugSafeDescriptor,
+      isAuthSessionBoundaryEnabled: false,
+    };
+  }
+
+  return {
+    kind: "runtime_supabase_boundary",
+    status: "ready",
+    env,
+    clientAvailable: true,
+    client,
+    dependencyReady: true,
+    phaseGate: "runtime_client_boundary",
+    reason: "runtime_client_ready",
+    urlConfigured: debugSafeDescriptor.urlConfigured,
+    anonKeyConfigured: debugSafeDescriptor.anonKeyConfigured,
+    debugSafeDescriptor,
+    isAuthSessionBoundaryEnabled: false,
   };
 }
 
