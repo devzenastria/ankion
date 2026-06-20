@@ -1334,3 +1334,49 @@ Instant abuse risks remain: instant-match manipulation, reveal state manipulatio
 Voice abuse risks remain: uploaded voice spoofing, replay audio, manipulated local draft, fake recorder state, forged voice metadata, anonymous identity carryover, connection reply abuse, and storage boundary bypass.
 
 Face verification remains future-only. Provider direction may be `@veriff/react-native-sdk`. ANKION must not store raw face images, selfie video, ID media, or biometric embeddings. Only verification result fields may be stored, and verification result fields cannot be client-overridden.
+
+## Phase 31E - Auth DTO / Source Inert Implementation (2026-06-20)
+
+Status: PASS - The Phase 31C/31D Auth DTO/session contract was implemented as one inert TypeScript source boundary file.
+
+Created file:
+
+```txt
+apps/mobile/src/lib/authSessionBoundary.ts
+```
+
+Implementation boundary:
+
+- no imports
+- no Supabase import
+- no React import
+- no runtime Auth wiring
+- no login/signup/session provider
+- no app screen wiring
+- no owner creation runtime call
+- no DB/SQL
+- no APK/native
+- no staging/production
+
+Exported contracts:
+
+- `AuthSessionStatus`
+- `AuthSessionState`
+- `AuthUserView`
+- `AnonymousIdentityReadinessStatus`
+- `AnonymousIdentityReadiness`
+- `OwnerCreationReadinessStatus`
+- `OwnerCreationReadiness`
+- `AuthErrorCode`
+- `AuthErrorState`
+- `SessionRecoveryStatus`
+- `SessionRecoveryState`
+- `SessionBoundarySnapshot`
+
+The source boundary preserves the Phase 31C trust model: local-only UI state and cache are not backend truth, display-only state is not authority, request eligibility is not authorization, and server-confirmed state remains the only safe boundary for ownership-sensitive behavior.
+
+Forbidden DTO/source fields remain absent from the new source file: `client_owner_user_id`, `owner_user_id_override`, `force_authenticated`, `force_identity_ready`, `force_profile_created`, `local_entitlement_override`, `verification_override`, and `debug_auth_bypass`.
+
+Owner creation remains future-only. Future payload shape is limited to `p_chosen_display_name`, `p_short_bio`, and `p_age_band`; client owner assignment remains forbidden; backend owner source remains `auth.uid()`. Phase 31E does not call `public.create_owner_identity_foundation` and does not create an RPC wrapper.
+
+Next recommended phase: Phase 31F - Auth DTO/source inert implementation checkpoint / commit. Phase 31F requires explicit GO and must be commit-only/checkpoint-only.

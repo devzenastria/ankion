@@ -16,6 +16,33 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-20 - Phase 31E Auth DTO/Source Inert Implementation
+
+**Type:** Auth DTO / Source Inert Implementation
+**Status:** Completed
+
+Created the approved inert Auth DTO/session boundary source file:
+
+- `apps/mobile/src/lib/authSessionBoundary.ts`
+
+The file exports inert status/type contracts for auth session state, auth user view, anonymous identity readiness, owner creation readiness, auth error state, session recovery state, and the combined session boundary snapshot.
+
+Safety decisions:
+
+- No imports were added.
+- No Supabase import, React import, Expo import, async-storage reference, storage reference, or fetch reference was added.
+- No runtime Auth wiring, login/signup/session provider, screen import, owner creation runtime call, network behavior, DB/SQL command, migration, RLS harness, APK/native change, staging, or production action occurred.
+- Forbidden DTO/source fields are absent from the new source file.
+- Client owner assignment remains forbidden and backend owner source remains `auth.uid()`.
+
+Updated approved docs to record the Phase 31E result and next checkpoint phase.
+
+Exact next GO:
+
+`GO: Start Phase 31F Auth DTO/source inert implementation checkpoint / commit only.`
+
+---
+
 ## 2026-06-20 - Phase 31D Auth DTO/Source Implementation Planning
 
 **Type:** Auth DTO / Source Implementation Planning / Docs Only

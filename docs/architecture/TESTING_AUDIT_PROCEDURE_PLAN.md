@@ -24,6 +24,21 @@ Future acceptance checks for source implementation:
 
 Abuse carryover must remain represented in future tests: Android local-state manipulation, instant abuse, voice abuse, and face verification spoofed-result boundaries.
 
+## Phase 31E - Auth DTO / Source Inert Implementation Validation Note (2026-06-20)
+
+Phase 31E validation is limited to static repository checks. No runtime tests, typecheck execution, auth simulation, DB/SQL command, RLS harness, APK build, staging, or production contact occurred.
+
+Validation requirements for this phase:
+
+- changed source path must be limited to `apps/mobile/src/lib/authSessionBoundary.ts`
+- docs changes must be limited to approved docs
+- forbidden DTO/source fields must be absent from the new file
+- forbidden imports/references must be absent from the new file
+- `git diff --check` must pass
+- package/env/runtime/DB/APK paths must remain unchanged
+
+Future Phase 31F is checkpoint/commit only and does not expand test scope. Future typecheck execution still requires a separate explicit GO.
+
 ## 1. Testing / Audit Purpose
 
 This document defines the future testing and audit procedure required before Supabase/Auth/RLS/Storage implementation can begin.

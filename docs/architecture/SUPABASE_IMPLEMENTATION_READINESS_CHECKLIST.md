@@ -34,6 +34,41 @@ Testing gate:
 
 Runtime remains NO-GO for login, signup, session provider, owner creation runtime call, Storage, voice, reveal, APK/native, staging, and production.
 
+## Phase 31E - Auth DTO / Source Inert Implementation Readiness Result (2026-06-20)
+
+Status: PASS for the approved inert source step.
+
+Completed:
+
+- Created `apps/mobile/src/lib/authSessionBoundary.ts`.
+- Kept implementation type-only/inert.
+- Preserved `auth.uid()` as backend owner source.
+- Preserved client owner spoofing restrictions.
+- Kept forbidden DTO/source fields out of the new file.
+- Updated approved docs.
+
+Not performed:
+
+- package install
+- package/lockfile edit
+- `.env` change
+- Supabase client creation/import
+- runtime Auth wiring
+- app screen wiring
+- DB/SQL
+- migration
+- RLS harness
+- APK/native
+- staging/production
+- commit/push
+
+Phase 31F readiness gate:
+
+- explicit GO required
+- checkpoint/commit only
+- no new source implementation beyond the existing inert file unless separately approved
+- no package/env/runtime/DB/APK/staging/production work
+
 ## Phase
 
 Phase 18A — Documentation-only Supabase Implementation Readiness Checklist

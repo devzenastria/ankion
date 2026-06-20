@@ -16,6 +16,42 @@ ChatGPT / User / Codex-assisted
 
 # Current Phase
 
+## Phase 31E - Auth DTO/Source Inert Implementation (2026-06-20)
+
+Status: PASS - Auth DTO/source inert implementation completed. Created only the approved source file `apps/mobile/src/lib/authSessionBoundary.ts` and updated approved docs. No package install, package.json edit, lockfile edit, `.env` creation/edit, Supabase client creation/import, runtime Auth integration, login/signup/session provider implementation, app screen wiring, owner creation runtime call, DB command, SQL execution, DB connection, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, APK/native/Android change, staging/production action, commit, push, or pull occurred.
+
+Source result:
+- Added inert TypeScript contract file: `apps/mobile/src/lib/authSessionBoundary.ts`.
+- File has no imports.
+- File has no Supabase, React, Expo, async-storage, storage, or fetch reference.
+- File has no network call, side effect, owner assignment logic, screen wiring, or runtime Auth behavior.
+- File exports type-only/session-boundary contracts plus inert status arrays.
+
+Exported contracts:
+- `AuthSessionStatus`
+- `AuthSessionState`
+- `AuthUserView`
+- `AnonymousIdentityReadinessStatus`
+- `AnonymousIdentityReadiness`
+- `OwnerCreationReadinessStatus`
+- `OwnerCreationReadiness`
+- `AuthErrorCode`
+- `AuthErrorState`
+- `SessionRecoveryStatus`
+- `SessionRecoveryState`
+- `SessionBoundarySnapshot`
+
+Owner creation boundary:
+- Future request payload type is limited to `p_chosen_display_name`, `p_short_bio`, and `p_age_band`.
+- Client owner assignment remains forbidden.
+- Backend owner source remains `auth.uid()`.
+- Phase 31E does not call `public.create_owner_identity_foundation` and does not create an RPC wrapper.
+
+Forbidden field check:
+- Source file does not contain `client_owner_user_id`, `owner_user_id_override`, `force_authenticated`, `force_identity_ready`, `force_profile_created`, `local_entitlement_override`, `verification_override`, or `debug_auth_bypass`.
+
+Next recommended phase: Phase 31F - Auth DTO/source inert implementation checkpoint / commit. Phase 31F must be commit-only/checkpoint-only and requires explicit GO.
+
 ## Phase 31D - Auth DTO/Source Implementation Planning (2026-06-20)
 
 Status: PASS - Auth DTO/source implementation planning completed as docs-only. No source code implementation, TypeScript file creation/edit, `apps/` path change, package install, package.json edit, lockfile edit, `.env` creation/edit, runtime Supabase/Auth binding, app screen wiring, Supabase client screen import, DB command, SQL execution, DB connection, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, APK/native/Android change, staging/production action, commit, push, or pull occurred.

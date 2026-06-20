@@ -1141,3 +1141,27 @@ Import/export boundary:
 Forbidden fields remain blocked in source contracts: `client_owner_user_id`, `owner_user_id_override`, `force_authenticated`, `force_identity_ready`, `force_profile_created`, `local_entitlement_override`, `verification_override`, and `debug_auth_bypass`.
 
 Runtime Auth remains NO-GO: no login, signup, session provider, owner creation runtime call, Storage/voice/reveal runtime, APK/native, staging, or production.
+
+## Phase 31E - Auth DTO / Source Inert Boundary Result (2026-06-20)
+
+Phase 31E created only the approved inert source file:
+
+```txt
+apps/mobile/src/lib/authSessionBoundary.ts
+```
+
+Supabase client boundary result:
+
+- no `@supabase/supabase-js` install
+- no package or lockfile change
+- no `.env` change
+- no Supabase client creation
+- no Supabase import in the new file
+- no Supabase import into screens
+- no runtime Auth integration
+
+The new file is an inert DTO/session boundary. It exports type contracts and inert status arrays only. It does not create a client, call backend functions, wire screens, or authorize owner creation.
+
+Client owner spoofing remains blocked. The source boundary does not include forbidden fields and does not allow client owner assignment. Backend owner source remains `auth.uid()`.
+
+Next phase remains a checkpoint only: Phase 31F - Auth DTO/source inert implementation checkpoint / commit, with explicit GO required.
