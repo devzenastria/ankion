@@ -1838,3 +1838,37 @@ Product/monetization planning:
 - Sprint 33-Alpha does not implement monetization, payment, paywall, boost, or reveal rights.
 
 Abuse carryover remains in force for Android local-state manipulation, instant abuse, voice abuse, and face verification future-only boundaries.
+
+## Sprint 33-Epsilon - Supabase Dependency Install Typecheck Checkpoint (2026-06-20)
+
+Status: PASS - the mobile Supabase dependency install from Sprint 33-Delta was validated and mobile typecheck passed. This is dependency readiness only and does not implement runtime Auth.
+
+Install validation:
+
+- Dependency: `@supabase/supabase-js`.
+- Mobile package version range: `^2.108.2`.
+- Lockfile resolved version: `2.108.2`.
+- Changed package files: `apps/mobile/package.json` and `pnpm-lock.yaml`.
+- Install command: `"C:\Program Files\nodejs\corepack.cmd" pnpm --filter @ankion/mobile add @supabase/supabase-js`.
+
+Typecheck validation:
+
+```txt
+Command: & 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck
+Exit result: 0
+TypeScript errors: none
+```
+
+Auth boundary carryover:
+
+- No Supabase source import was added.
+- No Supabase client was created.
+- No runtime Auth provider or session provider was created.
+- No owner creation runtime call was added.
+- No `.env` was created or changed.
+- No service role key or real secret was introduced.
+- No DB/SQL/APK/staging/production action occurred.
+
+Security remains unchanged: public anon key is not authorization; `auth.uid()` remains backend owner source-of-truth; client `owner_user_id` remains forbidden authority; Auth context, RLS, and safe DTO/RPC boundaries remain required.
+
+Product and monetization remain future gated work. Mapper/view-state cannot grant entitlement, and premium/reveal/boost entitlement must be backend-confirmed.

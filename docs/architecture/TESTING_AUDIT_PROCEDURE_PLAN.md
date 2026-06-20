@@ -3171,6 +3171,47 @@ Abuse carryover for later tests:
 
 Next recommended phase: Phase 31C - Auth DTO/session contract preflight.
 
+## Sprint 33-Epsilon - Supabase Dependency Install Typecheck Audit Record (2026-06-20)
+
+Status: PASS - the Sprint 33-Delta dependency install was validated and mobile typecheck passed. This audit record confirms dependency readiness only, not runtime Auth behavior.
+
+Install and lockfile audit:
+
+- Dependency: `@supabase/supabase-js`.
+- Mobile package version range: `^2.108.2`.
+- Lockfile resolved version: `2.108.2`.
+- Changed package files: `apps/mobile/package.json` and `pnpm-lock.yaml`.
+- Install command: `"C:\Program Files\nodejs\corepack.cmd" pnpm --filter @ankion/mobile add @supabase/supabase-js`.
+
+Typecheck audit:
+
+```txt
+Command: & 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck
+Exit result: 0
+TypeScript errors: none
+```
+
+Negative audit confirmations:
+
+- no package install rerun during Epsilon
+- no source code change
+- no `apps/mobile/src` change
+- no runtime Supabase/Auth change
+- no Supabase import added
+- no session provider added
+- no owner creation runtime call added
+- no `.env` created or changed
+- no service role key or real secret introduced
+- no DB command, SQL, psql, Docker DB command, Supabase CLI, target function invocation, auth simulation, test data, mutation, migration work, RLS harness, APK/native, staging, or production action
+
+Future test carryover:
+
+- Public anon key is not authorization.
+- Service role keys remain forbidden in client/repo/docs/logs/screenshots/commits.
+- `auth.uid()` remains backend owner source-of-truth.
+- Client `owner_user_id` remains forbidden authority.
+- Runtime Auth tests, safe DTO/RPC tests, RLS leak tests, Storage tests, Reveal tests, entitlement tests, and monetization tests remain future gated work.
+
 ## Phase 31C - Auth DTO / Session Contract Test Planning Record (2026-06-20)
 
 Status: PASS - Auth DTO/session contract preflight recorded as docs-only. No source code, TypeScript interface/type file, package install, package/lockfile edit, `.env` change, runtime Supabase/Auth binding, DB command, SQL, psql, Docker DB command, Supabase CLI, target function invocation, auth simulation, test user/data, mutation, migration work, RLS harness, APK/native change, staging, production, commit, or push occurred.

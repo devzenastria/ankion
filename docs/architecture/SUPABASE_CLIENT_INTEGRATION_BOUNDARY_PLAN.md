@@ -1294,6 +1294,39 @@ Import style must use explicit `import type { ... } from "./authSessionBoundary"
 
 Supabase/Auth runtime, package/env work, owner creation runtime wiring, APK/native, staging, and production remain NO-GO.
 
+## Sprint 33-Epsilon - Supabase Dependency Install Typecheck Checkpoint (2026-06-20)
+
+Sprint 33-Epsilon validates the Sprint 33-Delta dependency install and documents the checkpoint. It does not create a Supabase client, add a source import, wire runtime Auth, create a session provider, call owner creation, edit `.env`, run DB/SQL, touch APK/native, touch staging/production, or push.
+
+Dependency record:
+
+- package: `@supabase/supabase-js`
+- mobile package range: `^2.108.2`
+- lockfile resolved version: `2.108.2`
+- package files changed: `apps/mobile/package.json`, `pnpm-lock.yaml`
+- install command: `"C:\Program Files\nodejs\corepack.cmd" pnpm --filter @ankion/mobile add @supabase/supabase-js`
+
+Typecheck record:
+
+```txt
+Command: & 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck
+Exit result: 0
+TypeScript errors: none
+```
+
+Boundary interpretation:
+
+- Dependency availability does not grant runtime Auth behavior by itself.
+- Public anon key is not authorization.
+- Service role keys, JWT secrets, storage signing secrets, provider secrets, admin tokens, production credentials, and real env values remain forbidden in client/repo/docs/logs/screenshots/commits.
+- `auth.uid()` remains backend owner source-of-truth.
+- Client `owner_user_id` remains forbidden authority.
+- Auth context, RLS, and safe DTO/RPC boundaries remain required before runtime use.
+- Mapper/view-state helpers cannot produce premium, reveal, boost, verification, or entitlement authority.
+- Future premium/reveal/boost entitlement must be backend-confirmed.
+
+Next recommended phase after checkpoint push: Sprint 34-Alpha - Supabase client inert boundary implementation planning.
+
 ## Sprint 32-Alpha - Auth DTO Mapper / View-State Inert Implementation Boundary (2026-06-20)
 
 Sprint 32-Alpha created two inert source files:

@@ -16,6 +16,40 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-20 - Sprint 33-Epsilon Supabase Dependency Install Typecheck, Documentation, and Checkpoint
+
+**Type:** Supabase Dependency / Typecheck / Documentation / Checkpoint
+**Status:** Completed
+
+Validated the Sprint 33-Delta mobile Supabase dependency install and documented the checkpoint.
+
+Recorded install result:
+
+- Dependency: `@supabase/supabase-js`
+- Mobile package version range: `^2.108.2`
+- Lockfile resolved version: `2.108.2`
+- Changed package files: `apps/mobile/package.json`, `pnpm-lock.yaml`
+- Install command: `"C:\Program Files\nodejs\corepack.cmd" pnpm --filter @ankion/mobile add @supabase/supabase-js`
+
+Typecheck result:
+
+- Command: `& 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck`
+- Exit result: `0`
+- TypeScript errors: none
+
+Boundary summary:
+
+- No package install was rerun during Epsilon.
+- No source code, `apps/mobile/src`, runtime Supabase/Auth, Supabase import, session provider, or owner creation runtime call changed.
+- No `.env` was created or changed.
+- No service role key or real secret was introduced.
+- No DB command, SQL, Supabase CLI, migration, RLS harness, APK/native, staging, or production action occurred.
+- Push remains separate explicit GO.
+
+This checkpoint is dependency readiness only. Runtime Auth integration, Supabase client creation, entitlement, monetization, reveal, boost, and verification behavior remain future gated work.
+
+---
+
 ## 2026-06-20 - Sprint 33-Alpha Supabase Dependency/Env Install Readiness Package
 
 **Type:** Supabase Dependency / Env Install Readiness / Docs Only

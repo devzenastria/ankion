@@ -2576,3 +2576,40 @@ Future GO gates:
 - production GO.
 
 Staging and production remain NO-GO. Next recommended phase: Phase 31D - Auth DTO/source implementation planning.
+
+## Sprint 33-Epsilon - Supabase Dependency Install Typecheck Checklist Record (2026-06-20)
+
+Result: PASS - Sprint 33-Delta dependency install was validated, mobile typecheck passed, and checkpoint documentation was updated.
+
+Dependency checks:
+
+- `@supabase/supabase-js` exists in `apps/mobile/package.json`.
+- Version range is `^2.108.2`.
+- `pnpm-lock.yaml` resolves `@supabase/supabase-js` to `2.108.2`.
+- Dependency was added to the mobile package only.
+- Root `package.json` and `apps/web/package.json` were not changed.
+
+Validation command:
+
+```txt
+& 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck
+```
+
+Validation result:
+
+- Exit result: `0`.
+- TypeScript errors: none.
+- Source import check: no mobile source/runtime Supabase import.
+- Env/secret check: no `.env` change, no service role key, no real secret.
+- Forbidden path check: no source, DB/SQL, migration, APK/native, staging, or production path change.
+
+Readiness interpretation:
+
+- Supabase dependency availability is only a prerequisite for future runtime work.
+- Runtime Auth, client creation, screen wiring, owner creation runtime calls, Storage/voice/reveal coupling, monetization, paywall, reveal, boost, verification, staging, and production remain gated.
+- Public anon key is not authorization.
+- `auth.uid()` remains backend owner source-of-truth.
+- Client `owner_user_id` remains forbidden authority.
+- Future entitlement must be backend-confirmed and cannot come from mapper/view-state or local state.
+
+Next recommended phase after push: Sprint 34-Alpha - Supabase client inert boundary implementation planning.

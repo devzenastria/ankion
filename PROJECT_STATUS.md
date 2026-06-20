@@ -16,6 +16,38 @@ ChatGPT / User / Codex-assisted
 
 # Current Phase
 
+## Sprint 33-Epsilon - Supabase Dependency Install Typecheck, Documentation, and Checkpoint (2026-06-20)
+
+Status: PASS - Sprint 33-Delta Supabase dependency install was validated, mobile typecheck passed, allowed documentation was updated, and the checkpoint is ready for commit. No package install was rerun, no source/runtime/Auth wiring was added, no `.env` was created or changed, no service role key or real secret was introduced, no DB/SQL/APK/staging/production action occurred, and no push occurred.
+
+Sprint 33-Delta install record:
+- Dependency: `@supabase/supabase-js`.
+- Mobile package version range: `^2.108.2`.
+- Lockfile resolved version: `2.108.2`.
+- Changed package files: `apps/mobile/package.json` and `pnpm-lock.yaml`.
+- Install command: `"C:\Program Files\nodejs\corepack.cmd" pnpm --filter @ankion/mobile add @supabase/supabase-js`.
+
+Sprint 33-Epsilon validation:
+- Typecheck command: `& 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck`.
+- Typecheck result: PASS, exit `0`, TypeScript errors: none.
+- Runtime/Auth/Supabase import: NO.
+- Source changed: NO.
+- `.env` changed: NO.
+- Service role key / real secret introduced: NO.
+- DB/SQL/APK/staging/production: NO.
+
+Security and product carryover:
+- This is dependency readiness only, not runtime Auth integration.
+- Public anon key is not authorization.
+- Service role keys remain forbidden in client code, repo files, docs, logs, screenshots, commits, and Expo public env.
+- `auth.uid()` remains backend owner source-of-truth; client `owner_user_id` remains forbidden authority.
+- Auth context, RLS, and safe DTO/RPC boundaries remain required.
+- Mapper/view-state helpers cannot produce premium, reveal, boost, verification, or entitlement authority.
+- Future premium/reveal/boost entitlement must be backend-confirmed.
+- This sprint does not implement monetization, paywall, reveal, boost, verification, or runtime Auth behavior.
+
+Next recommended step: GitHub push GO for the checkpoint commit, then Sprint 34-Alpha - Supabase client inert boundary implementation planning.
+
 ## Sprint 33-Alpha - Supabase Dependency/Env Install Readiness Package (2026-06-20)
 
 Status: PASS - Supabase dependency/env install readiness package completed as docs-only. No package install, npm install/add, pnpm install/add, yarn install/add, package.json edit, lockfile edit, `.env` creation/edit, secret write, service role key introduction, source code edit, `apps/` path edit, Supabase client creation, Supabase import, runtime Auth integration, app screen wiring, session provider, owner creation runtime call, typecheck, npm/yarn/pnpm/tsc execution, DB command, SQL execution, psql, Docker DB command, Supabase CLI execution, target function invocation, auth simulation, test user/data creation, mutation, migration creation/edit/apply, RLS harness execution, APK/native/Android change, staging/production action, commit, push, or pull occurred.
