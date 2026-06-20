@@ -25,25 +25,40 @@ function formatBoolean(value: boolean): string {
   return value ? "true" : "false";
 }
 
+function formatStatus(status: AuthSessionReadBoundaryResult["status"]): string {
+  switch (status) {
+    case "client_unavailable":
+      return "İstemci yok";
+    case "unauthenticated":
+      return "Oturum yok";
+    case "authenticated_client_observed":
+      return "Oturum gözlemlendi";
+    case "expired":
+      return "Oturum süresi dolmuş";
+    case "read_failed":
+      return "Kontrol başarısız";
+  }
+}
+
 function getSafeRows(result: AuthSessionReadBoundaryResult): SafeProbeRow[] {
   return [
-    { label: "Probe status", value: result.status },
-    { label: "Client available", value: formatBoolean(result.clientAvailable) },
-    { label: "Session present", value: formatBoolean(result.sessionPresent) },
+    { label: "Kontrol durumu", value: formatStatus(result.status) },
+    { label: "İstemci hazır", value: formatBoolean(result.clientAvailable) },
+    { label: "Oturum var", value: formatBoolean(result.sessionPresent) },
     {
-      label: "Server confirmed",
+      label: "Sunucu onayı",
       value: formatBoolean(result.isServerConfirmed),
     },
     {
-      label: "Backend authority",
+      label: "Backend yetkisi",
       value: formatBoolean(result.isBackendAuthority),
     },
     {
-      label: "Listener enabled",
+      label: "Dinleyici açık",
       value: formatBoolean(result.isListenerEnabled),
     },
     {
-      label: "Mutation enabled",
+      label: "Değişiklik yetkisi",
       value: formatBoolean(result.isMutationEnabled),
     },
   ];
@@ -54,6 +69,15 @@ export function AuthSessionProbeCard() {
   const [probeState, setProbeState] = useState<ProbeState>({ status: "idle" });
 
   async function handleProbePress() {
+    if (probeState.status === "loading") {
+      return;
+    }
+
+    if (probeState.status === "success" || probeState.status === "failed") {
+      setProbeState({ status: "idle" });
+      return;
+    }
+
     setProbeState({ status: "loading" });
 
     try {
@@ -65,16 +89,23 @@ export function AuthSessionProbeCard() {
   }
 
   const isLoading = probeState.status === "loading";
+  const isResultVisible =
+    probeState.status === "success" || probeState.status === "failed";
+  const buttonLabel = isLoading
+    ? "Kontrol ediliyor..."
+    : isResultVisible
+      ? "Sonucu gizle"
+      : "Güvenli oturum kontrolünü çalıştır";
   const safeRows =
     probeState.status === "success" ? getSafeRows(probeState.result) : [];
 
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <Text style={styles.title}>Safe session check</Text>
+        <Text style={styles.title}>Güvenli oturum kontrolü</Text>
         <Text style={styles.description}>
-          Manual diagnostic probe. It does not sign in, subscribe, unlock, or
-          confirm backend authority.
+          Manuel tanı kontrolüdür; giriş yapmaz, dinleyici açmaz, özellik
+          kilidi çözmez veya backend yetkisini onaylamaz.
         </Text>
       </View>
 
@@ -89,19 +120,15 @@ export function AuthSessionProbeCard() {
         ]}
       >
         {isLoading ? <ActivityIndicator color="#050509" size="small" /> : null}
-        <Text style={styles.buttonText}>
-          {isLoading ? "Checking session" : "Run manual session check"}
-        </Text>
+        <Text style={styles.buttonText}>{buttonLabel}</Text>
       </Pressable>
 
       {probeState.status === "idle" ? (
-        <Text style={styles.emptyText}>No probe result yet.</Text>
+        <Text style={styles.emptyText}>Henüz kontrol sonucu yok.</Text>
       ) : null}
 
       {probeState.status === "failed" ? (
-        <Text style={styles.errorText}>
-          Session check could not complete safely.
-        </Text>
+        <Text style={styles.errorText}>Kontrol güvenli şekilde tamamlanamadı.</Text>
       ) : null}
 
       {safeRows.length > 0 ? (
