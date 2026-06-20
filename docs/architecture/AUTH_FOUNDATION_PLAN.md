@@ -1441,3 +1441,125 @@ Auth/owner carryover remains unchanged: `auth.uid()` is backend owner source-of-
 Forbidden DTO/source fields remain blocked: `client_owner_user_id`, `owner_user_id_override`, `force_authenticated`, `force_identity_ready`, `force_profile_created`, `local_entitlement_override`, `verification_override`, and `debug_auth_bypass`.
 
 Android local-state abuse, instant abuse, voice abuse, and face verification future-only boundaries remain in force. Face verification provider direction may remain `@veriff/react-native-sdk`, but ANKION does not store raw face image, selfie video, ID media, or biometric embedding; only verification result fields may be stored in a future approved phase.
+
+## Phase 31K - Auth DTO / Source Integration Boundary Planning (2026-06-20)
+
+Status: PASS - Auth DTO/source integration boundary planning completed as docs-only. No source, package, env, runtime Auth, Supabase client, DB/SQL, APK/native, staging/production, commit, pull, or push action occurred.
+
+### Integration Boundary Principle
+
+`apps/mobile/src/lib/authSessionBoundary.ts` is an inert DTO/type contract file. It is not:
+
+- a runtime Auth provider
+- a Supabase client
+- an owner assignment layer
+- a network call layer
+- a Storage/voice/reveal runtime layer
+- a source of backend authority
+
+The file may only provide safe state and DTO contracts for future type-only usage and request-eligibility modeling.
+
+### Future Import Boundary
+
+Future integration should prefer `import type` from `authSessionBoundary.ts`.
+
+Rules:
+
+- First usage must be type-only.
+- Type-only usage requires a separate source implementation GO.
+- Screen routes must not import Supabase/Auth runtime directly.
+- DTO contracts may model UI/request eligibility.
+- DTO contracts cannot replace backend owner truth or grant authority.
+
+### Future Allowed Integration Layers
+
+Layer 1 already exists:
+
+- `authSessionBoundary.ts`
+- inert DTO/type contract
+- no imports
+- no runtime side effect
+
+Layer 2 future:
+
+- Auth/session state mapper
+- still inert/local
+- no Supabase runtime call
+- maps DTO states only
+- separate GO required
+
+Layer 3 future:
+
+- Supabase client boundary
+- no screen import
+- public anon config only
+- no service role
+- separate package/env GO required
+
+Layer 4 future:
+
+- Runtime Auth provider
+- session observation
+- refresh handling
+- no owner assignment
+- separate runtime/Auth GO required
+
+Layer 5 future:
+
+- Owner creation runtime call
+- calls `public.create_owner_identity_foundation(text, text, text)`
+- no client `owner_user_id`
+- backend owner source remains `auth.uid()`
+- separate owner creation runtime GO required
+
+### Forbidden Integration Patterns
+
+Forbidden:
+
+- screen-level Supabase client import
+- `owner_user_id` from client state
+- `owner_user_id` override
+- local cache as backend truth
+- fake anonymous identity ready state
+- fake profile created state
+- debug auth bypass
+- verification override
+- local entitlement override
+- offline owner creation
+- Storage/voice/reveal runtime coupling before Auth boundary
+
+### Owner Creation Integration Contract
+
+Future owner creation call args remain:
+
+- `p_chosen_display_name`
+- `p_short_bio`
+- `p_age_band`
+
+Client payload must never include `owner_user_id`. Backend owner source remains `auth.uid()`. Duplicate private profile idempotent existing response remains acceptable and already behavior-tested. Runtime owner creation remains NO-GO in Phase 31K.
+
+### Session / Identity Readiness Integration Contract
+
+- `AuthSessionState` controls UI/request eligibility only.
+- `AnonymousIdentityReadiness` controls UX state only until server-confirmed.
+- `OwnerCreationReadiness` does not create backend authority.
+- `SessionRecoveryState` cannot turn local cache into truth.
+- `AuthErrorState` must distinguish denial, expired session, local cache mismatch, offline trust block, and debug trust block.
+
+### Future GO Gates
+
+- Phase 31L - Auth DTO/source integration boundary documentation checkpoint / commit.
+- Future type-only import implementation GO.
+- Future inert state mapper implementation GO.
+- Supabase dependency install GO.
+- Env/client boundary update GO.
+- Runtime Auth provider GO.
+- Owner creation runtime wiring GO.
+- Local Auth test GO.
+- APK GO.
+- staging GO.
+- production GO.
+
+Staging and production remain NO-GO.
+
+Security carryover remains unchanged: `auth.uid()` is backend owner source-of-truth; client `owner_user_id` is not authority; public anon key is not authorization; Auth context, RLS, and safe DTO/RPC boundaries remain required; the inert DTO file cannot assign ownership; forbidden DTO/source fields remain blocked; Android local-state abuse, instant abuse, voice abuse, and face verification future-only boundaries remain in force.

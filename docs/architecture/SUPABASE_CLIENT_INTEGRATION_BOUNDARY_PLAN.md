@@ -1217,3 +1217,48 @@ Supabase/Auth boundary remains unchanged:
 - no service role key in client/repo
 
 Typecheck PASS proves TypeScript validity only and is not runtime/Auth/Supabase behavior proof.
+
+## Phase 31K - Auth DTO / Source Integration Boundary Plan (2026-06-20)
+
+Phase 31K is docs-only. It does not edit source, create TypeScript files, wire screens, add Supabase imports, add React imports, create a session provider, integrate runtime Auth, call owner creation, install packages, change package/env files, run DB/SQL commands, build APK/native artifacts, touch staging/production, commit, pull, or push.
+
+Integration principle:
+
+- `authSessionBoundary.ts` is an inert DTO/type contract.
+- It is not a Supabase client.
+- It is not a runtime Auth provider.
+- It cannot assign ownership.
+- It cannot call the network.
+- It is a safe contract source for future type-only usage.
+
+Future import boundary:
+
+- Prefer `import type` for first integration.
+- Do not import Supabase/Auth runtime into screen routes.
+- Use DTO contracts for UI/request eligibility only.
+- Never treat DTO state as backend owner truth.
+- Any type-only source usage requires separate GO.
+
+Allowed future layers:
+
+1. Existing inert DTO contract: `apps/mobile/src/lib/authSessionBoundary.ts`.
+2. Future inert/local Auth/session state mapper with no Supabase runtime call.
+3. Future Supabase client boundary using public anon config only, no service role, and no screen import.
+4. Future runtime Auth provider for session observation and refresh handling, with no owner assignment.
+5. Future owner creation runtime call to `public.create_owner_identity_foundation(text, text, text)`, with no client `owner_user_id` and backend owner source from `auth.uid()`.
+
+Forbidden integration patterns:
+
+- screen-level Supabase client import
+- client-authoritative `owner_user_id`
+- owner override
+- local cache as backend truth
+- fake anonymous identity ready state
+- fake profile created state
+- debug auth bypass
+- verification override
+- local entitlement override
+- offline owner creation
+- Storage/voice/reveal runtime coupling before Auth boundary
+
+Supabase/Auth remains NO-GO until separate explicit GO for package/env/client boundary, runtime Auth provider, owner creation runtime wiring, and tests. Staging and production remain NO-GO.

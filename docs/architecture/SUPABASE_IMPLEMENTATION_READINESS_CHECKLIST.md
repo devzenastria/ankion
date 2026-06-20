@@ -132,6 +132,43 @@ Phase 31J readiness gate:
 - no source/package/env/runtime/DB/APK/staging/production changes
 - no push unless separately approved
 
+## Phase 31K - Auth DTO / Source Integration Boundary Planning Readiness (2026-06-20)
+
+Status: PASS for docs-only integration boundary planning.
+
+Readiness decisions:
+
+- `authSessionBoundary.ts` remains the inert DTO/type contract layer.
+- First future usage must prefer `import type`.
+- Screen routes must not receive direct Supabase/Auth runtime imports.
+- DTO state may support UI/request eligibility only and cannot create backend authority.
+- Integration must progress through explicit gates: type-only imports, inert state mapper, Supabase dependency/env/client boundary, runtime Auth provider, owner creation runtime wiring, local Auth test, APK, staging, and production.
+
+Owner creation readiness:
+
+- Future args remain `p_chosen_display_name`, `p_short_bio`, and `p_age_band`.
+- Client payload must not include `owner_user_id`.
+- Backend owner source remains `auth.uid()`.
+- Duplicate private profile idempotent existing response remains acceptable and behavior-tested.
+- Runtime owner creation remains NO-GO in Phase 31K.
+
+Readiness blockers remain:
+
+- screen-level Supabase client import
+- owner assignment from client state
+- local cache as backend truth
+- fake anonymous identity/profile-created readiness
+- debug, verification, or entitlement overrides
+- offline owner creation
+- Storage/voice/reveal runtime coupling before Auth boundary
+
+Phase 31L readiness gate:
+
+- explicit GO required
+- checkpoint/commit only
+- no source/package/env/runtime/DB/APK/staging/production changes
+- no push unless separately approved
+
 ## Phase
 
 Phase 18A — Documentation-only Supabase Implementation Readiness Checklist

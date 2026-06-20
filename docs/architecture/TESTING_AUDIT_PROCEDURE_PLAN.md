@@ -100,6 +100,37 @@ Audit interpretation:
 
 Next audit checkpoint: Phase 31J should be checkpoint/commit-only after explicit GO.
 
+## Phase 31K - Auth DTO / Source Integration Boundary Test Planning Note (2026-06-20)
+
+Phase 31K plans integration boundaries only. It does not implement or test source wiring, runtime Auth, Supabase client behavior, owner creation runtime calls, DB/SQL, RLS harnesses, APK/native behavior, staging, or production.
+
+Future test focus after separate GO:
+
+- type-only imports remain type-only and do not create runtime side effects
+- screen routes do not import Supabase/Auth runtime directly
+- DTO state is used only for UI/request eligibility
+- local cache never becomes backend truth
+- `anonymous_identity_id` is not authority until server-confirmed
+- owner creation payload never includes `owner_user_id`
+- backend owner source remains `auth.uid()`
+- denial, expired session, local cache mismatch, offline trust block, and debug trust block remain distinguishable
+
+Forbidden integration findings for future audits:
+
+- screen-level Supabase client import
+- owner override from client state
+- fake anonymous identity ready state
+- fake profile created state
+- debug auth bypass
+- verification override
+- local entitlement override
+- offline owner creation
+- Storage/voice/reveal runtime coupling before Auth boundary
+
+Security carryover remains required for auth/owner boundaries, forbidden DTO/source fields, Android local-state manipulation, instant abuse, voice abuse, and face verification future-only boundaries.
+
+Next audit checkpoint: Phase 31L should be checkpoint/commit-only after explicit GO.
+
 ## 1. Testing / Audit Purpose
 
 This document defines the future testing and audit procedure required before Supabase/Auth/RLS/Storage implementation can begin.

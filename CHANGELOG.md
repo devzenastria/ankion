@@ -16,6 +16,32 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-20 - Phase 31K Auth DTO/Source Integration Boundary Planning
+
+**Type:** Auth DTO / Source Integration Boundary Planning / Docs Only
+**Status:** Completed
+
+Planned safe future integration boundaries for `apps/mobile/src/lib/authSessionBoundary.ts` without source changes.
+
+Planning decisions:
+
+- `authSessionBoundary.ts` remains an inert DTO/type contract file, not an Auth provider, Supabase client, network layer, owner assignment layer, or runtime behavior source.
+- Future integration should start with `import type` usage only and requires a separate source implementation GO.
+- Screen routes must not receive direct Supabase/Auth runtime imports.
+- DTO contracts may model UI/request eligibility, but cannot replace backend owner truth.
+- Future integration layers were staged from inert DTO contract to optional mapper, Supabase client boundary, runtime Auth provider, and finally owner creation runtime wiring.
+- Forbidden integration patterns were documented, including screen-level Supabase imports, client `owner_user_id` authority, local cache truth, fake readiness/profile-created state, debug auth bypass, verification override, local entitlement override, offline owner creation, and Storage/voice/reveal coupling before Auth boundary.
+
+Owner creation contract remains unchanged: future args are `p_chosen_display_name`, `p_short_bio`, and `p_age_band`; client payload must never include `owner_user_id`; backend owner source remains `auth.uid()`; runtime call remains NO-GO in Phase 31K.
+
+No source code, app route wiring, package install, package/env change, runtime Supabase/Auth change, DB/SQL command, migration, RLS harness, APK/native change, staging, production, commit, pull, or push occurred.
+
+Exact next GO:
+
+`GO: Start Phase 31L Auth DTO/source integration boundary documentation checkpoint / commit only.`
+
+---
+
 ## 2026-06-20 - Phase 31I Document Auth DTO/Source Inert Typecheck Result
 
 **Type:** Auth DTO / Source Inert Typecheck Result Documentation / Docs Only
