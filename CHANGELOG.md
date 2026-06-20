@@ -16,6 +16,37 @@ ChatGPT / User / Codex-assisted
 
 # Changelog
 
+## 2026-06-20 - Sprint 34-Alpha Supabase Client Inert Boundary Implementation Planning
+
+**Type:** Supabase Client Boundary / Planning / Docs Only
+**Status:** Completed
+
+Planned the future inert Supabase client boundary now that `@supabase/supabase-js` is installed in the mobile package.
+
+Recorded current dependency state:
+
+- `@supabase/supabase-js` is installed only for `@ankion/mobile`.
+- Mobile version range is `^2.108.2`.
+- Lockfile resolved version is `2.108.2`.
+- Dependency presence is not runtime Auth.
+- Dependency presence is not Supabase client creation.
+- No mobile source import or screen-level Supabase/Auth import exists.
+
+Recorded future implementation boundary:
+
+- Planned source path: `apps/mobile/src/lib/supabaseBoundary.ts`.
+- `apps/mobile/src/lib/env.ts` remains the public env descriptor support path.
+- Future import policy allows `@supabase/supabase-js` only inside `supabaseBoundary.ts`.
+- Runtime Auth provider, session listener, owner creation calls, Storage, voice, reveal, entitlement, monetization, APK/native, staging, and production remain separate GO gates.
+
+No source code, package file, lockfile, `.env`, `.env.example`, typecheck, npm/yarn/pnpm/tsc command, DB/SQL, migration, RLS harness, APK/native, staging, production, commit, push, or pull occurred.
+
+Next GO:
+
+`GO: Start Sprint 34-Beta Supabase client inert boundary implementation only.`
+
+---
+
 ## 2026-06-20 - Sprint 33-Epsilon Supabase Dependency Install Typecheck, Documentation, and Checkpoint
 
 **Type:** Supabase Dependency / Typecheck / Documentation / Checkpoint

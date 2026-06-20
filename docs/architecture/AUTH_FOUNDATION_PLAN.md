@@ -1872,3 +1872,38 @@ Auth boundary carryover:
 Security remains unchanged: public anon key is not authorization; `auth.uid()` remains backend owner source-of-truth; client `owner_user_id` remains forbidden authority; Auth context, RLS, and safe DTO/RPC boundaries remain required.
 
 Product and monetization remain future gated work. Mapper/view-state cannot grant entitlement, and premium/reveal/boost entitlement must be backend-confirmed.
+
+## Sprint 34-Alpha - Supabase Client Inert Boundary Auth Planning (2026-06-20)
+
+Status: PASS - planned the future inert Supabase client boundary as docs-only. No Auth runtime implementation occurred.
+
+Auth boundary decision:
+
+- Dependency `@supabase/supabase-js` is available in `@ankion/mobile`, but no runtime Auth exists.
+- Future source work should be centralized in `apps/mobile/src/lib/supabaseBoundary.ts`.
+- `apps/mobile/src/lib/env.ts` remains the public env descriptor boundary.
+- Screen-level Supabase imports remain forbidden.
+- `authSessionBoundary.ts`, `authSessionMapper.ts`, and `authSessionViewState.ts` must not import Supabase.
+
+Runtime separation:
+
+- No login, signup, session listener, session provider, token refresh UI, owner creation call, anonymous identity mutation, Storage upload/download, reveal, premium, or boost entitlement should be added in the client boundary sprint.
+- Runtime Auth provider planning starts only after the inert client boundary is checkpointed.
+
+Owner and RLS carryover:
+
+- Future owner creation remains `public.create_owner_identity_foundation(text, text, text)`.
+- Client cannot send `owner_user_id`.
+- Backend owner source remains `auth.uid()`.
+- The client boundary cannot assign owner truth.
+- Auth context, RLS, and safe DTO/RPC boundaries remain required before runtime use.
+- Public anon key is not authorization, and service role keys remain forbidden in client/repo/docs/logs/screenshots/commits.
+
+Product and monetization carryover:
+
+- Session readiness may guide UI routing and CTA eligibility only.
+- Feed local draft state is not backend authority.
+- Chat/Connections waiting or replyable state must be backend-confirmed.
+- Reveal, premium, boost, verification, and entitlement must be backend-confirmed and cannot come from mapper/view-state or local state.
+
+Next recommended phase: Sprint 34-Beta - Supabase client inert boundary implementation, after separate explicit GO.

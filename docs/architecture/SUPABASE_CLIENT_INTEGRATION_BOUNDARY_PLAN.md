@@ -1327,6 +1327,184 @@ Boundary interpretation:
 
 Next recommended phase after checkpoint push: Sprint 34-Alpha - Supabase client inert boundary implementation planning.
 
+## Sprint 34-Alpha - Supabase Client Inert Boundary Implementation Planning (2026-06-20)
+
+Sprint 34-Alpha is docs-only planning for the future inert Supabase client boundary. It does not edit source, import Supabase, create a client, wire runtime Auth, create a session provider, call owner creation, edit env files, run typecheck, run package commands, run DB/SQL, touch APK/native, touch staging/production, commit, or push.
+
+### Current Dependency State
+
+- `@supabase/supabase-js` is installed in `@ankion/mobile`.
+- `apps/mobile/package.json` declares `@supabase/supabase-js` as `^2.108.2`.
+- `pnpm-lock.yaml` resolves `@supabase/supabase-js` to `2.108.2`.
+- Dependency presence is not runtime Auth.
+- Dependency presence is not Supabase client creation.
+- No source import exists yet.
+- Runtime/Auth remains NO-GO.
+
+### Future Source Boundary Decision
+
+The single recommended future implementation path is:
+
+```txt
+apps/mobile/src/lib/supabaseBoundary.ts
+```
+
+Rationale:
+
+- The existing inert boundary already lives there.
+- Screen and feature files must not import Supabase directly.
+- Centralized boundary keeps env and availability checks in the lowest-risk location.
+- Runtime Auth provider work remains a separate phase.
+
+`apps/mobile/src/lib/env.ts` may remain a read-only support path for public env descriptors.
+
+### Future Inert Client Boundary Shape
+
+Future `supabaseBoundary.ts` may provide:
+
+- `clientAvailable: boolean`
+- `reason: "missing_env" | "unconfigured" | "configured" | "dependency_ready" | "disabled_by_phase_gate"`
+- `urlConfigured: boolean`
+- `anonKeyConfigured: boolean`
+- future nullable client reference only after explicit implementation GO
+- debug-safe descriptor with no secret values
+
+Future responsibilities may include reading the public env descriptor from `env.ts`, returning an inert result when env is missing, and making availability explicit. It must not accept service role keys, log real env values, call owner creation, create a session provider, start Storage/voice/reveal runtime, or grant entitlement.
+
+Phase 34-Beta must decide explicitly whether the first implementation is dependency import plus safe descriptor only, or whether a nullable client object is created but not used by screens.
+
+### Env Boundary Rules
+
+- `EXPO_PUBLIC_SUPABASE_URL` may be public client config.
+- `EXPO_PUBLIC_SUPABASE_ANON_KEY` may be public anon client config.
+- Public anon key is not authorization.
+- Service role keys are forbidden in client/repo/docs/logs/screenshots/commits.
+- `.env` must not be committed.
+- `.env.example` must stay placeholder-only.
+- Real env values must not be written into prompts, logs, docs, or committed files.
+- Missing env must fall back to safe inert state.
+- Env parsing cannot create owner authority.
+
+### Supabase Client Import Policy
+
+Allowed future import:
+
+```txt
+apps/mobile/src/lib/supabaseBoundary.ts
+```
+
+Forbidden future imports before explicit GO:
+
+- screen route files
+- Home, Feed, Chat, or profile screen files
+- components
+- `authSessionBoundary.ts`
+- `authSessionMapper.ts`
+- `authSessionViewState.ts`
+- Storage, voice, or reveal files
+
+### Runtime / Auth Separation
+
+The Supabase client boundary must not implement:
+
+- login
+- signup
+- session listener
+- session provider
+- token refresh UI flow
+- owner creation call
+- profile creation call
+- anonymous identity readiness mutation
+- Storage upload/download
+- reveal, premium, or boost entitlement
+
+Each item requires a separate future sprint.
+
+### Owner Creation Relation
+
+- Future owner creation remains `public.create_owner_identity_foundation(text, text, text)`.
+- Client cannot send `owner_user_id`.
+- Backend owner source remains `auth.uid()`.
+- The Supabase client boundary cannot assign ownership.
+- Runtime owner creation wiring requires separate explicit GO.
+- Duplicate/idempotent existing behavior was validated in Phase 30J.
+
+### Product Flow Relation
+
+- Home may use session readiness only for CTA eligibility.
+- Feed voice/camera draft state may be local but is not backend authority.
+- Chat/Connections waiting and replyable state must be backend-confirmed.
+- Reveal eligibility must not come from local state.
+- Auth boundary may help route UI but cannot create owner truth.
+
+### Monetization Relation
+
+- Supabase client readiness may later support backend-confirmed entitlement checks.
+- Premium, reveal, and boost entitlement must not come from local state.
+- Mapper/view-state helpers cannot grant entitlement authority.
+- Public anon key gives no payment, reveal, or boost authority.
+- Future payment and entitlement must be backend-confirmed.
+- Sprint 34-Alpha does not implement monetization.
+
+### Future Implementation Acceptance Criteria
+
+Sprint 34-Beta allowed source path:
+
+```txt
+apps/mobile/src/lib/supabaseBoundary.ts
+```
+
+Possible read-only support path:
+
+```txt
+apps/mobile/src/lib/env.ts
+```
+
+Required constraints:
+
+- central Supabase dependency import only in `supabaseBoundary.ts`
+- no screen import
+- no runtime Auth listener
+- no session provider
+- no owner creation call
+- no Storage, reveal, or voice runtime
+- no `.env` change
+- no service role key
+- no package or lockfile change
+- no DB/SQL/APK work
+- no runtime side effects beyond inert descriptor construction
+
+Required checks:
+
+- forbidden source import search
+- service role / secret search
+- `.env` check
+- source diff path check
+- mobile typecheck only if explicitly allowed
+
+### Future Sprint Sequence
+
+- Sprint 34-Beta - Supabase client inert boundary implementation
+- Sprint 34-Gamma - Supabase client inert boundary typecheck and documentation
+- Sprint 34-Delta - Supabase client boundary checkpoint / commit
+- Sprint 35-Alpha - Runtime Auth provider planning
+- Sprint 35-Beta - Runtime Auth provider inert implementation
+- Sprint 36-Alpha - Owner creation runtime wiring planning
+- Sprint 37-Alpha - Product Auth readiness UI relation planning
+- Sprint 38-Alpha - Monetization entitlement backend authority planning
+
+### Security Carryover
+
+`auth.uid()` remains backend owner source-of-truth. Client `owner_user_id` is not authority. Public anon key is not authorization. Auth context, RLS, and safe DTO/RPC boundaries remain required. The Supabase client boundary cannot assign ownership.
+
+Android local-state risks remain tracked: cached identity, fake entitlement, fake verification, replayed session, clock manipulation, offline bypass, rooted/emulator manipulation, debug flag abuse, client-side trust abuse, fake profile created state, fake anonymous identity ready state, local-only owner switch, and local auth bypass.
+
+Instant abuse risks remain tracked: instant-match manipulation, reveal state manipulation, connection state manipulation, local UI forcing, cooldown/rate bypass, fake presence, fake waiting/replyable transition, and local-only entitlement spoofing.
+
+Voice abuse risks remain tracked: uploaded voice spoofing, replay audio, manipulated local draft, fake recorder state, forged voice metadata, anonymous identity carryover, connection reply abuse, and storage boundary bypass.
+
+Face verification remains future-only. Provider direction may be `@veriff/react-native-sdk`, but Sprint 34-Alpha has no package install, native change, implementation, or verification flow. ANKION must store only verification result fields, not raw face images, selfie video, ID media, or biometric embeddings.
+
 ## Sprint 32-Alpha - Auth DTO Mapper / View-State Inert Implementation Boundary (2026-06-20)
 
 Sprint 32-Alpha created two inert source files:

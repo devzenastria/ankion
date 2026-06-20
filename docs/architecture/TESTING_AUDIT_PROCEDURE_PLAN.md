@@ -3212,6 +3212,39 @@ Future test carryover:
 - Client `owner_user_id` remains forbidden authority.
 - Runtime Auth tests, safe DTO/RPC tests, RLS leak tests, Storage tests, Reveal tests, entitlement tests, and monetization tests remain future gated work.
 
+## Sprint 34-Alpha - Supabase Client Inert Boundary Planning Audit Record (2026-06-20)
+
+Status: PASS - docs-only planning completed for future inert Supabase client boundary implementation. No executable tests, typecheck, package command, source edit, DB/SQL, migration, RLS harness, APK/native, staging, production, commit, or push occurred.
+
+Read-only audit:
+
+- HEAD `fb6d226`.
+- Branch state `master...origin/master`.
+- Initial working tree clean.
+- `@supabase/supabase-js` is installed in mobile as `^2.108.2`.
+- Lockfile resolves `@supabase/supabase-js` to `2.108.2`.
+- `env.ts` is public env descriptor only.
+- `supabaseBoundary.ts` is inert and reports `clientAvailable: false`.
+- Auth DTO, mapper, and view-state files remain inert and cannot create backend authority.
+- Mobile app/source Supabase/Auth import search returned no runtime import or owner creation call.
+- `.env`, `.env.local`, and `.env.production` were absent.
+
+Future validation plan:
+
+- Confirm only `apps/mobile/src/lib/supabaseBoundary.ts` changes in Sprint 34-Beta unless separately approved.
+- Confirm no screen-level Supabase import.
+- Confirm no Auth listener, session provider, owner creation call, Storage, voice, reveal, premium, boost, or entitlement runtime.
+- Confirm no `.env`, package, lockfile, service role key, real secret, DB/SQL, APK/native, staging, or production change.
+- Run forbidden import search and no-secret/no-service-role scan.
+- Run mobile typecheck only if the implementation sprint explicitly allows it.
+
+Future test carryover:
+
+- Public anon key is not authorization.
+- `auth.uid()` remains backend owner source-of-truth.
+- Client `owner_user_id` remains forbidden authority.
+- Runtime Auth tests, owner creation runtime tests, RLS leak tests, Storage tests, Reveal tests, entitlement tests, monetization tests, and Android local-state abuse tests remain future gated work.
+
 ## Phase 31C - Auth DTO / Session Contract Test Planning Record (2026-06-20)
 
 Status: PASS - Auth DTO/session contract preflight recorded as docs-only. No source code, TypeScript interface/type file, package install, package/lockfile edit, `.env` change, runtime Supabase/Auth binding, DB command, SQL, psql, Docker DB command, Supabase CLI, target function invocation, auth simulation, test user/data, mutation, migration work, RLS harness, APK/native change, staging, production, commit, or push occurred.

@@ -2613,3 +2613,44 @@ Readiness interpretation:
 - Future entitlement must be backend-confirmed and cannot come from mapper/view-state or local state.
 
 Next recommended phase after push: Sprint 34-Alpha - Supabase client inert boundary implementation planning.
+
+## Sprint 34-Alpha - Supabase Client Inert Boundary Planning Checklist (2026-06-20)
+
+Result: PASS - docs-only planning completed for future Supabase client inert boundary implementation.
+
+Read-only checks recorded:
+
+- HEAD `fb6d226` confirmed.
+- Working tree clean before documentation.
+- `@supabase/supabase-js` is present in `apps/mobile/package.json` as `^2.108.2`.
+- `pnpm-lock.yaml` resolves `@supabase/supabase-js` to `2.108.2`.
+- `env.ts` remains a public Expo env descriptor only.
+- `supabaseBoundary.ts` remains inert with `clientAvailable: false`.
+- Auth DTO, mapper, and view-state files remain inert and non-authoritative.
+- Mobile app/source Supabase import search returned no runtime source import.
+- Real `.env`, `.env.local`, and `.env.production` were absent.
+
+Future Sprint 34-Beta criteria:
+
+- Allowed source path: `apps/mobile/src/lib/supabaseBoundary.ts`.
+- `apps/mobile/src/lib/env.ts` may be read-only support.
+- Central Supabase dependency import only in `supabaseBoundary.ts`.
+- No screen import.
+- No Auth listener or session provider.
+- No owner creation call.
+- No Storage/voice/reveal runtime.
+- No `.env`, package, or lockfile change.
+- No service role key or real secret.
+- No DB/SQL/APK/staging/production.
+- Mobile typecheck only if explicitly allowed by the Sprint 34-Beta task.
+
+Required validation for Sprint 34-Beta:
+
+- changed path check
+- forbidden source import search
+- service role / secret search
+- `.env` check
+- no runtime side effects beyond inert descriptor construction
+- typecheck if explicitly authorized
+
+Security carryover remains: public anon key is not authorization; `auth.uid()` remains backend owner source-of-truth; client `owner_user_id` is forbidden authority; Auth context, RLS, and safe DTO/RPC boundaries remain required; mapper/view-state cannot grant entitlement.
