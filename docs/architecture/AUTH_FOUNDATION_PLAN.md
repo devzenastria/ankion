@@ -1907,3 +1907,36 @@ Product and monetization carryover:
 - Reveal, premium, boost, verification, and entitlement must be backend-confirmed and cannot come from mapper/view-state or local state.
 
 Next recommended phase: Sprint 34-Beta - Supabase client inert boundary implementation, after separate explicit GO.
+
+## Sprint 34-Gamma - Supabase Client Inert Boundary Typecheck Result (2026-06-20)
+
+Status: PASS - the inert Supabase boundary implementation typechecked successfully and remains separated from runtime Auth.
+
+Typecheck:
+
+```txt
+Command: & 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck
+Exit result: 0
+TypeScript errors: none
+```
+
+Auth separation validation:
+
+- Supabase import is boundary-only and type-only.
+- `createClient` is not imported or called.
+- No Supabase client object is created.
+- `clientAvailable` remains `false`.
+- `client` remains `null`.
+- No login, signup, logout, session listener, session provider, token refresh flow, user/profile fetch, owner creation call, anonymous identity readiness call, Storage, reveal, premium, boost, or entitlement runtime was added.
+
+Owner and security carryover:
+
+- Future owner creation remains `public.create_owner_identity_foundation(text, text, text)`.
+- Client cannot send `owner_user_id`.
+- Backend owner source remains `auth.uid()`.
+- The Supabase boundary cannot assign ownership.
+- Public anon key is not authorization.
+- Service role keys and real secrets remain forbidden in client/repo/docs/logs/screenshots/commits.
+- Auth context, RLS, and safe DTO/RPC boundaries remain required.
+
+This sprint does not implement monetization, paywall, reveal, boost, verification, Storage, or Auth provider behavior.

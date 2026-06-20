@@ -3245,6 +3245,39 @@ Future test carryover:
 - Client `owner_user_id` remains forbidden authority.
 - Runtime Auth tests, owner creation runtime tests, RLS leak tests, Storage tests, Reveal tests, entitlement tests, monetization tests, and Android local-state abuse tests remain future gated work.
 
+## Sprint 34-Gamma - Supabase Client Inert Boundary Typecheck Audit Record (2026-06-20)
+
+Status: PASS - mobile typecheck passed for the inert Supabase boundary implementation. This confirms TypeScript validity only; it does not prove runtime Auth, RLS, Storage, reveal, entitlement, APK/native, staging, or production behavior.
+
+Typecheck audit:
+
+```txt
+Command: & 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck
+Exit result: 0
+TypeScript errors: none
+```
+
+Boundary audit:
+
+- Changed source file remains `apps/mobile/src/lib/supabaseBoundary.ts`.
+- Supabase import is boundary-only.
+- Import style is type-only.
+- `createClient` is not imported or called.
+- No Supabase client object is created.
+- `clientAvailable` remains `false`.
+- `client` remains `null`.
+- No runtime Auth/session provider.
+- No owner creation runtime call.
+- No Storage, voice, reveal, boost, entitlement, monetization, moderation, or verification runtime.
+- No `.env`, service role key, or real secret.
+
+Future audit carryover:
+
+- Public anon key is not authorization.
+- `auth.uid()` remains backend owner source-of-truth.
+- Client `owner_user_id` remains forbidden authority.
+- Auth context, RLS, safe DTO/RPC, Storage, Reveal, entitlement, and Android local-state abuse tests remain future gated work.
+
 ## Phase 31C - Auth DTO / Session Contract Test Planning Record (2026-06-20)
 
 Status: PASS - Auth DTO/session contract preflight recorded as docs-only. No source code, TypeScript interface/type file, package install, package/lockfile edit, `.env` change, runtime Supabase/Auth binding, DB command, SQL, psql, Docker DB command, Supabase CLI, target function invocation, auth simulation, test user/data, mutation, migration work, RLS harness, APK/native change, staging, production, commit, or push occurred.

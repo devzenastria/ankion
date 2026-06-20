@@ -16,6 +16,45 @@ ChatGPT / User / Codex-assisted
 
 # Current Phase
 
+## Sprint 34-Gamma - Supabase Client Inert Boundary Typecheck and Documentation (2026-06-20)
+
+Status: PASS - Sprint 34-Beta inert Supabase boundary implementation was validated, mobile typecheck passed, and documentation was updated. No source fix, package install, package/lockfile/env change, runtime Supabase/Auth integration, DB/SQL, APK/native, staging, production, commit, push, or pull occurred.
+
+Preflight:
+- HEAD `16a31da` confirmed.
+- `git status -sb` showed `master...origin/master`.
+- Working tree before Gamma was dirty only because Sprint 34-Beta changed `apps/mobile/src/lib/supabaseBoundary.ts`.
+
+Sprint 34-Beta source validation:
+- Changed source file: `apps/mobile/src/lib/supabaseBoundary.ts`.
+- Supabase import location: boundary-only.
+- Import style: `import type { SupabaseClient } from "@supabase/supabase-js";`.
+- `clientAvailable` remains `false`.
+- `client` remains `null`.
+- `dependencyReady` is `true`.
+- `phaseGate` is `inert_client_boundary`.
+- No `createClient` import/call exists.
+- No Supabase client object is created.
+- No runtime Auth/session provider, owner creation RPC, Storage, voice, reveal, boost, or entitlement logic was added.
+- No `.env`, service role key, or real secret was introduced.
+
+Typecheck:
+- Command: `& 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck`.
+- Result: PASS, exit `0`.
+- TypeScript errors: none.
+
+Security/product carryover:
+- This is inert dependency boundary validation only, not runtime Supabase/Auth integration.
+- Public anon key is not authorization.
+- Service role keys remain forbidden in client code, repo files, docs, logs, screenshots, commits, and Expo public env.
+- `auth.uid()` remains backend owner source-of-truth; client `owner_user_id` remains forbidden authority.
+- Auth context, RLS, and safe DTO/RPC boundaries remain required.
+- The Supabase boundary cannot assign owner or entitlement authority.
+- Mapper/view-state helpers cannot produce premium, reveal, boost, verification, or entitlement authority.
+- Future premium/reveal/boost entitlement must be backend-confirmed.
+
+Next recommended phase: Sprint 34-Delta - Supabase client inert boundary checkpoint commit.
+
 ## Sprint 34-Alpha - Supabase Client Inert Boundary Implementation Planning (2026-06-20)
 
 Status: PASS - Supabase client inert boundary implementation planning completed as docs-only. No source code, `apps/` path, package file, lockfile, `.env`, `.env.example`, runtime Supabase/Auth, Supabase import, React import, typecheck, npm/yarn/pnpm/tsc command, DB/SQL, migration, RLS harness, APK/native, staging, production, commit, push, or pull action occurred.

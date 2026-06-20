@@ -1505,6 +1505,47 @@ Voice abuse risks remain tracked: uploaded voice spoofing, replay audio, manipul
 
 Face verification remains future-only. Provider direction may be `@veriff/react-native-sdk`, but Sprint 34-Alpha has no package install, native change, implementation, or verification flow. ANKION must store only verification result fields, not raw face images, selfie video, ID media, or biometric embeddings.
 
+## Sprint 34-Gamma - Supabase Client Inert Boundary Typecheck Result (2026-06-20)
+
+Sprint 34-Gamma validates the Sprint 34-Beta inert boundary implementation. It does not add runtime Auth, create a Supabase client, wire screens, create a session provider, call owner creation, run package install, edit env files, run DB/SQL, touch APK/native, touch staging/production, commit, or push.
+
+Validated implementation:
+
+- changed file: `apps/mobile/src/lib/supabaseBoundary.ts`
+- import: `import type { SupabaseClient } from "@supabase/supabase-js";`
+- import location: boundary-only
+- import style: type-only
+- `clientAvailable: false`
+- `client: null`
+- `dependencyReady: true`
+- `phaseGate: "inert_client_boundary"`
+- debug-safe descriptor contains only booleans/status/missing-key names, not real env values
+
+Validation result:
+
+```txt
+Command: & 'C:\Program Files\nodejs\npm.cmd' --prefix apps/mobile run typecheck
+Exit result: 0
+TypeScript errors: none
+```
+
+Negative confirmations:
+
+- no `createClient` import or call
+- no Supabase client object creation
+- no `supabase.auth`, `supabase.from`, `supabase.rpc`, or `supabase.storage`
+- no owner creation runtime call
+- no runtime Auth/session provider
+- no Storage, voice, reveal, boost, or entitlement logic
+- no `.env` change
+- no service role key or real secret
+
+Boundary interpretation:
+
+The boundary is dependency-aware but still inert. Public anon key is not authorization. `auth.uid()` remains backend owner source-of-truth, client `owner_user_id` remains forbidden authority, and Auth context plus RLS plus safe DTO/RPC boundaries remain required before runtime use. Future entitlement must be backend-confirmed and cannot come from local state, mapper/view-state helpers, or this inert boundary.
+
+Next recommended phase: Sprint 34-Delta - Supabase client inert boundary checkpoint commit.
+
 ## Sprint 32-Alpha - Auth DTO Mapper / View-State Inert Implementation Boundary (2026-06-20)
 
 Sprint 32-Alpha created two inert source files:
