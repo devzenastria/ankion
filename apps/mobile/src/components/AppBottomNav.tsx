@@ -1,8 +1,8 @@
-import { useGlobalSearchParams, usePathname, useRouter } from "expo-router";
+import { usePathname, useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-type ActiveRoute = "home" | "feed" | "discover" | "chat" | "profile";
-type NavRoute = "/" | "/feed" | "/discover" | "/profile";
+type ActiveRoute = "home" | "feed" | "plus" | "discover" | "chat" | "profile";
+type NavRoute = "/" | "/feed" | "/plus" | "/discover" | "/profile";
 
 type AppBottomNavProps = {
   active?: ActiveRoute;
@@ -15,16 +15,6 @@ type NavButtonProps = {
   icon: string;
   onPress: () => void;
 };
-
-function VoiceMark({ active = false }: { active?: boolean }) {
-  return (
-    <View style={styles.voiceMark}>
-      <View style={[styles.voiceBarSmall, active && styles.voiceBarActive]} />
-      <View style={[styles.voiceBarTall, active && styles.voiceBarActive]} />
-      <View style={[styles.voiceBarMid, active && styles.voiceBarActive]} />
-    </View>
-  );
-}
 
 function NavButton({ active, itemKey, label, icon, onPress }: NavButtonProps) {
   const isActive = active === itemKey;
@@ -55,6 +45,7 @@ function NavButton({ active, itemKey, label, icon, onPress }: NavButtonProps) {
 
 function getActiveRoute(pathname: string): ActiveRoute {
   if (pathname === "/feed") return "feed";
+  if (pathname === "/plus") return "plus";
   if (pathname === "/discover") return "discover";
   if (pathname === "/chat") return "chat";
 
@@ -75,10 +66,7 @@ export function AppBottomNav({
 }: AppBottomNavProps = {}) {
   const router = useRouter();
   const pathname = usePathname();
-  const params = useGlobalSearchParams<{ threadId?: string }>();
   const active = activeOverride ?? getActiveRoute(pathname);
-  const isChatActive = active === "chat";
-  const hasOpenThread = pathname === "/chat" && Boolean(params.threadId);
 
   function go(path: NavRoute) {
     if (pathname === path) {
@@ -86,14 +74,6 @@ export function AppBottomNav({
     }
 
     router.replace(path);
-  }
-
-  function openConnections() {
-    if (pathname === "/chat" && !hasOpenThread) {
-      return;
-    }
-
-    router.replace("/chat");
   }
 
   return (
@@ -114,24 +94,13 @@ export function AppBottomNav({
         onPress={() => go("/feed")}
       />
 
-      <Pressable
-        accessibilityLabel="Bağlantılar"
-        accessibilityRole="button"
-        onPress={openConnections}
-        style={[styles.centerItem, isChatActive && styles.centerItemActive]}
-      >
-        <View style={styles.centerIcon}>
-          <VoiceMark active={isChatActive} />
-        </View>
-
-        <Text
-          allowFontScaling={false}
-          numberOfLines={1}
-          style={[styles.centerLabel, isChatActive && styles.centerLabelActive]}
-        >
-          Bağlantılar
-        </Text>
-      </Pressable>
+      <NavButton
+        active={active}
+        itemKey="plus"
+        label="Plus"
+        icon="+"
+        onPress={() => go("/plus")}
+      />
 
       <NavButton
         active={active}
@@ -176,59 +145,6 @@ const styles = StyleSheet.create({
   },
   itemActive: {
     backgroundColor: "rgba(124, 58, 237, 0.1)",
-  },
-  centerItem: {
-    alignItems: "center",
-    borderRadius: 16,
-    flex: 1.08,
-    justifyContent: "center",
-    minHeight: 46,
-    paddingHorizontal: 2,
-    paddingVertical: 4,
-  },
-  centerItemActive: {
-    backgroundColor: "rgba(240, 171, 252, 0.1)",
-  },
-  centerIcon: {
-    alignItems: "center",
-    height: 22,
-    justifyContent: "center",
-  },
-  voiceMark: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 3,
-    height: 18,
-  },
-  voiceBarSmall: {
-    backgroundColor: "#746a80",
-    borderRadius: 999,
-    height: 8,
-    width: 4,
-  },
-  voiceBarMid: {
-    backgroundColor: "#746a80",
-    borderRadius: 999,
-    height: 12,
-    width: 4,
-  },
-  voiceBarTall: {
-    backgroundColor: "#746a80",
-    borderRadius: 999,
-    height: 16,
-    width: 4,
-  },
-  voiceBarActive: {
-    backgroundColor: "#f0abfc",
-  },
-  centerLabel: {
-    color: "#817889",
-    fontSize: 9,
-    fontWeight: "800",
-    marginTop: 1,
-  },
-  centerLabelActive: {
-    color: "#eadcf3",
   },
   icon: {
     color: "#817889",
