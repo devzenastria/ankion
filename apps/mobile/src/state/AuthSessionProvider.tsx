@@ -14,6 +14,7 @@ import type {
 } from "../lib/authSessionBoundary";
 import {
   completeAuthCallbackFromUrl,
+  type AuthCallbackBoundaryRequest,
   type AuthCallbackBoundaryResult,
 } from "../lib/authCallbackBoundary";
 import {
@@ -76,7 +77,7 @@ export type AuthSessionProviderValue = Readonly<{
   isRuntimeAuthReadBoundaryAvailable: true;
   isRuntimeAuthListenerEnabled: false;
   completeAuthCallbackFromUrl: (
-    callbackUrl: string | null,
+    request: AuthCallbackBoundaryRequest,
   ) => Promise<AuthCallbackBoundaryResult>;
   readSessionBoundary: () => Promise<AuthSessionReadBoundaryResult>;
   requestEmailAuthEntry: (email: string) => Promise<AuthEntryBoundaryResult>;
@@ -103,8 +104,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       isAuthEntryBoundaryEnabled: true,
       isRuntimeAuthReadBoundaryAvailable: true,
       isRuntimeAuthListenerEnabled: false,
-      completeAuthCallbackFromUrl: (callbackUrl) =>
-        completeAuthCallbackFromUrl({ callbackUrl }),
+      completeAuthCallbackFromUrl,
       readSessionBoundary: readAuthSessionBoundary,
       requestEmailAuthEntry: (email) => requestEmailAuthEntry({ email }),
     };

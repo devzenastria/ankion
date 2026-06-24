@@ -1,6 +1,6 @@
 import * as Linking from "expo-linking";
-import { useRouter } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -24,17 +24,61 @@ type SafeCallbackRow = {
   value: string;
 };
 
+const callbackCaptureDelayMs = 900;
+
 function formatBoolean(value: boolean): string {
-  return value ? "true" : "false";
+  return value ? "Evet" : "Hayır";
+}
+
+function hasRouteParams(routeParams: Readonly<Record<string, unknown>>): boolean {
+  return Object.keys(routeParams).length > 0;
+}
+
+function createAttemptKey(
+  callbackUrl: string | null,
+  routeParams: Readonly<Record<string, unknown>> | null,
+): string {
+  const routeParamKeys =
+    routeParams !== null ? Object.keys(routeParams).sort().join(",") : "";
+
+  return `${callbackUrl ?? "no-url"}|${routeParamKeys}`;
+}
+
+function getStatusMessage(result: AuthCallbackBoundaryResult): string {
+  switch (result.status) {
+    case "session_set_client_observed":
+      return "Oturum bağlantısı güvenli şekilde alındı.";
+    case "code_flow_detected":
+      return "Bu bağlantı farklı bir oturum tamamlama yöntemi gerektiriyor.";
+    case "missing_tokens":
+      return "Oturum bağlantısı eksik veriyle geldi.";
+    case "missing_url":
+      return "Oturum bağlantısı bulunamadı.";
+    case "callback_error":
+    case "client_unavailable":
+    case "callback_failed":
+      return "Oturum bağlantısı tamamlanamadı.";
+  }
 }
 
 function getSafeRows(result: AuthCallbackBoundaryResult): SafeCallbackRow[] {
   return [
-    { label: "Backend yetkisi", value: formatBoolean(result.isBackendAuthority) },
-    { label: "Dinleyici açık", value: formatBoolean(result.isListenerEnabled) },
     {
-      label: "Ürün kilidi açıldı",
-      value: formatBoolean(result.isProductUnlockEnabled),
+      label: "Bağlantı verisi alındı",
+      value: formatBoolean(result.hasCallbackData),
+    },
+    {
+      label: "Erişim anahtarı var",
+      value: formatBoolean(result.hasAccessToken),
+    },
+    {
+      label: "Yenileme anahtarı var",
+      value: formatBoolean(result.hasRefreshToken),
+    },
+    { label: "Kod akışı algılandı", value: formatBoolean(result.hasCode) },
+    {
+      label: "Hata parametresi var",
+      value: formatBoolean(result.hasErrorParam),
     },
   ];
 }
@@ -45,28 +89,56 @@ function isCallbackSuccess(result: AuthCallbackBoundaryResult): boolean {
 
 export default function AuthCallbackScreen() {
   const incomingUrl = Linking.useURL();
+  const routeParams = useLocalSearchParams();
+  const routeParamsRef = useRef(routeParams);
   const router = useRouter();
   const { completeAuthCallbackFromUrl } = useAuthSessionBoundary();
-  const hasCompletedRef = useRef(false);
+  const attemptedCandidatesRef = useRef<Set<string>>(new Set());
+  const isMountedRef = useRef(true);
+  const isSessionSetRef = useRef(false);
   const [callbackState, setCallbackState] = useState<CallbackUiState>({
     status: "loading",
   });
 
   useEffect(() => {
-    if (hasCompletedRef.current) {
-      return;
-    }
+    routeParamsRef.current = routeParams;
+  }, [routeParams]);
 
-    hasCompletedRef.current = true;
-    let isMounted = true;
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
-    async function completeCallback() {
+  const completeWithCandidate = useCallback(
+    async (
+      callbackUrl: string | null,
+      candidateRouteParams: Readonly<Record<string, unknown>> | null,
+    ) => {
+      if (isSessionSetRef.current) {
+        return;
+      }
+
+      const attemptKey = createAttemptKey(callbackUrl, candidateRouteParams);
+
+      if (attemptedCandidatesRef.current.has(attemptKey)) {
+        return;
+      }
+
+      attemptedCandidatesRef.current.add(attemptKey);
+
       try {
-        const callbackUrl = incomingUrl ?? (await Linking.getInitialURL());
-        const result = await completeAuthCallbackFromUrl(callbackUrl);
+        const result = await completeAuthCallbackFromUrl({
+          callbackUrl,
+          routeParams: candidateRouteParams,
+        });
 
-        if (!isMounted) {
+        if (!isMountedRef.current) {
           return;
+        }
+
+        if (isCallbackSuccess(result)) {
+          isSessionSetRef.current = true;
         }
 
         setCallbackState(
@@ -75,18 +147,67 @@ export default function AuthCallbackScreen() {
             : { status: "failed", result },
         );
       } catch {
-        if (isMounted) {
+        if (isMountedRef.current) {
           setCallbackState({ status: "failed", result: null });
         }
       }
-    }
+    },
+    [completeAuthCallbackFromUrl],
+  );
 
-    void completeCallback();
+  useEffect(() => {
+    const candidateRouteParams = hasRouteParams(routeParams) ? routeParams : null;
+
+    if (incomingUrl !== null && incomingUrl.length > 0) {
+      void completeWithCandidate(incomingUrl, candidateRouteParams);
+    }
+  }, [completeWithCandidate, incomingUrl, routeParams]);
+
+  useEffect(() => {
+    if (hasRouteParams(routeParams)) {
+      void completeWithCandidate(null, routeParams);
+    }
+  }, [completeWithCandidate, routeParams]);
+
+  useEffect(() => {
+    void Linking.getInitialURL().then((initialUrl) => {
+      if (initialUrl === null || initialUrl.length === 0) {
+        return;
+      }
+
+      const candidateRouteParams = hasRouteParams(routeParamsRef.current)
+        ? routeParamsRef.current
+        : null;
+
+      void completeWithCandidate(initialUrl, candidateRouteParams);
+    });
+
+    const subscription = Linking.addEventListener("url", (event) => {
+      const candidateRouteParams = hasRouteParams(routeParamsRef.current)
+        ? routeParamsRef.current
+        : null;
+
+      void completeWithCandidate(event.url, candidateRouteParams);
+    });
 
     return () => {
-      isMounted = false;
+      subscription.remove();
     };
-  }, [completeAuthCallbackFromUrl, incomingUrl]);
+  }, [completeWithCandidate]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const candidateRouteParams = hasRouteParams(routeParamsRef.current)
+        ? routeParamsRef.current
+        : null;
+
+      void completeWithCandidate(incomingUrl ?? null, candidateRouteParams);
+    }, callbackCaptureDelayMs);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [completeWithCandidate, incomingUrl]);
 
   const result =
     callbackState.status === "success" || callbackState.status === "failed"
@@ -122,11 +243,17 @@ export default function AuthCallbackScreen() {
         ) : null}
 
         {callbackState.status === "success" ? (
-          <Text style={styles.successText}>Oturum bağlantısı alındı.</Text>
+          <Text style={styles.successText}>
+            {getStatusMessage(callbackState.result)}
+          </Text>
         ) : null}
 
         {callbackState.status === "failed" ? (
-          <Text style={styles.errorText}>Oturum bağlantısı tamamlanamadı.</Text>
+          <Text style={styles.errorText}>
+            {callbackState.result !== null
+              ? getStatusMessage(callbackState.result)
+              : "Oturum bağlantısı tamamlanamadı."}
+          </Text>
         ) : null}
 
         {safeRows.length > 0 ? (
