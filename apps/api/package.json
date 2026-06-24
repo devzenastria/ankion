@@ -1,0 +1,18 @@
+{
+  "name": "@ankion/api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "ankion backend API foundation package.",
+  "scripts": {
+    "dev": "tsc -p tsconfig.json && node dist/index.js",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "fastify": "^5.8.5"
+  },
+  "devDependencies": {
+    "@types/node": "25.9.1"
+  }
+}
