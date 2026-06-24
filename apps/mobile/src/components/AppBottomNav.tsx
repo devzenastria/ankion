@@ -96,18 +96,18 @@ export function AppBottomNav({
 
       <NavButton
         active={active}
-        itemKey="plus"
-        label="Plus"
-        icon="+"
-        onPress={() => go("/plus")}
-      />
-
-      <NavButton
-        active={active}
         itemKey="discover"
         label="Keşfet"
         icon="⌕"
         onPress={() => go("/discover")}
+      />
+
+      <NavButton
+        active={active}
+        itemKey="plus"
+        label="Plus"
+        icon="+"
+        onPress={() => go("/plus")}
       />
 
       <NavButton
