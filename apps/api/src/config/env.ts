@@ -6,6 +6,18 @@ export type ApiEnv = {
   port: number;
 };
 
+export type SupabaseServerEnv = {
+  supabaseUrl: string;
+  supabaseServiceRoleKey: string;
+};
+
+export class BackendConfigurationError extends Error {
+  constructor() {
+    super('BACKEND_CONFIGURATION_REQUIRED');
+    this.name = 'BackendConfigurationError';
+  }
+}
+
 function parsePort(rawPort: string | undefined): number {
   if (rawPort === undefined) {
     return DEFAULT_PORT;
@@ -45,5 +57,26 @@ export function readApiEnv(env: NodeJS.ProcessEnv = process.env): ApiEnv {
   return {
     host,
     port: parsePort(env.PORT),
+  };
+}
+
+export function readSupabaseServerEnv(
+  env: NodeJS.ProcessEnv = process.env,
+): SupabaseServerEnv {
+  const supabaseUrl = env.SUPABASE_URL?.trim();
+  const supabaseServiceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+
+  if (
+    supabaseUrl === undefined ||
+    supabaseUrl.length === 0 ||
+    supabaseServiceRoleKey === undefined ||
+    supabaseServiceRoleKey.length === 0
+  ) {
+    throw new BackendConfigurationError();
+  }
+
+  return {
+    supabaseUrl,
+    supabaseServiceRoleKey,
   };
 }
