@@ -74,6 +74,8 @@ export type SupabaseBoundary =
   | RuntimeSupabaseBoundary
   | MissingRuntimeSupabaseBoundary;
 
+let runtimeSupabaseClient: SupabaseClient | null = null;
+
 function isSupabaseEnvConfigured(
   env: SupabasePublicEnv,
 ): env is SupabasePublicEnv &
@@ -126,13 +128,19 @@ function createRuntimeSupabaseClient(
     return null;
   }
 
-  return createClient(env.supabaseUrl, env.supabaseAnonKey, {
+  if (runtimeSupabaseClient !== null) {
+    return runtimeSupabaseClient;
+  }
+
+  runtimeSupabaseClient = createClient(env.supabaseUrl, env.supabaseAnonKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
       detectSessionInUrl: false,
     },
   });
+
+  return runtimeSupabaseClient;
 }
 
 export function getInertSupabaseBoundary(): InertSupabaseBoundary {
