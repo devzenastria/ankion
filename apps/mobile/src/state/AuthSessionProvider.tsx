@@ -22,6 +22,11 @@ import {
   type AuthEntryBoundaryResult,
 } from "../lib/authEntryBoundary";
 import {
+  requestOwnerProfileCreation,
+  type OwnerProfileCreationBoundaryResult,
+  type OwnerProfileCreationRequest,
+} from "../lib/ownerProfileCreationBoundary";
+import {
   readAuthSessionBoundary,
   type AuthSessionReadBoundaryResult,
 } from "../lib/authSessionReadBoundary";
@@ -74,6 +79,7 @@ export type AuthSessionProviderValue = Readonly<{
   isRuntimeAuthEnabled: false;
   isAuthCallbackBoundaryEnabled: true;
   isAuthEntryBoundaryEnabled: true;
+  isOwnerProfileCreationBoundaryEnabled: true;
   isRuntimeAuthReadBoundaryAvailable: true;
   isRuntimeAuthListenerEnabled: false;
   completeAuthCallbackFromUrl: (
@@ -81,6 +87,9 @@ export type AuthSessionProviderValue = Readonly<{
   ) => Promise<AuthCallbackBoundaryResult>;
   readSessionBoundary: () => Promise<AuthSessionReadBoundaryResult>;
   requestEmailAuthEntry: (email: string) => Promise<AuthEntryBoundaryResult>;
+  requestOwnerProfileCreation: (
+    input: OwnerProfileCreationRequest,
+  ) => Promise<OwnerProfileCreationBoundaryResult>;
 }>;
 
 const AuthSessionContext = createContext<AuthSessionProviderValue | null>(null);
@@ -102,11 +111,13 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       isRuntimeAuthEnabled: false,
       isAuthCallbackBoundaryEnabled: true,
       isAuthEntryBoundaryEnabled: true,
+      isOwnerProfileCreationBoundaryEnabled: true,
       isRuntimeAuthReadBoundaryAvailable: true,
       isRuntimeAuthListenerEnabled: false,
       completeAuthCallbackFromUrl,
       readSessionBoundary: readAuthSessionBoundary,
       requestEmailAuthEntry: (email) => requestEmailAuthEntry({ email }),
+      requestOwnerProfileCreation,
     };
   }, []);
 

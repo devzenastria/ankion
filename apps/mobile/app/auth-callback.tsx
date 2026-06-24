@@ -12,6 +12,11 @@ import {
 import { AppHeader } from "../src/components/AppHeader";
 import { ScreenContainer } from "../src/components/ScreenContainer";
 import type { AuthCallbackBoundaryResult } from "../src/lib/authCallbackBoundary";
+import {
+  consumeRememberedAuthCallbackUrl,
+  getAuthCallbackUrlSafeSignature,
+  getRememberedAuthCallbackUrl,
+} from "../src/lib/authCallbackUrlStore";
 import { useAuthSessionBoundary } from "../src/state/AuthSessionProvider";
 
 type CallbackUiState =
@@ -40,8 +45,9 @@ function createAttemptKey(
 ): string {
   const routeParamKeys =
     routeParams !== null ? Object.keys(routeParams).sort().join(",") : "";
+  const callbackUrlKey = getAuthCallbackUrlSafeSignature(callbackUrl);
 
-  return `${callbackUrl ?? "no-url"}|${routeParamKeys}`;
+  return `${callbackUrlKey}|${routeParamKeys}`;
 }
 
 function getStatusMessage(result: AuthCallbackBoundaryResult): string {
@@ -155,13 +161,36 @@ export default function AuthCallbackScreen() {
     [completeAuthCallbackFromUrl],
   );
 
+  const completeWithRememberedCandidate = useCallback(() => {
+    const rememberedUrl =
+      consumeRememberedAuthCallbackUrl() ?? getRememberedAuthCallbackUrl();
+
+    if (rememberedUrl === null || rememberedUrl.length === 0) {
+      return;
+    }
+
+    const candidateRouteParams = hasRouteParams(routeParamsRef.current)
+      ? routeParamsRef.current
+      : null;
+
+    void completeWithCandidate(rememberedUrl, candidateRouteParams);
+  }, [completeWithCandidate]);
+
   useEffect(() => {
     const candidateRouteParams = hasRouteParams(routeParams) ? routeParams : null;
 
     if (incomingUrl !== null && incomingUrl.length > 0) {
       void completeWithCandidate(incomingUrl, candidateRouteParams);
+      return;
     }
-  }, [completeWithCandidate, incomingUrl, routeParams]);
+
+    completeWithRememberedCandidate();
+  }, [
+    completeWithCandidate,
+    completeWithRememberedCandidate,
+    incomingUrl,
+    routeParams,
+  ]);
 
   useEffect(() => {
     if (hasRouteParams(routeParams)) {
@@ -170,8 +199,13 @@ export default function AuthCallbackScreen() {
   }, [completeWithCandidate, routeParams]);
 
   useEffect(() => {
+    completeWithRememberedCandidate();
+  }, [completeWithRememberedCandidate]);
+
+  useEffect(() => {
     void Linking.getInitialURL().then((initialUrl) => {
       if (initialUrl === null || initialUrl.length === 0) {
+        completeWithRememberedCandidate();
         return;
       }
 
@@ -197,11 +231,16 @@ export default function AuthCallbackScreen() {
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
+      const rememberedUrl =
+        consumeRememberedAuthCallbackUrl() ?? getRememberedAuthCallbackUrl();
       const candidateRouteParams = hasRouteParams(routeParamsRef.current)
         ? routeParamsRef.current
         : null;
 
-      void completeWithCandidate(incomingUrl ?? null, candidateRouteParams);
+      void completeWithCandidate(
+        incomingUrl ?? rememberedUrl,
+        candidateRouteParams,
+      );
     }, callbackCaptureDelayMs);
 
     return () => {

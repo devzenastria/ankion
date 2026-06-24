@@ -5,6 +5,7 @@ import { BackHandler, StyleSheet, Text, View } from "react-native";
 import { AppHeader } from "../src/components/AppHeader";
 import { AuthEntryCard } from "../src/components/AuthEntryCard";
 import { AuthSessionProbeCard } from "../src/components/AuthSessionProbeCard";
+import { OwnerProfileCreationCard } from "../src/components/OwnerProfileCreationCard";
 import { ScreenContainer } from "../src/components/ScreenContainer";
 
 const settingsSections = [
@@ -107,6 +108,8 @@ export default function SettingsScreen() {
       <AuthEntryCard />
 
       <AuthSessionProbeCard />
+
+      <OwnerProfileCreationCard />
 
       <View style={styles.note}>
         <Text style={styles.noteTitle}>Henüz kalıcı ayar yok</Text>
