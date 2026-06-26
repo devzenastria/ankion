@@ -4,9 +4,7 @@
     "slug": "ankion",
     "scheme": "ankion",
     "version": "0.0.0",
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "0.0.0",
     "updates": {
       "url": "https://u.expo.dev/1b3cf822-78e7-4d38-9da1-89c5a488dedc"
     },
