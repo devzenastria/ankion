@@ -1,7 +1,10 @@
 import {
   createContext,
+  useCallback,
   useContext,
+  useEffect,
   useMemo,
+  useState,
   type PropsWithChildren,
 } from "react";
 
@@ -140,9 +143,51 @@ async function readBackendProfileFoundationBoundary(): Promise<BackendProfileFou
 }
 
 export function AuthSessionProvider({ children }: PropsWithChildren) {
-  const value = useMemo<AuthSessionProviderValue>(() => {
-    const snapshot = inertSessionBoundarySnapshot;
+  const [snapshot, setSnapshot] = useState<SessionBoundarySnapshot>(
+    inertSessionBoundarySnapshot,
+  );
 
+  const readSessionBoundaryWithSnapshot =
+    useCallback(async (): Promise<AuthSessionReadBoundaryResult> => {
+      const result = await readAuthSessionBoundary();
+
+      setSnapshot(result.snapshot);
+
+      return result;
+    }, []);
+
+  const completeAuthCallbackWithSnapshot = useCallback(
+    async (
+      request: AuthCallbackBoundaryRequest,
+    ): Promise<AuthCallbackBoundaryResult> => {
+      const result = await completeAuthCallbackFromUrl(request);
+
+      if (result.isSessionEstablished) {
+        const sessionResult = await readAuthSessionBoundary();
+
+        setSnapshot(sessionResult.snapshot);
+      }
+
+      return result;
+    },
+    [],
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    void readAuthSessionBoundary().then((result) => {
+      if (isMounted) {
+        setSnapshot(result.snapshot);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const value = useMemo<AuthSessionProviderValue>(() => {
     return {
       snapshot,
       viewState: getAuthBoundaryViewState({
@@ -159,13 +204,17 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       isOwnerProfileCreationBoundaryEnabled: true,
       isRuntimeAuthReadBoundaryAvailable: true,
       isRuntimeAuthListenerEnabled: false,
-      completeAuthCallbackFromUrl,
-      readSessionBoundary: readAuthSessionBoundary,
+      completeAuthCallbackFromUrl: completeAuthCallbackWithSnapshot,
+      readSessionBoundary: readSessionBoundaryWithSnapshot,
       requestEmailAuthEntry: (email) => requestEmailAuthEntry({ email }),
       requestOwnerProfileCreation,
       readBackendProfileFoundation: readBackendProfileFoundationBoundary,
     };
-  }, []);
+  }, [
+    completeAuthCallbackWithSnapshot,
+    readSessionBoundaryWithSnapshot,
+    snapshot,
+  ]);
 
   return (
     <AuthSessionContext.Provider value={value}>
