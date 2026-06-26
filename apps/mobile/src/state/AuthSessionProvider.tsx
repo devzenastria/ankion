@@ -21,6 +21,11 @@ import {
   requestEmailAuthEntry,
   type AuthEntryBoundaryResult,
 } from "../lib/authEntryBoundary";
+import { getBackendApiPublicEnv } from "../lib/apiEnv";
+import {
+  getBackendProfileFoundation,
+  type BackendProfileFoundationResult,
+} from "../lib/backendApiBoundary";
 import {
   requestOwnerProfileCreation,
   type OwnerProfileCreationBoundaryResult,
@@ -34,6 +39,7 @@ import {
   getAuthBoundaryViewState,
   type AuthBoundaryViewState,
 } from "../lib/authSessionViewState";
+import { getRuntimeSupabaseBoundary } from "../lib/supabaseBoundary";
 
 const inertRecoveryState: SessionRecoveryState = {
   status: "none",
@@ -90,9 +96,48 @@ export type AuthSessionProviderValue = Readonly<{
   requestOwnerProfileCreation: (
     input: OwnerProfileCreationRequest,
   ) => Promise<OwnerProfileCreationBoundaryResult>;
+  readBackendProfileFoundation: () => Promise<BackendProfileFoundationResult>;
 }>;
 
 const AuthSessionContext = createContext<AuthSessionProviderValue | null>(null);
+
+async function readBackendProfileFoundationBoundary(): Promise<BackendProfileFoundationResult> {
+  const apiEnv = getBackendApiPublicEnv();
+
+  if (!apiEnv.isConfigured) {
+    return getBackendProfileFoundation({
+      apiBaseUrl: apiEnv.apiBaseUrl,
+      accessToken: null,
+    });
+  }
+
+  const boundary = getRuntimeSupabaseBoundary();
+
+  if (!boundary.clientAvailable || boundary.client === null) {
+    return getBackendProfileFoundation({
+      apiBaseUrl: apiEnv.apiBaseUrl,
+      accessToken: null,
+    });
+  }
+
+  try {
+    const { data, error } = await boundary.client.auth.getSession();
+    const accessToken =
+      error === null && data.session !== null
+        ? data.session.access_token
+        : null;
+
+    return getBackendProfileFoundation({
+      apiBaseUrl: apiEnv.apiBaseUrl,
+      accessToken,
+    });
+  } catch {
+    return getBackendProfileFoundation({
+      apiBaseUrl: apiEnv.apiBaseUrl,
+      accessToken: null,
+    });
+  }
+}
 
 export function AuthSessionProvider({ children }: PropsWithChildren) {
   const value = useMemo<AuthSessionProviderValue>(() => {
@@ -118,6 +163,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       readSessionBoundary: readAuthSessionBoundary,
       requestEmailAuthEntry: (email) => requestEmailAuthEntry({ email }),
       requestOwnerProfileCreation,
+      readBackendProfileFoundation: readBackendProfileFoundationBoundary,
     };
   }, []);
 
