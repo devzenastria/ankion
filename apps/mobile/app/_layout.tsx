@@ -1,10 +1,10 @@
 import * as Linking from "expo-linking";
 import { Stack } from "expo-router";
 import { useEffect } from "react";
-import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppBottomNav } from "../src/components/AppBottomNav";
+import { AuthStateGate } from "../src/features/auth/AuthStateGate";
 import { rememberAuthCallbackUrl } from "../src/lib/authCallbackUrlStore";
 import { AuthSessionProvider } from "../src/state/AuthSessionProvider";
 
@@ -33,7 +33,7 @@ export default function RootLayout() {
 
   return (
     <AuthSessionProvider>
-      <View style={styles.root}>
+      <AuthStateGate bottomInset={bottomInset} bottomNavigation={<AppBottomNav />}>
         <Stack
           screenOptions={{
             animation: "none",
@@ -41,33 +41,7 @@ export default function RootLayout() {
             headerShown: false,
           }}
         />
-        <View
-          pointerEvents="box-none"
-          style={[
-            styles.navSlot,
-            {
-              paddingBottom: bottomInset,
-            },
-          ]}
-        >
-          <AppBottomNav />
-        </View>
-      </View>
+      </AuthStateGate>
     </AuthSessionProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    backgroundColor: "#050509",
-    flex: 1,
-  },
-  navSlot: {
-    backgroundColor: "transparent",
-    bottom: 0,
-    left: 0,
-    paddingHorizontal: 10,
-    position: "absolute",
-    right: 0,
-  },
-});
