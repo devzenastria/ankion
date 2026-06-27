@@ -15,9 +15,10 @@ type AuthGateState = "loading" | "signedOut" | "signedIn";
 function resolveAuthGateState(
   sessionStatus: ReturnType<typeof useAuthSessionBoundary>["snapshot"]["session"]["status"],
   hasUser: boolean,
+  isInitialSessionReadPending: boolean,
 ): AuthGateState {
   if (
-    sessionStatus === "unknown" ||
+    isInitialSessionReadPending ||
     sessionStatus === "loading" ||
     sessionStatus === "refresh_pending"
   ) {
@@ -32,8 +33,12 @@ function resolveAuthGateState(
 }
 
 export function AuthStateGate({ bottomInset, bottomNavigation, children }: AuthStateGateProps) {
-  const { snapshot } = useAuthSessionBoundary();
-  const gateState = resolveAuthGateState(snapshot.session.status, snapshot.session.user !== null);
+  const { isInitialSessionReadPending, snapshot } = useAuthSessionBoundary();
+  const gateState = resolveAuthGateState(
+    snapshot.session.status,
+    snapshot.session.user !== null,
+    isInitialSessionReadPending,
+  );
 
   if (gateState === "loading") {
     return (

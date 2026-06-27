@@ -353,7 +353,7 @@ export default function RevealRequestsScreen() {
     const subscription = BackHandler.addEventListener(
       "hardwareBackPress",
       () => {
-        router.replace(getBackTarget(source, sourceThreadId));
+        router.replace(getBackTarget(source, sourceThreadId) as any);
         return true;
       },
     );

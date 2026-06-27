@@ -125,6 +125,7 @@ export type AuthSessionProviderValue = Readonly<{
   snapshot: SessionBoundarySnapshot;
   viewState: AuthBoundaryViewState;
   backendProfileFoundation: BackendProfileFoundationReadState;
+  isInitialSessionReadPending: boolean;
   phaseGate: "auth_provider_skeleton";
   isRuntimeAuthEnabled: false;
   isAuthCallbackBoundaryEnabled: true;
@@ -278,6 +279,8 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     useState<BackendProfileFoundationReadState>(
       idleBackendProfileFoundationState,
     );
+  const [isInitialSessionReadPending, setIsInitialSessionReadPending] =
+    useState(true);
   const isMountedRef = useRef(true);
   const backendProfileReadIdRef = useRef(0);
 
@@ -373,12 +376,18 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     let isCancelled = false;
 
-    void readAuthSessionBoundary().then((result) => {
-      if (!isCancelled && isMountedRef.current) {
-        setSnapshot(result.snapshot);
-        void refreshBackendProfileFoundationForSnapshot(result.snapshot);
-      }
-    });
+    void readAuthSessionBoundary()
+      .then((result) => {
+        if (!isCancelled && isMountedRef.current) {
+          setSnapshot(result.snapshot);
+          void refreshBackendProfileFoundationForSnapshot(result.snapshot);
+        }
+      })
+      .finally(() => {
+        if (!isCancelled && isMountedRef.current) {
+          setIsInitialSessionReadPending(false);
+        }
+      });
 
     return () => {
       isCancelled = true;
@@ -396,6 +405,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
         authError: null,
       }),
       backendProfileFoundation,
+      isInitialSessionReadPending,
       phaseGate: "auth_provider_skeleton",
       isRuntimeAuthEnabled: false,
       isAuthCallbackBoundaryEnabled: true,
@@ -413,6 +423,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
   }, [
     backendProfileFoundation,
     completeAuthCallbackWithSnapshot,
+    isInitialSessionReadPending,
     refreshBackendProfileFoundation,
     readSessionBoundaryWithSnapshot,
     snapshot,
