@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import { useAuthSessionBoundary } from "../../state/AuthSessionProvider";
-import { AuthLandingScreen } from "./AuthLandingScreen";
+import { AuthEntryFlow } from "./AuthEntryFlow";
 
 type AuthStateGateProps = Readonly<{
   bottomInset: number;
@@ -49,7 +49,7 @@ export function AuthStateGate({ bottomInset, bottomNavigation, children }: AuthS
   }
 
   if (gateState === "signedOut") {
-    return <AuthLandingScreen onLoginPress={() => undefined} onSignupPress={() => undefined} />;
+    return <AuthEntryFlow />;
   }
 
   return (
