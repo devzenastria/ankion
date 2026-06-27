@@ -80,3 +80,17 @@ export function readSupabaseServerEnv(
     supabaseServiceRoleKey,
   };
 }
+
+export function isSupabaseServerEnvReady(
+  env: NodeJS.ProcessEnv = process.env,
+): boolean {
+  const supabaseUrl = env.SUPABASE_URL?.trim();
+  const supabaseServiceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+
+  return (
+    supabaseUrl !== undefined &&
+    supabaseUrl.length > 0 &&
+    supabaseServiceRoleKey !== undefined &&
+    supabaseServiceRoleKey.length > 0
+  );
+}

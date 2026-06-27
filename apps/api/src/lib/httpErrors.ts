@@ -5,7 +5,11 @@ export type PublicErrorCode =
   | 'AUTH_HEADER_INVALID'
   | 'AUTH_TOKEN_INVALID'
   | 'BACKEND_CONFIGURATION_REQUIRED'
-  | 'PROFILE_FOUNDATION_READ_FAILED';
+  | 'PROFILE_FOUNDATION_READ_FAILED'
+  | 'cors_not_allowed'
+  | 'rate_limited'
+  | 'request_too_large'
+  | 'unexpected_server_error';
 
 export type PublicErrorResponse = {
   ok: false;
@@ -16,7 +20,7 @@ export type PublicErrorResponse = {
 
 export function sendPublicError(
   reply: FastifyReply,
-  statusCode: 401 | 500 | 503,
+  statusCode: 401 | 403 | 413 | 429 | 500 | 503,
   code: PublicErrorCode,
 ): FastifyReply {
   const response: PublicErrorResponse = {
