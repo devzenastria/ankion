@@ -44,7 +44,11 @@ function isSuccessStatus(status: CreationUiStatus): boolean {
 }
 
 export function OwnerProfileCreationCard() {
-  const { requestOwnerProfileCreation } = useAuthSessionBoundary();
+  const {
+    backendProfileFoundation,
+    refreshBackendProfileFoundation,
+    requestOwnerProfileCreation,
+  } = useAuthSessionBoundary();
   const [displayName, setDisplayName] = useState("");
   const [shortBio, setShortBio] = useState("");
   const [ageBand, setAgeBand] = useState<(typeof ageBands)[number]>("18-24");
@@ -65,13 +69,50 @@ export function OwnerProfileCreationCard() {
       });
 
       setStatus(result.status);
+
+      if (isSuccessStatus(result.status)) {
+        void refreshBackendProfileFoundation();
+      }
     } catch {
       setStatus("unknown_failed");
     }
   }
 
+  function handleRetryPress() {
+    if (backendProfileFoundation.status !== "loading") {
+      void refreshBackendProfileFoundation();
+    }
+  }
+
   const isLoading = status === "loading";
   const visibleMessage = getVisibleMessage(status);
+  const isBackendLoading = backendProfileFoundation.status === "loading";
+  const isFoundationComplete =
+    backendProfileFoundation.profileReady ||
+    backendProfileFoundation.anonymousIdentityReady;
+  const canRetryBackendRead =
+    backendProfileFoundation.canRetry &&
+    !isBackendLoading &&
+    !isFoundationComplete;
+
+  if (isFoundationComplete) {
+    return (
+      <View style={styles.card}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Profil kurulumu</Text>
+          <Text style={styles.description}>
+            Profil temeli hazir. Bu durum urun kilidi veya ucretli ozellik
+            acmaz.
+          </Text>
+        </View>
+
+        <View style={styles.statusPanel}>
+          <Text style={styles.statusTitle}>Kurulum tamamlandi</Text>
+          <Text style={styles.statusText}>{backendProfileFoundation.message}</Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.card}>
@@ -82,6 +123,27 @@ export function OwnerProfileCreationCard() {
           hazırlarsın. Bu işlem ürün kilidi açmaz.
         </Text>
       </View>
+
+      {isBackendLoading || backendProfileFoundation.status !== "idle" ? (
+        <View style={styles.statusPanel}>
+          <Text style={styles.statusTitle}>
+            {isBackendLoading ? "Profil kurulumu kontrol ediliyor" : "Durum"}
+          </Text>
+          <Text style={styles.statusText}>{backendProfileFoundation.message}</Text>
+          {canRetryBackendRead ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={handleRetryPress}
+              style={({ pressed }) => [
+                styles.retryButton,
+                pressed ? styles.buttonPressed : null,
+              ]}
+            >
+              <Text style={styles.retryButtonText}>Tekrar kontrol et</Text>
+            </Pressable>
+          ) : null}
+        </View>
+      ) : null}
 
       <View style={styles.inputGroup}>
         <Text style={styles.inputLabel}>Görünen ad</Text>
@@ -271,5 +333,40 @@ const styles = StyleSheet.create({
   },
   messageSuccess: {
     color: "#86efac",
+  },
+  statusPanel: {
+    backgroundColor: "#0d0c12",
+    borderColor: "#201c27",
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 7,
+    padding: 10,
+  },
+  statusTitle: {
+    color: "#fff7ed",
+    fontSize: 12,
+    fontWeight: "900",
+  },
+  statusText: {
+    color: "#a99cbc",
+    fontSize: 12,
+    fontWeight: "800",
+    lineHeight: 17,
+  },
+  retryButton: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    backgroundColor: "#21183a",
+    borderColor: "#4b3b68",
+    borderRadius: 10,
+    borderWidth: 1,
+    minHeight: 34,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
+  retryButtonText: {
+    color: "#f0abfc",
+    fontSize: 11,
+    fontWeight: "900",
   },
 });

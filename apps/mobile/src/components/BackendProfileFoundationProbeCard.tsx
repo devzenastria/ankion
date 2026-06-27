@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -7,149 +6,97 @@ import {
   View,
 } from "react-native";
 
-import { getBackendApiPublicEnv } from "../lib/apiEnv";
-import type {
-  BackendProfileFoundationResult,
-  BackendProfileFoundationStatus,
-} from "../lib/backendApiBoundary";
 import { useAuthSessionBoundary } from "../state/AuthSessionProvider";
 
-type ProbeState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "success"; result: BackendProfileFoundationResult }
-  | { status: "failed" };
-
 function formatBoolean(value: boolean): string {
-  return value ? "evet" : "hayır";
-}
-
-function getVisibleMessage(status: BackendProfileFoundationStatus): string {
-  switch (status) {
-    case "configured_false":
-      return "Backend API adresi yapılandırılmadı.";
-    case "session_missing":
-      return "Oturum yok. Önce giriş yap.";
-    case "success":
-      return "Backend profil durumu alındı.";
-    case "auth_required":
-    case "auth_invalid":
-      return "Oturum backend tarafından doğrulanamadı.";
-    case "backend_configuration_required":
-      return "Backend yapılandırması tamamlanmadı.";
-    case "read_failed":
-      return "Profil durumu güvenli şekilde okunamadı.";
-    case "network_failed":
-      return "Backend bağlantısı kurulamadı.";
-    case "unknown_failed":
-      return "Backend kontrolü tamamlanamadı.";
-  }
-}
-
-function isSuccessResult(result: BackendProfileFoundationResult): boolean {
-  return result.status === "success" && result.profileFoundation !== null;
+  return value ? "evet" : "hayir";
 }
 
 export function BackendProfileFoundationProbeCard() {
-  const { readBackendProfileFoundation } = useAuthSessionBoundary();
-  const [probeState, setProbeState] = useState<ProbeState>({ status: "idle" });
-  const apiEnv = getBackendApiPublicEnv();
+  const { backendProfileFoundation, refreshBackendProfileFoundation } =
+    useAuthSessionBoundary();
 
-  async function handleProbePress() {
-    if (probeState.status === "loading") {
+  function handleProbePress() {
+    if (
+      backendProfileFoundation.status === "loading" ||
+      backendProfileFoundation.status === "session_missing"
+    ) {
       return;
     }
 
-    if (probeState.status === "success" || probeState.status === "failed") {
-      setProbeState({ status: "idle" });
-      return;
-    }
-
-    setProbeState({ status: "loading" });
-
-    try {
-      const result = await readBackendProfileFoundation();
-      setProbeState({ status: "success", result });
-    } catch {
-      setProbeState({ status: "failed" });
-    }
+    void refreshBackendProfileFoundation();
   }
 
-  const isLoading = probeState.status === "loading";
-  const isResultVisible =
-    probeState.status === "success" || probeState.status === "failed";
+  const isLoading = backendProfileFoundation.status === "loading";
+  const isSessionMissing = backendProfileFoundation.status === "session_missing";
+  const canRefresh =
+    !isLoading &&
+    !isSessionMissing &&
+    (backendProfileFoundation.status === "idle" ||
+      backendProfileFoundation.canRetry);
   const buttonLabel = isLoading
     ? "Kontrol ediliyor..."
-    : isResultVisible
-      ? "Sonucu gizle"
-      : "Backend profil durumunu kontrol et";
-  const result =
-    probeState.status === "success" ? probeState.result : null;
-  const profileFoundation =
-    result !== null && isSuccessResult(result)
-      ? result.profileFoundation
-      : null;
-  const visibleMessage =
-    result !== null
-      ? getVisibleMessage(result.status)
-      : apiEnv.isConfigured
-        ? "Henüz backend kontrol sonucu yok."
-        : "Backend API adresi yapılandırılmadı.";
+    : isSessionMissing
+      ? "Oturum gerekli"
+      : "Backend profil durumunu yenile";
 
   return (
     <View style={styles.card}>
       <View style={styles.header}>
         <Text style={styles.title}>Backend profil durumu</Text>
         <Text style={styles.description}>
-          Oturum tokenını sadece güvenli istek başlığında kullanır; token,
-          ham yanıt veya özel kimlik bilgisi göstermez.
+          Oturum tokenini sadece guvenli istek basliginda kullanir; token, ham
+          yanit veya ozel kimlik bilgisi gostermez.
         </Text>
       </View>
 
       <Pressable
         accessibilityRole="button"
-        disabled={isLoading}
+        disabled={!canRefresh}
         onPress={handleProbePress}
         style={({ pressed }) => [
           styles.button,
-          pressed && !isLoading ? styles.buttonPressed : null,
-          isLoading ? styles.buttonDisabled : null,
+          pressed && canRefresh ? styles.buttonPressed : null,
+          !canRefresh ? styles.buttonDisabled : null,
         ]}
       >
         {isLoading ? <ActivityIndicator color="#050509" size="small" /> : null}
         <Text style={styles.buttonText}>{buttonLabel}</Text>
       </Pressable>
 
-      {probeState.status === "failed" ? (
-        <Text style={styles.errorText}>Backend kontrolü tamamlanamadı.</Text>
-      ) : (
-        <Text
-          style={[
-            styles.message,
-            profileFoundation !== null ? styles.messageSuccess : null,
-          ]}
-        >
-          {visibleMessage}
-        </Text>
-      )}
+      <Text
+        style={[
+          styles.message,
+          backendProfileFoundation.status === "success"
+            ? styles.messageSuccess
+            : null,
+        ]}
+      >
+        {backendProfileFoundation.message}
+      </Text>
 
-      {profileFoundation !== null ? (
-        <View style={styles.resultPanel}>
-          <View style={styles.resultRow}>
-            <Text style={styles.resultLabel}>Profil hazır</Text>
-            <Text style={styles.resultValue}>
-              {formatBoolean(profileFoundation.profileReady)}
-            </Text>
-          </View>
-
-          <View style={[styles.resultRow, styles.resultRowLast]}>
-            <Text style={styles.resultLabel}>Anonim kimlik hazır</Text>
-            <Text style={styles.resultValue}>
-              {formatBoolean(profileFoundation.anonymousIdentityReady)}
-            </Text>
-          </View>
+      <View style={styles.resultPanel}>
+        <View style={styles.resultRow}>
+          <Text style={styles.resultLabel}>Profil hazir</Text>
+          <Text style={styles.resultValue}>
+            {formatBoolean(backendProfileFoundation.profileReady)}
+          </Text>
         </View>
-      ) : null}
+
+        <View style={styles.resultRow}>
+          <Text style={styles.resultLabel}>Anonim kimlik hazir</Text>
+          <Text style={styles.resultValue}>
+            {formatBoolean(backendProfileFoundation.anonymousIdentityReady)}
+          </Text>
+        </View>
+
+        <View style={[styles.resultRow, styles.resultRowLast]}>
+          <Text style={styles.resultLabel}>Onboarding tamam</Text>
+          <Text style={styles.resultValue}>
+            {formatBoolean(backendProfileFoundation.onboardingComplete)}
+          </Text>
+        </View>
+      </View>
     </View>
   );
 }
@@ -205,11 +152,6 @@ const styles = StyleSheet.create({
   },
   messageSuccess: {
     color: "#86efac",
-  },
-  errorText: {
-    color: "#e28787",
-    fontSize: 12,
-    fontWeight: "800",
   },
   resultPanel: {
     backgroundColor: "#0d0c12",
