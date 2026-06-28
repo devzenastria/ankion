@@ -153,26 +153,6 @@ async function getClientOrError(): Promise<
   }
 }
 
-async function isReservedUsername(
-  client: SupabaseServerClient,
-  usernameNormalized: string,
-): Promise<boolean | null> {
-  const { count, error } = await client
-    .schema('private')
-    .from('reserved_usernames')
-    .select('username_normalized', {
-      count: 'exact',
-      head: true,
-    })
-    .eq('username_normalized', usernameNormalized);
-
-  if (error !== null) {
-    return null;
-  }
-
-  return (count ?? 0) > 0;
-}
-
 async function isUsernameTaken(
   client: SupabaseServerClient,
   usernameNormalized: string,
@@ -274,7 +254,19 @@ export async function signupWithUsernamePassword(
   const password = validatePassword(input.password);
   const recoveryEmail = normalizeRecoveryEmail(input.recoveryEmail);
 
-  if (!username.ok || !password.ok || !recoveryEmail.ok) {
+  if (!username.ok) {
+    if (username.code === 'USERNAME_RESERVED') {
+      return createErrorResult(409, 'USERNAME_UNAVAILABLE', usernameUnavailableMessage);
+    }
+
+    return createErrorResult(
+      400,
+      'USERNAME_AUTH_INVALID_INPUT',
+      invalidInputMessage,
+    );
+  }
+
+  if (!password.ok || !recoveryEmail.ok) {
     return createErrorResult(
       400,
       'USERNAME_AUTH_INVALID_INPUT',
@@ -297,16 +289,6 @@ export async function signupWithUsernamePassword(
   }
 
   const { client } = clientResult;
-  const reserved = await isReservedUsername(client, username.normalized);
-
-  if (reserved === null) {
-    return createErrorResult(500, 'USERNAME_AUTH_UNAVAILABLE', unavailableMessage);
-  }
-
-  if (reserved) {
-    return createErrorResult(409, 'USERNAME_UNAVAILABLE', usernameUnavailableMessage);
-  }
-
   const usernameTaken = await isUsernameTaken(client, username.normalized);
 
   if (usernameTaken === null) {
