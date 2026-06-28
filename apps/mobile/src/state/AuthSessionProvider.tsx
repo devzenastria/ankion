@@ -45,6 +45,13 @@ import {
   type AuthBoundaryViewState,
 } from "../lib/authSessionViewState";
 import { getRuntimeSupabaseBoundary } from "../lib/supabaseBoundary";
+import {
+  requestUsernameLogin,
+  requestUsernameSignup,
+  type UsernameAuthResult,
+  type UsernameLoginRequest,
+  type UsernameSignupRequest,
+} from "../lib/usernameAuthBoundary";
 
 const inertRecoveryState: SessionRecoveryState = {
   status: "none",
@@ -155,6 +162,12 @@ export type AuthSessionProviderValue = Readonly<{
   ) => Promise<AuthCallbackBoundaryResult>;
   readSessionBoundary: () => Promise<AuthSessionReadBoundaryResult>;
   requestEmailAuthEntry: (email: string) => Promise<AuthEntryBoundaryResult>;
+  requestUsernameSignup: (
+    input: UsernameSignupRequest,
+  ) => Promise<UsernameAuthResult>;
+  requestUsernameLogin: (
+    input: UsernameLoginRequest,
+  ) => Promise<UsernameAuthResult>;
   requestOwnerProfileCreation: (
     input: OwnerProfileCreationRequest,
   ) => Promise<OwnerProfileCreationBoundaryResult>;
@@ -399,6 +412,40 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     [refreshBackendProfileFoundationForSnapshot],
   );
 
+  const refreshSnapshotAfterUsernameAuth = useCallback(
+    async (result: UsernameAuthResult): Promise<UsernameAuthResult> => {
+      if (result.isSessionEstablished) {
+        const sessionResult = await readAuthSessionBoundary();
+
+        if (isMountedRef.current) {
+          setSnapshot(sessionResult.snapshot);
+          void refreshBackendProfileFoundationForSnapshot(sessionResult.snapshot);
+        }
+      }
+
+      return result;
+    },
+    [refreshBackendProfileFoundationForSnapshot],
+  );
+
+  const requestUsernameSignupWithSnapshot = useCallback(
+    async (input: UsernameSignupRequest): Promise<UsernameAuthResult> => {
+      const result = await requestUsernameSignup(input);
+
+      return refreshSnapshotAfterUsernameAuth(result);
+    },
+    [refreshSnapshotAfterUsernameAuth],
+  );
+
+  const requestUsernameLoginWithSnapshot = useCallback(
+    async (input: UsernameLoginRequest): Promise<UsernameAuthResult> => {
+      const result = await requestUsernameLogin(input);
+
+      return refreshSnapshotAfterUsernameAuth(result);
+    },
+    [refreshSnapshotAfterUsernameAuth],
+  );
+
   const requestSignOutWithSnapshot =
     useCallback(async (): Promise<AuthSignOutBoundaryResult> => {
       const boundary = getRuntimeSupabaseBoundary();
@@ -512,6 +559,8 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       completeAuthCallbackFromUrl: completeAuthCallbackWithSnapshot,
       readSessionBoundary: readSessionBoundaryWithSnapshot,
       requestEmailAuthEntry: (email) => requestEmailAuthEntry({ email }),
+      requestUsernameSignup: requestUsernameSignupWithSnapshot,
+      requestUsernameLogin: requestUsernameLoginWithSnapshot,
       requestOwnerProfileCreation,
       readBackendProfileFoundation: readBackendProfileFoundationBoundary,
       refreshBackendProfileFoundation,
@@ -524,6 +573,8 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     refreshBackendProfileFoundation,
     readSessionBoundaryWithSnapshot,
     requestSignOutWithSnapshot,
+    requestUsernameLoginWithSnapshot,
+    requestUsernameSignupWithSnapshot,
     snapshot,
   ]);
 

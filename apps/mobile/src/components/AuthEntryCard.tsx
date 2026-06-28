@@ -42,8 +42,8 @@ function getVisibleMessage(status: EntryUiStatus, safeMessage: string | null) {
 }
 
 export function AuthEntryCard({
-  title = "Email ile devam et",
-  description = "Email ba\u011flant\u0131s\u0131 g\u00f6nderir. Hesap kurtarma i\u00e7in eri\u015febildi\u011fin bir email kullanman \u00f6nerilir; bu ad\u0131m profil veya \u00fcr\u00fcn kilidi a\u00e7maz.",
+  title = "E-posta bağlantısı ile devam et",
+  description = "E-posta bağlantısı ile devam etmek için erişebildiğin bir e-posta gerekir. Kullanıcı adı ve şifre ana giriş yoludur.",
   actionLabel = "Email ba\u011flant\u0131s\u0131 iste",
   loadingLabel = "G\u00f6nderiliyor...",
 }: AuthEntryCardProps) {

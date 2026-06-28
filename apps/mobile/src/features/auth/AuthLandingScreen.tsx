@@ -53,10 +53,10 @@ export function AuthLandingScreen({
 
       <View style={styles.notePanel}>
         <Text style={styles.noteText}>
-          {"Email ba\u011flant\u0131s\u0131 ile devam et. Hesap kurtarma i\u00e7in eri\u015febildi\u011fin bir email kullanman \u00f6nerilir."}
+          {"Kullanıcı adı ve şifreyle devam et. E-posta giriş için değil, kurtarma içindir."}
         </Text>
         <Text style={styles.legalText}>
-          {"Email aktivasyonu giri\u015f \u015fart\u0131 de\u011fildir; devam edersen kullan\u0131m ve gizlilik ad\u0131mlar\u0131na ge\u00e7ersin."}
+          {"Devam edersen kullanım şartları ve gizlilik bilgilendirmesi adımlarına geçersin."}
         </Text>
       </View>
     </View>
