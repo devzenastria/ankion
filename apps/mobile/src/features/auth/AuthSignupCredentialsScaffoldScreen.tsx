@@ -18,7 +18,7 @@ type SignupUiStatus = "idle" | "loading" | "success" | "failed";
 
 function getSignupMessage(status: SignupUiStatus, safeMessage: string | null) {
   if (status === "success") {
-    return "Hesap oluşturuldu.";
+    return "Hesap olu\u015fturuldu.";
   }
 
   if (status === "failed") {
@@ -66,7 +66,7 @@ export function AuthSignupCredentialsScaffoldScreen({
       setSafeMessage(result.safeMessage);
     } catch {
       setStatus("failed");
-      setSafeMessage("İşlem şu anda tamamlanamadı. Daha sonra tekrar dene.");
+      setSafeMessage("\u0130\u015flem \u015fu anda tamamlanamad\u0131. Daha sonra tekrar dene.");
     }
   }
 
@@ -77,18 +77,17 @@ export function AuthSignupCredentialsScaffoldScreen({
     <View style={styles.screen}>
       <View style={styles.copy}>
         <Text style={styles.eyebrow}>ANKION</Text>
-        <Text style={styles.title}>Üye Ol</Text>
+        <Text style={styles.title}>{"\u00dcye Ol"}</Text>
         <Text style={styles.note}>
-          Kullanıcı adı ve şifreyle hesap oluştur. E-posta giriş için değil,
-          kurtarma içindir.
+          {"Kullan\u0131c\u0131 ad\u0131 ve \u015fifreyle hesap olu\u015ftur. E-posta giri\u015f i\u00e7in de\u011fil, kurtarma i\u00e7indir."}
         </Text>
       </View>
 
       <View style={styles.formPanel}>
         <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Kullanıcı adı</Text>
+          <Text style={styles.inputLabel}>{"Kullan\u0131c\u0131 ad\u0131"}</Text>
           <TextInput
-            accessibilityLabel="Kullanıcı adı"
+            accessibilityLabel="Kullan\u0131c\u0131 ad\u0131"
             autoCapitalize="none"
             autoCorrect={false}
             onChangeText={setUsername}
@@ -101,9 +100,9 @@ export function AuthSignupCredentialsScaffoldScreen({
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Şifre</Text>
+          <Text style={styles.inputLabel}>{"\u015eifre"}</Text>
           <TextInput
-            accessibilityLabel="Şifre"
+            accessibilityLabel="\u015eifre"
             autoCapitalize="none"
             autoCorrect={false}
             onChangeText={setPassword}
@@ -117,15 +116,15 @@ export function AuthSignupCredentialsScaffoldScreen({
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Kurtarma e-postası</Text>
+          <Text style={styles.inputLabel}>{"Kurtarma e-postas\u0131"}</Text>
           <TextInput
-            accessibilityLabel="Kurtarma e-postası"
+            accessibilityLabel="Kurtarma e-postas\u0131"
             autoCapitalize="none"
             autoCorrect={false}
             inputMode="email"
             keyboardType="email-address"
             onChangeText={setRecoveryEmail}
-            placeholder="isteğe bağlı"
+            placeholder="iste\u011fe ba\u011fl\u0131"
             placeholderTextColor="#5f5668"
             style={styles.input}
             textContentType="emailAddress"
@@ -135,11 +134,10 @@ export function AuthSignupCredentialsScaffoldScreen({
 
         <View style={styles.recoveryPanel}>
           <Text style={styles.recoveryText}>
-            E-posta giriş için kullanılmaz. Şifreni unutursan yalnızca
-            erişebildiğin e-posta ile kurtarma mümkün olabilir.
+            {"E-posta giri\u015f i\u00e7in kullan\u0131lmaz. \u015eifreni unutursan yaln\u0131zca eri\u015febildi\u011fin e-posta ile kurtarma m\u00fcmk\u00fcn olabilir."}
           </Text>
           <Text style={styles.recoveryWarning}>
-            Erişemediğin bir e-posta yazarsan hesabı kurtaramayabilirsin.
+            {"Eri\u015femedi\u011fin bir e-posta yazarsan hesab\u0131 kurtaramayabilirsin."}
           </Text>
 
           <Pressable
@@ -162,11 +160,11 @@ export function AuthSignupCredentialsScaffoldScreen({
               ]}
             >
               {recoveryWarningAcknowledged ? (
-                <Text style={styles.checkboxMark}>✓</Text>
+                <Text style={styles.checkboxMark}>{"\u2713"}</Text>
               ) : null}
             </View>
             <Text style={styles.acknowledgementText}>
-              Kurtarma riskini anladım.
+              {"Kurtarma riskini anlad\u0131m."}
             </Text>
           </Pressable>
         </View>
@@ -183,7 +181,7 @@ export function AuthSignupCredentialsScaffoldScreen({
         >
           {isLoading ? <ActivityIndicator color="#050509" size="small" /> : null}
           <Text style={styles.primaryButtonText}>
-            {isLoading ? "Hesap oluşturuluyor..." : "Hesap oluştur"}
+            {isLoading ? "Hesap olu\u015fturuluyor..." : "Hesap olu\u015ftur"}
           </Text>
         </Pressable>
 

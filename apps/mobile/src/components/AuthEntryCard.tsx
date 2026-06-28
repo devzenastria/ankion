@@ -42,8 +42,8 @@ function getVisibleMessage(status: EntryUiStatus, safeMessage: string | null) {
 }
 
 export function AuthEntryCard({
-  title = "E-posta bağlantısı ile devam et",
-  description = "E-posta bağlantısı ile devam etmek için erişebildiğin bir e-posta gerekir. Kullanıcı adı ve şifre ana giriş yoludur.",
+  title = "E-posta ba\u011flant\u0131s\u0131 ile devam et",
+  description = "E-posta ba\u011flant\u0131s\u0131 ile devam etmek i\u00e7in eri\u015febildi\u011fin bir e-posta gerekir. Kullan\u0131c\u0131 ad\u0131 ve \u015fifre ana giri\u015f yoludur.",
   actionLabel = "Email ba\u011flant\u0131s\u0131 iste",
   loadingLabel = "G\u00f6nderiliyor...",
 }: AuthEntryCardProps) {
@@ -82,7 +82,7 @@ export function AuthEntryCard({
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.inputLabel}>E-posta</Text>
+        <Text style={styles.inputLabel}>{"E-posta"}</Text>
         <TextInput
           accessibilityLabel="E-posta"
           autoCapitalize="none"

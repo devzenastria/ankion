@@ -16,11 +16,11 @@ type AuthLoginScaffoldScreenProps = Readonly<{
 
 function getLoginMessage(status: LoginUiStatus, safeMessage: string | null) {
   if (status === "success") {
-    return "Giriş yapıldı.";
+    return "Giri\u015f yap\u0131ld\u0131.";
   }
 
   if (status === "failed") {
-    return safeMessage ?? "Kullanıcı adı veya parola hatalı.";
+    return safeMessage ?? "Kullan\u0131c\u0131 ad\u0131 veya parola hatal\u0131.";
   }
 
   return null;
@@ -60,12 +60,12 @@ export function AuthLoginScaffoldScreen({
       setStatus("failed");
       setSafeMessage(
         result.status === "auth_failed"
-          ? "Kullanıcı adı veya parola hatalı."
+          ? "Kullan\u0131c\u0131 ad\u0131 veya parola hatal\u0131."
           : result.safeMessage,
       );
     } catch {
       setStatus("failed");
-      setSafeMessage("İşlem şu anda tamamlanamadı. Daha sonra tekrar dene.");
+      setSafeMessage("\u0130\u015flem \u015fu anda tamamlanamad\u0131. Daha sonra tekrar dene.");
     }
   }
 
@@ -76,18 +76,17 @@ export function AuthLoginScaffoldScreen({
     <View style={styles.screen}>
       <View style={styles.copy}>
         <Text style={styles.eyebrow}>ANKION</Text>
-        <Text style={styles.title}>Giriş Yap</Text>
+        <Text style={styles.title}>{"Giri\u015f Yap"}</Text>
         <Text style={styles.note}>
-          Kullanıcı adın ve şifrenle devam et. E-posta giriş için değil,
-          kurtarma içindir.
+          {"Kullan\u0131c\u0131 ad\u0131n ve \u015fifrenle devam et. E-posta giri\u015f i\u00e7in de\u011fil, kurtarma i\u00e7indir."}
         </Text>
       </View>
 
       <View style={styles.formPanel}>
         <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Kullanıcı adı</Text>
+          <Text style={styles.inputLabel}>{"Kullan\u0131c\u0131 ad\u0131"}</Text>
           <TextInput
-            accessibilityLabel="Kullanıcı adı"
+            accessibilityLabel="Kullan\u0131c\u0131 ad\u0131"
             autoCapitalize="none"
             autoCorrect={false}
             onChangeText={setUsername}
@@ -100,13 +99,13 @@ export function AuthLoginScaffoldScreen({
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Şifre</Text>
+          <Text style={styles.inputLabel}>{"\u015eifre"}</Text>
           <TextInput
-            accessibilityLabel="Şifre"
+            accessibilityLabel="\u015eifre"
             autoCapitalize="none"
             autoCorrect={false}
             onChangeText={setPassword}
-            placeholder="Şifren"
+            placeholder="\u015eifren"
             placeholderTextColor="#5f5668"
             secureTextEntry
             style={styles.input}
@@ -127,7 +126,7 @@ export function AuthLoginScaffoldScreen({
         >
           {isLoading ? <ActivityIndicator color="#050509" size="small" /> : null}
           <Text style={styles.primaryButtonText}>
-            {isLoading ? "Giriş yapılıyor..." : "Giriş yap"}
+            {isLoading ? "Giri\u015f yap\u0131l\u0131yor..." : "Giri\u015f yap"}
           </Text>
         </Pressable>
 
