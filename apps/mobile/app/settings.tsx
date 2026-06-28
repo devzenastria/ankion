@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
-import { useEffect } from "react";
-import { BackHandler, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { BackHandler, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { AppHeader } from "../src/components/AppHeader";
 import { AuthEntryCard } from "../src/components/AuthEntryCard";
@@ -8,6 +8,9 @@ import { AuthSessionProbeCard } from "../src/components/AuthSessionProbeCard";
 import { BackendProfileFoundationProbeCard } from "../src/components/BackendProfileFoundationProbeCard";
 import { OwnerProfileCreationCard } from "../src/components/OwnerProfileCreationCard";
 import { ScreenContainer } from "../src/components/ScreenContainer";
+import { useAuthSessionBoundary } from "../src/state/AuthSessionProvider";
+
+type LogoutStatus = "idle" | "loading" | "failed";
 
 const settingsSections = [
   {
@@ -52,6 +55,34 @@ const settingsSections = [
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const { requestSignOut } = useAuthSessionBoundary();
+  const [logoutStatus, setLogoutStatus] = useState<LogoutStatus>("idle");
+  const [logoutMessage, setLogoutMessage] = useState<string | null>(null);
+
+  async function handleSignOutPress() {
+    if (logoutStatus === "loading") {
+      return;
+    }
+
+    setLogoutStatus("loading");
+    setLogoutMessage(null);
+
+    try {
+      const result = await requestSignOut();
+
+      if (result.status === "signed_out") {
+        router.replace("/");
+        setLogoutStatus("idle");
+        return;
+      }
+
+      setLogoutStatus("failed");
+      setLogoutMessage(result.safeMessage);
+    } catch {
+      setLogoutStatus("failed");
+      setLogoutMessage("\u00c7\u0131k\u0131\u015f yap\u0131lamad\u0131. Tekrar dene.");
+    }
+  }
 
   useEffect(() => {
     const subscription = BackHandler.addEventListener(
@@ -113,6 +144,34 @@ export default function SettingsScreen() {
       <OwnerProfileCreationCard />
 
       <BackendProfileFoundationProbeCard />
+
+      <View style={styles.logoutCard}>
+        <View style={styles.logoutHeader}>
+          <Text style={styles.logoutTitle}>Oturum</Text>
+          <Text style={styles.logoutText}>
+            {"\u00c7\u0131k\u0131\u015f yapt\u0131\u011f\u0131nda bu cihazdaki oturum kapat\u0131l\u0131r ve giri\u015f ekran\u0131na d\u00f6nersin."}
+          </Text>
+        </View>
+
+        <Pressable
+          accessibilityRole="button"
+          disabled={logoutStatus === "loading"}
+          onPress={handleSignOutPress}
+          style={({ pressed }) => [
+            styles.logoutButton,
+            pressed && logoutStatus !== "loading" ? styles.logoutButtonPressed : null,
+            logoutStatus === "loading" ? styles.logoutButtonDisabled : null,
+          ]}
+        >
+          <Text style={styles.logoutButtonText}>
+            {logoutStatus === "loading" ? "\u00c7\u0131k\u0131\u015f yap\u0131l\u0131yor..." : "\u00c7\u0131k\u0131\u015f yap"}
+          </Text>
+        </Pressable>
+
+        {logoutMessage !== null ? (
+          <Text style={styles.logoutErrorText}>{logoutMessage}</Text>
+        ) : null}
+      </View>
 
       <View style={styles.note}>
         <Text style={styles.noteTitle}>Henüz kalıcı ayar yok</Text>
@@ -187,6 +246,54 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "700",
     marginTop: 3,
+  },
+  logoutCard: {
+    backgroundColor: "#111017",
+    borderColor: "#211d29",
+    borderRadius: 16,
+    borderWidth: 1,
+    gap: 12,
+    padding: 12,
+  },
+  logoutHeader: {
+    gap: 5,
+  },
+  logoutTitle: {
+    color: "#fff7ed",
+    fontSize: 14,
+    fontWeight: "900",
+  },
+  logoutText: {
+    color: "#a99cbc",
+    fontSize: 12,
+    lineHeight: 17,
+  },
+  logoutButton: {
+    alignItems: "center",
+    backgroundColor: "#2d1c22",
+    borderColor: "#6b2f3a",
+    borderRadius: 12,
+    borderWidth: 1,
+    justifyContent: "center",
+    minHeight: 44,
+    paddingHorizontal: 14,
+  },
+  logoutButtonDisabled: {
+    opacity: 0.72,
+  },
+  logoutButtonPressed: {
+    opacity: 0.82,
+  },
+  logoutButtonText: {
+    color: "#fecdd3",
+    fontSize: 13,
+    fontWeight: "900",
+  },
+  logoutErrorText: {
+    color: "#e28787",
+    fontSize: 12,
+    fontWeight: "800",
+    lineHeight: 17,
   },
   note: {
     backgroundColor: "#111017",

@@ -121,6 +121,23 @@ const loadingBackendProfileFoundationState: BackendProfileFoundationReadState = 
   isProductUnlockEnabled: false,
 };
 
+export type AuthSignOutBoundaryStatus =
+  | "signed_out"
+  | "client_unavailable"
+  | "sign_out_failed"
+  | "session_still_present"
+  | "session_read_failed";
+
+export type AuthSignOutBoundaryResult = Readonly<{
+  kind: "auth_sign_out_boundary_result";
+  status: AuthSignOutBoundaryStatus;
+  safeMessage: string;
+  isSessionCleared: boolean;
+  isBackendAuthority: false;
+  isProductUnlockEnabled: false;
+  isListenerEnabled: false;
+}>;
+
 export type AuthSessionProviderValue = Readonly<{
   snapshot: SessionBoundarySnapshot;
   viewState: AuthBoundaryViewState;
@@ -143,6 +160,7 @@ export type AuthSessionProviderValue = Readonly<{
   ) => Promise<OwnerProfileCreationBoundaryResult>;
   readBackendProfileFoundation: () => Promise<BackendProfileFoundationResult>;
   refreshBackendProfileFoundation: () => Promise<BackendProfileFoundationReadState>;
+  requestSignOut: () => Promise<AuthSignOutBoundaryResult>;
 }>;
 
 const AuthSessionContext = createContext<AuthSessionProviderValue | null>(null);
@@ -270,6 +288,22 @@ function createBackendProfileFoundationUnknownFailedState(): BackendProfileFound
   };
 }
 
+function createAuthSignOutResult(
+  status: AuthSignOutBoundaryStatus,
+  safeMessage: string,
+  isSessionCleared: boolean,
+): AuthSignOutBoundaryResult {
+  return {
+    kind: "auth_sign_out_boundary_result",
+    status,
+    safeMessage,
+    isSessionCleared,
+    isBackendAuthority: false,
+    isProductUnlockEnabled: false,
+    isListenerEnabled: false,
+  };
+}
+
 export function AuthSessionProvider({ children }: PropsWithChildren) {
   const [snapshot, setSnapshot] = useState<SessionBoundarySnapshot>(
     inertSessionBoundarySnapshot,
@@ -365,6 +399,69 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     [refreshBackendProfileFoundationForSnapshot],
   );
 
+  const requestSignOutWithSnapshot =
+    useCallback(async (): Promise<AuthSignOutBoundaryResult> => {
+      const boundary = getRuntimeSupabaseBoundary();
+
+      if (!boundary.clientAvailable || boundary.client === null) {
+        return createAuthSignOutResult(
+          "client_unavailable",
+          "\u00c7\u0131k\u0131\u015f yap\u0131lamad\u0131. Oturum istemcisi haz\u0131r de\u011fil.",
+          false,
+        );
+      }
+
+      try {
+        const { error } = await boundary.client.auth.signOut();
+
+        if (error !== null) {
+          return createAuthSignOutResult(
+            "sign_out_failed",
+            "\u00c7\u0131k\u0131\u015f yap\u0131lamad\u0131. Tekrar dene.",
+            false,
+          );
+        }
+
+        const sessionResult = await readAuthSessionBoundary();
+
+        if (isMountedRef.current) {
+          setSnapshot(sessionResult.snapshot);
+          void refreshBackendProfileFoundationForSnapshot(sessionResult.snapshot);
+        }
+
+        if (
+          sessionResult.status === "unauthenticated" &&
+          !sessionResult.sessionPresent
+        ) {
+          return createAuthSignOutResult(
+            "signed_out",
+            "\u00c7\u0131k\u0131\u015f yap\u0131ld\u0131.",
+            true,
+          );
+        }
+
+        if (sessionResult.status === "read_failed") {
+          return createAuthSignOutResult(
+            "session_read_failed",
+            "\u00c7\u0131k\u0131\u015f durumu do\u011frulanamad\u0131. Tekrar dene.",
+            false,
+          );
+        }
+
+        return createAuthSignOutResult(
+          "session_still_present",
+          "Oturum hala a\u00e7\u0131k g\u00f6r\u00fcn\u00fcyor. Tekrar dene.",
+          false,
+        );
+      } catch {
+        return createAuthSignOutResult(
+          "sign_out_failed",
+          "\u00c7\u0131k\u0131\u015f yap\u0131lamad\u0131. Tekrar dene.",
+          false,
+        );
+      }
+    }, [refreshBackendProfileFoundationForSnapshot]);
+
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
@@ -418,6 +515,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       requestOwnerProfileCreation,
       readBackendProfileFoundation: readBackendProfileFoundationBoundary,
       refreshBackendProfileFoundation,
+      requestSignOut: requestSignOutWithSnapshot,
     };
   }, [
     backendProfileFoundation,
@@ -425,6 +523,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     isInitialSessionReadPending,
     refreshBackendProfileFoundation,
     readSessionBoundaryWithSnapshot,
+    requestSignOutWithSnapshot,
     snapshot,
   ]);
 
