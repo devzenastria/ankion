@@ -21,6 +21,23 @@ export type UsernameAuthSessionDto = {
   user_id: string;
 };
 
+export type UsernameSignupDiagnosticStage =
+  | 'USERNAME_SIGNUP_STAGE_VALIDATE_INPUT'
+  | 'USERNAME_SIGNUP_STAGE_USERNAME_TAKEN_LOOKUP'
+  | 'USERNAME_SIGNUP_STAGE_AUTH_CREATE_USER'
+  | 'USERNAME_SIGNUP_STAGE_INSERT_USERNAME'
+  | 'USERNAME_SIGNUP_STAGE_INSERT_AUTH_IDENTIFIER'
+  | 'USERNAME_SIGNUP_STAGE_INSERT_RECOVERY'
+  | 'USERNAME_SIGNUP_STAGE_SIGN_IN'
+  | 'USERNAME_SIGNUP_STAGE_CLEANUP';
+
+export type UsernameSignupDiagnostic = {
+  stage: UsernameSignupDiagnosticStage;
+  errorCode?: string;
+  errorStatus?: string | number;
+  errorName?: string;
+};
+
 export type UsernameSignupInput = {
   username: unknown;
   password: unknown;
@@ -48,6 +65,7 @@ export type UsernameAuthResult =
         | 'USERNAME_UNAVAILABLE'
         | 'USERNAME_AUTH_UNAVAILABLE';
       message: string;
+      diagnostic?: UsernameSignupDiagnostic;
     };
 
 type UsernameAuthErrorStatusCode = Extract<
@@ -91,13 +109,52 @@ function createErrorResult(
   statusCode: UsernameAuthErrorStatusCode,
   code: UsernameAuthErrorCode,
   message: string,
+  diagnostic?: UsernameSignupDiagnostic,
 ): UsernameAuthResult {
-  return {
+  const result: UsernameAuthResult = {
     ok: false,
     statusCode,
     code,
     message,
   };
+
+  if (diagnostic !== undefined) {
+    result.diagnostic = diagnostic;
+  }
+
+  return result;
+}
+
+function getSafeSupabaseErrorDiagnostic(
+  stage: UsernameSignupDiagnosticStage,
+  error: unknown,
+): UsernameSignupDiagnostic {
+  const candidate =
+    typeof error === 'object' && error !== null
+      ? (error as {
+          code?: unknown;
+          status?: unknown;
+          name?: unknown;
+        })
+      : {};
+
+  const diagnostic: UsernameSignupDiagnostic = {
+    stage,
+  };
+
+  if (typeof candidate.code === 'string') {
+    diagnostic.errorCode = candidate.code;
+  }
+
+  if (typeof candidate.status === 'string' || typeof candidate.status === 'number') {
+    diagnostic.errorStatus = candidate.status;
+  }
+
+  if (typeof candidate.name === 'string') {
+    diagnostic.errorName = candidate.name;
+  }
+
+  return diagnostic;
 }
 
 function createSessionDto(
@@ -231,6 +288,7 @@ async function signInWithInternalIdentifier(
   client: SupabaseServerClient,
   authIdentifier: string,
   password: string,
+  diagnostic?: UsernameSignupDiagnostic,
 ): Promise<UsernameAuthResult> {
   const { data, error } = await client.auth.signInWithPassword({
     email: authIdentifier,
@@ -238,7 +296,12 @@ async function signInWithInternalIdentifier(
   });
 
   if (error !== null || data.session === null) {
-    return createErrorResult(401, 'USERNAME_AUTH_FAILED', loginFailedMessage);
+    return createErrorResult(
+      401,
+      'USERNAME_AUTH_FAILED',
+      loginFailedMessage,
+      diagnostic,
+    );
   }
 
   return {
@@ -263,6 +326,9 @@ export async function signupWithUsernamePassword(
       400,
       'USERNAME_AUTH_INVALID_INPUT',
       invalidInputMessage,
+      {
+        stage: 'USERNAME_SIGNUP_STAGE_VALIDATE_INPUT',
+      },
     );
   }
 
@@ -271,6 +337,9 @@ export async function signupWithUsernamePassword(
       400,
       'USERNAME_AUTH_INVALID_INPUT',
       invalidInputMessage,
+      {
+        stage: 'USERNAME_SIGNUP_STAGE_VALIDATE_INPUT',
+      },
     );
   }
 
@@ -279,6 +348,9 @@ export async function signupWithUsernamePassword(
       400,
       'USERNAME_AUTH_INVALID_INPUT',
       invalidInputMessage,
+      {
+        stage: 'USERNAME_SIGNUP_STAGE_VALIDATE_INPUT',
+      },
     );
   }
 
@@ -292,7 +364,14 @@ export async function signupWithUsernamePassword(
   const usernameTaken = await isUsernameTaken(client, username.normalized);
 
   if (usernameTaken === null) {
-    return createErrorResult(500, 'USERNAME_AUTH_UNAVAILABLE', unavailableMessage);
+    return createErrorResult(
+      500,
+      'USERNAME_AUTH_UNAVAILABLE',
+      unavailableMessage,
+      {
+        stage: 'USERNAME_SIGNUP_STAGE_USERNAME_TAKEN_LOOKUP',
+      },
+    );
   }
 
   if (usernameTaken) {
@@ -311,7 +390,15 @@ export async function signupWithUsernamePassword(
     });
 
   if (createUserError !== null || createUserData.user === null) {
-    return createErrorResult(500, 'USERNAME_AUTH_UNAVAILABLE', unavailableMessage);
+    return createErrorResult(
+      500,
+      'USERNAME_AUTH_UNAVAILABLE',
+      unavailableMessage,
+      getSafeSupabaseErrorDiagnostic(
+        'USERNAME_SIGNUP_STAGE_AUTH_CREATE_USER',
+        createUserError,
+      ),
+    );
   }
 
   const ownerUserId = createUserData.user.id;
@@ -333,7 +420,15 @@ export async function signupWithUsernamePassword(
       );
     }
 
-    return createErrorResult(500, 'USERNAME_AUTH_UNAVAILABLE', unavailableMessage);
+    return createErrorResult(
+      500,
+      'USERNAME_AUTH_UNAVAILABLE',
+      unavailableMessage,
+      getSafeSupabaseErrorDiagnostic(
+        'USERNAME_SIGNUP_STAGE_INSERT_USERNAME',
+        usernameInsert.error,
+      ),
+    );
   }
 
   const identifierInsert = await client
@@ -347,7 +442,15 @@ export async function signupWithUsernamePassword(
   if (identifierInsert.error !== null) {
     await cleanupCreatedSignupState(client, ownerUserId);
 
-    return createErrorResult(500, 'USERNAME_AUTH_UNAVAILABLE', unavailableMessage);
+    return createErrorResult(
+      500,
+      'USERNAME_AUTH_UNAVAILABLE',
+      unavailableMessage,
+      getSafeSupabaseErrorDiagnostic(
+        'USERNAME_SIGNUP_STAGE_INSERT_AUTH_IDENTIFIER',
+        identifierInsert.error,
+      ),
+    );
   }
 
   const recoveryInsert = await client
@@ -363,10 +466,25 @@ export async function signupWithUsernamePassword(
   if (recoveryInsert.error !== null) {
     await cleanupCreatedSignupState(client, ownerUserId);
 
-    return createErrorResult(500, 'USERNAME_AUTH_UNAVAILABLE', unavailableMessage);
+    return createErrorResult(
+      500,
+      'USERNAME_AUTH_UNAVAILABLE',
+      unavailableMessage,
+      getSafeSupabaseErrorDiagnostic(
+        'USERNAME_SIGNUP_STAGE_INSERT_RECOVERY',
+        recoveryInsert.error,
+      ),
+    );
   }
 
-  return signInWithInternalIdentifier(client, authIdentifier, password.password);
+  return signInWithInternalIdentifier(
+    client,
+    authIdentifier,
+    password.password,
+    {
+      stage: 'USERNAME_SIGNUP_STAGE_SIGN_IN',
+    },
+  );
 }
 
 export async function loginWithUsernamePassword(

@@ -119,6 +119,16 @@ export async function registerUsernameAuthRoutes(
       recoveryEmail: request.body.recoveryEmail,
       recoveryWarningAcknowledged: request.body.recoveryWarningAcknowledged,
     });
+
+    if (!result.ok && result.diagnostic !== undefined) {
+      request.log.warn(
+        {
+          usernameSignupDiagnostic: result.diagnostic,
+        },
+        'username signup diagnostic',
+      );
+    }
+
     const output = sendUsernameAuthResult(result);
 
     if ('statusCode' in output) {
