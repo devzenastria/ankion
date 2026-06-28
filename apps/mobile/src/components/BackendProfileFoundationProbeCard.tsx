@@ -43,9 +43,9 @@ export function BackendProfileFoundationProbeCard() {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <Text style={styles.title}>Backend profil durumu</Text>
+        <Text style={styles.title}>Profil durumu</Text>
         <Text style={styles.description}>
-          {"Profil ve anonim kimlik temelinin backend taraf\u0131nda haz\u0131r olup olmad\u0131\u011f\u0131n\u0131 g\u00f6sterir. Token veya \u00f6zel kimlik bilgisi g\u00f6stermez."}
+          {"Profil ve anonim kimlik temelinin haz\u0131r olup olmad\u0131\u011f\u0131n\u0131 g\u00f6sterir. Gizli oturum bilgisi veya \u00f6zel kimlik g\u00f6stermez."}
         </Text>
       </View>
 

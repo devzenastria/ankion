@@ -15,20 +15,20 @@ export function AuthSignupCredentialsScaffoldScreen({
         <Text style={styles.eyebrow}>ANKION</Text>
         <Text style={styles.title}>Üye Ol</Text>
         <Text style={styles.note}>
-          Kullanıcı adı ve parola adımı burada hazırlanıyor.
+          E-posta bağlantısıyla devam et.
         </Text>
       </View>
 
       <View style={styles.infoPanel}>
         <Text style={styles.infoText}>
-          E-posta bir sonraki adımda hesap kurtarma için alınacak.
+          Profilini sonra oluşturacaksın. Email hesap kurtarma için kullanılır.
         </Text>
       </View>
 
       <AuthEntryCard
-        actionLabel="E-posta bağlantısı iste"
-        description="Mevcut güvenli e-posta bağlantısı akışını kullanır. Aktivasyon, onaylı e-posta veya gerçek kimlik şartı eklemez."
-        title="Hesap bağlantısı"
+        actionLabel="Email bağlantısı iste"
+        description="Email bağlantısı ile devam eder. Aktivasyon, onaylı email veya gerçek kimlik şartı eklemez."
+        title="Email ile devam et"
       />
 
       <View style={styles.actionPanel}>

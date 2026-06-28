@@ -53,11 +53,11 @@ function createAttemptKey(
 function getStatusMessage(result: AuthCallbackBoundaryResult): string {
   switch (result.status) {
     case "session_set_client_observed":
-      return "Oturum bağlantısı güvenli şekilde alındı.";
+      return "Oturum hazırlandı. Güvenli şekilde devam edebilirsin.";
     case "code_flow_detected":
-      return "Bu bağlantı farklı bir oturum tamamlama yöntemi gerektiriyor.";
+      return "Bu bağlantı için ek oturum adımı gerekiyor.";
     case "missing_tokens":
-      return "Oturum bağlantısı eksik veriyle geldi.";
+      return "Oturum bağlantısı tamamlanamadı.";
     case "missing_url":
       return "Oturum bağlantısı bulunamadı.";
     case "callback_error":
@@ -70,20 +70,20 @@ function getStatusMessage(result: AuthCallbackBoundaryResult): string {
 function getSafeRows(result: AuthCallbackBoundaryResult): SafeCallbackRow[] {
   return [
     {
-      label: "Bağlantı verisi alındı",
+      label: "Bağlantı alındı",
       value: formatBoolean(result.hasCallbackData),
     },
     {
-      label: "Erişim anahtarı var",
+      label: "Oturum bilgisi alındı",
       value: formatBoolean(result.hasAccessToken),
     },
     {
-      label: "Yenileme anahtarı var",
+      label: "Devam bilgisi alındı",
       value: formatBoolean(result.hasRefreshToken),
     },
-    { label: "Kod akışı algılandı", value: formatBoolean(result.hasCode) },
+    { label: "Ek adım gerekiyor", value: formatBoolean(result.hasCode) },
     {
-      label: "Hata parametresi var",
+      label: "Bağlantı hatası var",
       value: formatBoolean(result.hasErrorParam),
     },
   ];
@@ -267,8 +267,7 @@ export default function AuthCallbackScreen() {
         <View style={styles.header}>
           <Text style={styles.title}>Oturum bağlantısı</Text>
           <Text style={styles.description}>
-            Oturum bağlantısı kontrol ediliyor. Bu ekran ürün kilidi açmaz,
-            profil oluşturmaz veya dinleyici başlatmaz.
+            Oturum bağlantısı kontrol ediliyor. Hazırsa ayarlara dönebilirsin.
           </Text>
         </View>
 

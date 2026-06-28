@@ -161,7 +161,7 @@ export default function ProfileScreen() {
         <View style={styles.trustHeader}>
           <Text style={styles.trustTitle}>Profil sinyalleri</Text>
           <Text style={styles.trustText}>
-            Profilin kimlik vitrini değil; ses, izin ve güven bağlamıdır.
+            Anonim profil hazır. Gerçek profilin sadece izin verdiğin bağlantılarda görünür.
           </Text>
         </View>
 

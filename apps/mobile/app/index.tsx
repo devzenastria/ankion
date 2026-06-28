@@ -52,11 +52,11 @@ export default function HomeScreen() {
           <Text style={styles.primaryMeta}>Anonim ses · profil kapalı</Text>
         </View>
 
-        <Text style={styles.primaryTitle}>Akışa ses bırak</Text>
+        <Text style={styles.primaryTitle}>Ses bırak</Text>
         <Text style={styles.primaryBody}>
           Gerçek profilini açmadan başla. Bir yanıt gelirse Chat'te devam eder.
         </Text>
-        <Text style={styles.primaryAction}>Anonim akışı aç</Text>
+        <Text style={styles.primaryAction}>Akışa geç</Text>
       </Pressable>
 
       <Pressable
@@ -78,9 +78,9 @@ export default function HomeScreen() {
 
       <View style={styles.statusCard}>
         <Text style={styles.cardLabel}>Durum</Text>
-        <Text style={styles.statusTitle}>Bekleyen acil işlem yok.</Text>
+        <Text style={styles.statusTitle}>Bugün yeni yanıt yok.</Text>
         <Text style={styles.statusText}>
-          Yeni ses gelince bağlantıda devam edebilirsin.
+          Bir ses bırak ya da son konuşmana dön.
         </Text>
       </View>
 

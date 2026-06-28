@@ -163,7 +163,7 @@ export default function FeedScreen() {
           <Text style={styles.sectionTitle}>Bugünün anları</Text>
         </View>
         <Text style={styles.sectionText}>
-          Anonim sesler ve anlar burada akar.
+          Yeni sesleri tara, ilgini çekenlere yanıt ver.
         </Text>
       </View>
 
@@ -242,7 +242,7 @@ export default function FeedScreen() {
                 accessibilityRole="button"
                 onPress={() => openVoiceThread(persona.threadId)}
               >
-                <Text style={styles.answerButton}>Sese cevap ver</Text>
+                <Text style={styles.answerButton}>Yanıtla</Text>
               </Pressable>
             </View>
           );

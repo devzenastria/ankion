@@ -299,7 +299,7 @@ function getIncomingText(decision: RevealDecision) {
     return getSafeRevealDecisionLabel(decision).text;
   }
 
-  return "Açarsan profilin yalnızca bu bağlantı bağlamında görünür. Anonim kalırsan profil kapalı kalır, ses devam eder.";
+  return "Profili gösterirsen sadece bu bağlantıda görünür. Anonim kalırsan ses devam eder.";
 }
 
 function getRequestMetaLabel(decision: RevealDecision) {
@@ -430,7 +430,7 @@ export default function RevealRequestsScreen() {
           <Text style={styles.summaryText}>
             {activeTab === "sent"
               ? "Gönderdiğin profil istekleri karşı tarafın kararını bekler."
-              : "Profilin, sen izin vermeden açılmaz."}
+              : "Profilin sen izin vermeden görünmez."}
           </Text>
         </View>
         <View style={styles.summaryBadge}>
@@ -505,7 +505,7 @@ export default function RevealRequestsScreen() {
                   onPress={() => saveDecision("approved")}
                   style={styles.primaryAction}
                 >
-                  <Text style={styles.primaryActionText}>Profili aç</Text>
+                  <Text style={styles.primaryActionText}>Profili göster</Text>
                 </Pressable>
                 <Pressable
                   accessibilityRole="button"
@@ -521,7 +521,7 @@ export default function RevealRequestsScreen() {
                 onPress={() => saveDecision("blocked")}
                 style={styles.blockAction}
               >
-                <Text style={styles.blockActionText}>Engelle</Text>
+                <Text style={styles.blockActionText}>Güvenlik: engelle</Text>
               </Pressable>
             </>
           ) : null}
@@ -570,7 +570,7 @@ export default function RevealRequestsScreen() {
                   onPress={() => saveDecision("blocked")}
                   style={styles.nextDanger}
                 >
-                  <Text style={styles.nextDangerText}>Engelle</Text>
+                  <Text style={styles.nextDangerText}>Güvenlik: engelle</Text>
                 </Pressable>
               </View>
             </View>
@@ -591,7 +591,7 @@ export default function RevealRequestsScreen() {
                   onPress={() => saveDecision("approved")}
                   style={styles.nextPrimary}
                 >
-                  <Text style={styles.nextPrimaryText}>Profili aç</Text>
+                  <Text style={styles.nextPrimaryText}>Profili göster</Text>
                 </Pressable>
                 <Pressable
                   accessibilityRole="button"
@@ -607,7 +607,7 @@ export default function RevealRequestsScreen() {
                 onPress={() => saveDecision("blocked")}
                 style={styles.blockAction}
               >
-                <Text style={styles.blockActionText}>Engelle</Text>
+                <Text style={styles.blockActionText}>Güvenlik: engelle</Text>
               </Pressable>
             </View>
           ) : null}
