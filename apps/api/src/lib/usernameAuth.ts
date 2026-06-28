@@ -23,13 +23,12 @@ export type UsernameAuthSessionDto = {
 
 export type UsernameSignupDiagnosticStage =
   | 'USERNAME_SIGNUP_STAGE_VALIDATE_INPUT'
-  | 'USERNAME_SIGNUP_STAGE_USERNAME_TAKEN_LOOKUP'
+  | 'USERNAME_SIGNUP_STAGE_USERNAME_EXISTS_RPC'
   | 'USERNAME_SIGNUP_STAGE_AUTH_CREATE_USER'
-  | 'USERNAME_SIGNUP_STAGE_INSERT_USERNAME'
-  | 'USERNAME_SIGNUP_STAGE_INSERT_AUTH_IDENTIFIER'
-  | 'USERNAME_SIGNUP_STAGE_INSERT_RECOVERY'
+  | 'USERNAME_SIGNUP_STAGE_CREATE_CREDENTIALS_RPC'
   | 'USERNAME_SIGNUP_STAGE_SIGN_IN'
-  | 'USERNAME_SIGNUP_STAGE_CLEANUP';
+  | 'USERNAME_SIGNUP_STAGE_CLEANUP_RPC'
+  | 'USERNAME_LOGIN_STAGE_LOOKUP_IDENTIFIER_RPC';
 
 export type UsernameSignupDiagnostic = {
   stage: UsernameSignupDiagnosticStage;
@@ -79,11 +78,8 @@ type UsernameAuthErrorCode = Extract<
 
 type SupabaseServerClient = ReturnType<typeof createSupabaseUsernameAuthClient>;
 
-type UsernameRow = {
+type UsernameIdentifierLookupRow = {
   owner_user_id: string;
-};
-
-type AuthIdentifierRow = {
   auth_identifier: string;
 };
 
@@ -213,22 +209,34 @@ async function getClientOrError(): Promise<
 async function isUsernameTaken(
   client: SupabaseServerClient,
   usernameNormalized: string,
-): Promise<boolean | null> {
-  const { count, error } = await client
-    .from('account_usernames')
-    .select('id', {
-      count: 'exact',
-      head: true,
-    })
-    .eq('username_normalized', usernameNormalized)
-    .eq('status', 'active')
-    .is('deleted_at', null);
+): Promise<
+  | {
+      ok: true;
+      usernameTaken: boolean;
+    }
+  | {
+      ok: false;
+      diagnostic: UsernameSignupDiagnostic;
+    }
+> {
+  const { data, error } = await client.rpc('username_auth_username_exists', {
+    p_username_normalized: usernameNormalized,
+  });
 
   if (error !== null) {
-    return null;
+    return {
+      ok: false,
+      diagnostic: getSafeSupabaseErrorDiagnostic(
+        'USERNAME_SIGNUP_STAGE_USERNAME_EXISTS_RPC',
+        error,
+      ),
+    };
   }
 
-  return (count ?? 0) > 0;
+  return {
+    ok: true,
+    usernameTaken: data === true,
+  };
 }
 
 async function cleanupCreatedAuthUser(
@@ -247,30 +255,9 @@ async function cleanupCreatedUsernameArtifacts(
   ownerUserId: string,
 ): Promise<void> {
   try {
-    await client
-      .schema('private')
-      .from('account_recovery_contacts')
-      .delete()
-      .eq('owner_user_id', ownerUserId);
-  } catch {
-    // Best-effort cleanup only. The public response remains generic.
-  }
-
-  try {
-    await client
-      .schema('private')
-      .from('account_auth_identifiers')
-      .delete()
-      .eq('owner_user_id', ownerUserId);
-  } catch {
-    // Best-effort cleanup only. The public response remains generic.
-  }
-
-  try {
-    await client
-      .from('account_usernames')
-      .delete()
-      .eq('owner_user_id', ownerUserId);
+    await client.rpc('username_auth_cleanup_account_credentials', {
+      p_owner_user_id: ownerUserId,
+    });
   } catch {
     // Best-effort cleanup only. The public response remains generic.
   }
@@ -361,20 +348,18 @@ export async function signupWithUsernamePassword(
   }
 
   const { client } = clientResult;
-  const usernameTaken = await isUsernameTaken(client, username.normalized);
+  const usernameTakenResult = await isUsernameTaken(client, username.normalized);
 
-  if (usernameTaken === null) {
+  if (!usernameTakenResult.ok) {
     return createErrorResult(
       500,
       'USERNAME_AUTH_UNAVAILABLE',
       unavailableMessage,
-      {
-        stage: 'USERNAME_SIGNUP_STAGE_USERNAME_TAKEN_LOOKUP',
-      },
+      usernameTakenResult.diagnostic,
     );
   }
 
-  if (usernameTaken) {
+  if (usernameTakenResult.usernameTaken) {
     return createErrorResult(409, 'USERNAME_UNAVAILABLE', usernameUnavailableMessage);
   }
 
@@ -403,16 +388,23 @@ export async function signupWithUsernamePassword(
 
   const ownerUserId = createUserData.user.id;
 
-  const usernameInsert = await client.from('account_usernames').insert({
-    owner_user_id: ownerUserId,
-    username_display: username.display,
-    username_normalized: username.normalized,
-  });
+  const credentialsResult = await client.rpc(
+    'username_auth_create_account_credentials',
+    {
+      p_owner_user_id: ownerUserId,
+      p_username_display: username.display,
+      p_username_normalized: username.normalized,
+      p_auth_identifier: authIdentifier,
+      p_recovery_email: recoveryEmail.recoveryEmail,
+      p_recovery_email_normalized: recoveryEmail.recoveryEmailNormalized,
+      p_recovery_warning_acknowledged: true,
+    },
+  );
 
-  if (usernameInsert.error !== null) {
+  if (credentialsResult.error !== null) {
     await cleanupCreatedAuthUser(client, ownerUserId);
 
-    if (usernameInsert.error.code === '23505') {
+    if (credentialsResult.error.code === '23505') {
       return createErrorResult(
         409,
         'USERNAME_UNAVAILABLE',
@@ -425,54 +417,8 @@ export async function signupWithUsernamePassword(
       'USERNAME_AUTH_UNAVAILABLE',
       unavailableMessage,
       getSafeSupabaseErrorDiagnostic(
-        'USERNAME_SIGNUP_STAGE_INSERT_USERNAME',
-        usernameInsert.error,
-      ),
-    );
-  }
-
-  const identifierInsert = await client
-    .schema('private')
-    .from('account_auth_identifiers')
-    .insert({
-      owner_user_id: ownerUserId,
-      auth_identifier: authIdentifier,
-    });
-
-  if (identifierInsert.error !== null) {
-    await cleanupCreatedSignupState(client, ownerUserId);
-
-    return createErrorResult(
-      500,
-      'USERNAME_AUTH_UNAVAILABLE',
-      unavailableMessage,
-      getSafeSupabaseErrorDiagnostic(
-        'USERNAME_SIGNUP_STAGE_INSERT_AUTH_IDENTIFIER',
-        identifierInsert.error,
-      ),
-    );
-  }
-
-  const recoveryInsert = await client
-    .schema('private')
-    .from('account_recovery_contacts')
-    .insert({
-      owner_user_id: ownerUserId,
-      recovery_email: recoveryEmail.recoveryEmail,
-      recovery_email_normalized: recoveryEmail.recoveryEmailNormalized,
-      recovery_warning_acknowledged: true,
-    });
-
-  if (recoveryInsert.error !== null) {
-    await cleanupCreatedSignupState(client, ownerUserId);
-
-    return createErrorResult(
-      500,
-      'USERNAME_AUTH_UNAVAILABLE',
-      unavailableMessage,
-      getSafeSupabaseErrorDiagnostic(
-        'USERNAME_SIGNUP_STAGE_INSERT_RECOVERY',
-        recoveryInsert.error,
+        'USERNAME_SIGNUP_STAGE_CREATE_CREDENTIALS_RPC',
+        credentialsResult.error,
       ),
     );
   }
@@ -504,26 +450,24 @@ export async function loginWithUsernamePassword(
   }
 
   const { client } = clientResult;
-  const { data: usernameRow, error: usernameError } = await client
-    .from('account_usernames')
-    .select('owner_user_id')
-    .eq('username_normalized', username.normalized)
-    .eq('status', 'active')
-    .is('deleted_at', null)
-    .maybeSingle<UsernameRow>();
+  const { data: identifierRows, error: identifierError } = await client.rpc(
+    'username_auth_lookup_identifier',
+    {
+      p_username_normalized: username.normalized,
+    },
+  );
 
-  if (usernameError !== null || usernameRow === null) {
+  if (identifierError !== null || !Array.isArray(identifierRows)) {
     return createErrorResult(401, 'USERNAME_AUTH_FAILED', loginFailedMessage);
   }
 
-  const { data: identifierRow, error: identifierError } = await client
-    .schema('private')
-    .from('account_auth_identifiers')
-    .select('auth_identifier')
-    .eq('owner_user_id', usernameRow.owner_user_id)
-    .maybeSingle<AuthIdentifierRow>();
+  if (identifierRows.length !== 1) {
+    return createErrorResult(401, 'USERNAME_AUTH_FAILED', loginFailedMessage);
+  }
 
-  if (identifierError !== null || identifierRow === null) {
+  const identifierRow = (identifierRows as UsernameIdentifierLookupRow[])[0];
+
+  if (identifierRow === undefined) {
     return createErrorResult(401, 'USERNAME_AUTH_FAILED', loginFailedMessage);
   }
 
