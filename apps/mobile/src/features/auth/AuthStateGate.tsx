@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { usePathname } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
 import { useAuthSessionBoundary } from "../../state/AuthSessionProvider";
@@ -11,6 +12,12 @@ type AuthStateGateProps = Readonly<{
 }>;
 
 type AuthGateState = "loading" | "signedOut" | "signedIn";
+
+const authCallbackPathname = "/auth-callback";
+
+function isAuthCallbackPath(pathname: string): boolean {
+  return pathname === authCallbackPathname;
+}
 
 function resolveAuthGateState(
   sessionStatus: ReturnType<typeof useAuthSessionBoundary>["snapshot"]["session"]["status"],
@@ -33,12 +40,18 @@ function resolveAuthGateState(
 }
 
 export function AuthStateGate({ bottomInset, bottomNavigation, children }: AuthStateGateProps) {
+  const pathname = usePathname();
   const { isInitialSessionReadPending, snapshot } = useAuthSessionBoundary();
   const gateState = resolveAuthGateState(
     snapshot.session.status,
     snapshot.session.user !== null,
     isInitialSessionReadPending,
   );
+  const isAuthCallbackRoute = isAuthCallbackPath(pathname);
+
+  if (gateState !== "signedIn" && isAuthCallbackRoute) {
+    return <View style={styles.root}>{children}</View>;
+  }
 
   if (gateState === "loading") {
     return (
