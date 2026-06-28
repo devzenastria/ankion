@@ -99,13 +99,13 @@ export function AuthLoginScaffoldScreen({
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>{"\u015eifre"}</Text>
+          <Text style={styles.inputLabel}>{"Şifre"}</Text>
           <TextInput
-            accessibilityLabel="\u015eifre"
+            accessibilityLabel="Şifre"
             autoCapitalize="none"
             autoCorrect={false}
             onChangeText={setPassword}
-            placeholder="\u015eifren"
+            placeholder="Şifren"
             placeholderTextColor="#5f5668"
             secureTextEntry
             style={styles.input}

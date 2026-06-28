@@ -100,9 +100,9 @@ export function AuthSignupCredentialsScaffoldScreen({
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>{"\u015eifre"}</Text>
+          <Text style={styles.inputLabel}>{"Şifre"}</Text>
           <TextInput
-            accessibilityLabel="\u015eifre"
+            accessibilityLabel="Şifre"
             autoCapitalize="none"
             autoCorrect={false}
             onChangeText={setPassword}
@@ -116,15 +116,15 @@ export function AuthSignupCredentialsScaffoldScreen({
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>{"Kurtarma e-postas\u0131"}</Text>
+          <Text style={styles.inputLabel}>{"Kurtarma e-postası"}</Text>
           <TextInput
-            accessibilityLabel="Kurtarma e-postas\u0131"
+            accessibilityLabel="Kurtarma e-postası"
             autoCapitalize="none"
             autoCorrect={false}
             inputMode="email"
             keyboardType="email-address"
             onChangeText={setRecoveryEmail}
-            placeholder="iste\u011fe ba\u011fl\u0131"
+            placeholder="İsteğe bağlı"
             placeholderTextColor="#5f5668"
             style={styles.input}
             textContentType="emailAddress"

@@ -25,6 +25,14 @@ export type UsernameAuthStatus =
   | "network_failed"
   | "session_set_failed";
 
+export type UsernameAuthDiagnostic = Readonly<{
+  marker: "USERNAME_AUTH_SET_SESSION_FAILED";
+  errorName: string | null;
+  errorStatus: number | null;
+  accessTokenPresent: boolean;
+  refreshTokenPresent: boolean;
+}>;
+
 export type UsernameAuthResult = Readonly<{
   kind: "username_auth_boundary_result";
   status: UsernameAuthStatus;
@@ -33,6 +41,7 @@ export type UsernameAuthResult = Readonly<{
   isServerConfirmed: false;
   isProductUnlockEnabled: false;
   safeMessage: string;
+  diagnostic: UsernameAuthDiagnostic | null;
 }>;
 
 type UsernameAuthSuccessBody = Readonly<{
@@ -55,6 +64,7 @@ function createResult(
   status: UsernameAuthStatus,
   isSessionEstablished: boolean,
   safeMessage: string,
+  diagnostic: UsernameAuthDiagnostic | null = null,
 ): UsernameAuthResult {
   return {
     kind: "username_auth_boundary_result",
@@ -64,6 +74,33 @@ function createResult(
     isServerConfirmed: false,
     isProductUnlockEnabled: false,
     safeMessage,
+    diagnostic,
+  };
+}
+
+function getSafeSetSessionDiagnostic(
+  error: unknown,
+  responseBody: UsernameAuthSuccessBody,
+): UsernameAuthDiagnostic {
+  const candidate =
+    typeof error === "object" && error !== null
+      ? (error as { name?: unknown; status?: unknown })
+      : null;
+  const errorName =
+    typeof candidate?.name === "string" && candidate.name.length > 0
+      ? candidate.name
+      : null;
+  const errorStatus =
+    typeof candidate?.status === "number" && Number.isFinite(candidate.status)
+      ? candidate.status
+      : null;
+
+  return {
+    marker: "USERNAME_AUTH_SET_SESSION_FAILED",
+    errorName,
+    errorStatus,
+    accessTokenPresent: responseBody.session.access_token.length > 0,
+    refreshTokenPresent: responseBody.session.refresh_token.length > 0,
   };
 }
 
@@ -183,6 +220,7 @@ async function requestUsernameAuth(
         "session_set_failed",
         false,
         "Oturum güvenli şekilde başlatılamadı. Tekrar dene.",
+        getSafeSetSessionDiagnostic(error, responseBody),
       );
     }
 
