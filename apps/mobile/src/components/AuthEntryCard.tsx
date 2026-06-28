@@ -18,6 +18,13 @@ type EntryUiStatus =
   | "request_sent"
   | "request_failed";
 
+type AuthEntryCardProps = Readonly<{
+  title?: string;
+  description?: string;
+  actionLabel?: string;
+  loadingLabel?: string;
+}>;
+
 function getVisibleMessage(status: EntryUiStatus, safeMessage: string | null) {
   if (status === "request_sent") {
     return "Bağlantı isteği gönderildi. E-postanı kontrol et.";
@@ -34,7 +41,12 @@ function getVisibleMessage(status: EntryUiStatus, safeMessage: string | null) {
   return safeMessage;
 }
 
-export function AuthEntryCard() {
+export function AuthEntryCard({
+  title = "Oturum başlat",
+  description = "Güvenli e-posta giriş bağlantısı gönderir. ANKION özelliklerini henüz açmaz, profil oluşturmaz veya oturum dinleyicisi başlatmaz.",
+  actionLabel = "E-posta bağlantısı iste",
+  loadingLabel = "Gönderiliyor...",
+}: AuthEntryCardProps) {
   const { requestEmailAuthEntry } = useAuthSessionBoundary();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<EntryUiStatus>("idle");
@@ -65,11 +77,8 @@ export function AuthEntryCard() {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <Text style={styles.title}>Oturum başlat</Text>
-        <Text style={styles.description}>
-          Güvenli e-posta giriş bağlantısı gönderir. ANKION özelliklerini henüz
-          açmaz, profil oluşturmaz veya oturum dinleyicisi başlatmaz.
-        </Text>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.description}>{description}</Text>
       </View>
 
       <View style={styles.inputGroup}>
@@ -101,7 +110,7 @@ export function AuthEntryCard() {
       >
         {isLoading ? <ActivityIndicator color="#050509" size="small" /> : null}
         <Text style={styles.buttonText}>
-          {isLoading ? "Gönderiliyor..." : "E-posta bağlantısı iste"}
+          {isLoading ? loadingLabel : actionLabel}
         </Text>
       </Pressable>
 

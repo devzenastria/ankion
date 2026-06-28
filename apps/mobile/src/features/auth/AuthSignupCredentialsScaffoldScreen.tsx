@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
+import { AuthEntryCard } from "../../components/AuthEntryCard";
+
 type AuthSignupCredentialsScaffoldScreenProps = Readonly<{
   onBackPress: () => void;
 }>;
@@ -23,15 +25,13 @@ export function AuthSignupCredentialsScaffoldScreen({
         </Text>
       </View>
 
-      <View style={styles.actionPanel}>
-        <Pressable
-          accessibilityRole="button"
-          disabled
-          style={styles.disabledButton}
-        >
-          <Text style={styles.disabledButtonText}>Yakında</Text>
-        </Pressable>
+      <AuthEntryCard
+        actionLabel="E-posta bağlantısı iste"
+        description="Mevcut güvenli e-posta bağlantısı akışını kullanır. Aktivasyon, onaylı e-posta veya gerçek kimlik şartı eklemez."
+        title="Hesap bağlantısı"
+      />
 
+      <View style={styles.actionPanel}>
         <Pressable
           accessibilityRole="button"
           onPress={onBackPress}
@@ -56,20 +56,6 @@ const styles = StyleSheet.create({
   },
   copy: {
     gap: 10,
-  },
-  disabledButton: {
-    alignItems: "center",
-    backgroundColor: "#26202f",
-    borderRadius: 14,
-    justifyContent: "center",
-    minHeight: 52,
-    opacity: 0.72,
-    paddingHorizontal: 16,
-  },
-  disabledButtonText: {
-    color: "#b9a8d8",
-    fontSize: 15,
-    fontWeight: "900",
   },
   eyebrow: {
     color: "#d7cdf0",
