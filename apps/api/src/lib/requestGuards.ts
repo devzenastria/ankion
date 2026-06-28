@@ -2,7 +2,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 import { sendPublicError } from './httpErrors';
 
-const corsAllowedMethods = 'GET,OPTIONS';
+const corsAllowedMethods = 'GET,POST,OPTIONS';
 const corsAllowedHeaders = 'Authorization,Content-Type';
 const corsMaxAgeSeconds = 600;
 const rateLimitWindowMs = 60_000;

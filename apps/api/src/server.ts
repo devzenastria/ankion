@@ -3,6 +3,7 @@ import type { FastifyError } from 'fastify';
 
 import { sendPublicError } from './lib/httpErrors';
 import { registerRequestGuards } from './lib/requestGuards';
+import { registerUsernameAuthRoutes } from './routes/authUsername';
 import { registerHealthRoute } from './routes/health';
 import { registerProfileFoundationRoute } from './routes/profileFoundation';
 
@@ -22,6 +23,17 @@ const redactedLogPaths = [
   'SUPABASE_SERVICE_ROLE_KEY',
   'token',
   'password',
+  'username',
+  'username_normalized',
+  'recovery_email',
+  'recoveryEmail',
+  'auth_identifier',
+  'req.body.password',
+  'req.body.username',
+  'req.body.username_normalized',
+  'req.body.recovery_email',
+  'req.body.recoveryEmail',
+  'req.body.auth_identifier',
 ];
 
 export async function buildServer(options: BuildServerOptions = {}) {
@@ -55,6 +67,7 @@ export async function buildServer(options: BuildServerOptions = {}) {
 
   await registerRequestGuards(server);
   await registerHealthRoute(server);
+  await registerUsernameAuthRoutes(server);
   await registerProfileFoundationRoute(server);
 
   return server;
