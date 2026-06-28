@@ -8,12 +8,51 @@ import {
   View,
 } from "react-native";
 
+import type { UsernameAuthDiagnostic } from "../../lib/usernameAuthBoundary";
 import { useAuthSessionBoundary } from "../../state/AuthSessionProvider";
 
 type AuthLoginScaffoldScreenProps = Readonly<{
   onBackPress: () => void;
 }>;
 
+function formatDiagnosticValue(value: string | number | boolean | null): string {
+  if (value === null) {
+    return "yok";
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "evet" : "hay\u0131r";
+  }
+
+  return String(value);
+}
+
+function AuthDiagnosticBlock({
+  diagnostic,
+}: Readonly<{ diagnostic: UsernameAuthDiagnostic | null }>) {
+  if (diagnostic === null) {
+    return null;
+  }
+
+  return (
+    <View style={styles.diagnosticPanel}>
+      <Text style={styles.diagnosticTitle}>{"Oturum tan\u0131s\u0131"}</Text>
+      <Text style={styles.diagnosticText}>marker: {diagnostic.marker}</Text>
+      <Text style={styles.diagnosticText}>
+        errorName: {formatDiagnosticValue(diagnostic.errorName)}
+      </Text>
+      <Text style={styles.diagnosticText}>
+        errorStatus: {formatDiagnosticValue(diagnostic.errorStatus)}
+      </Text>
+      <Text style={styles.diagnosticText}>
+        accessTokenPresent: {formatDiagnosticValue(diagnostic.accessTokenPresent)}
+      </Text>
+      <Text style={styles.diagnosticText}>
+        refreshTokenPresent: {formatDiagnosticValue(diagnostic.refreshTokenPresent)}
+      </Text>
+    </View>
+  );
+}
 function getLoginMessage(status: LoginUiStatus, safeMessage: string | null) {
   if (status === "success") {
     return "Giri\u015f yap\u0131ld\u0131.";
@@ -36,6 +75,7 @@ export function AuthLoginScaffoldScreen({
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<LoginUiStatus>("idle");
   const [safeMessage, setSafeMessage] = useState<string | null>(null);
+  const [diagnostic, setDiagnostic] = useState<UsernameAuthDiagnostic | null>(null);
 
   async function handleLoginPress() {
     if (status === "loading") {
@@ -44,6 +84,7 @@ export function AuthLoginScaffoldScreen({
 
     setStatus("loading");
     setSafeMessage(null);
+    setDiagnostic(null);
 
     try {
       const result = await requestUsernameLogin({
@@ -54,6 +95,7 @@ export function AuthLoginScaffoldScreen({
       if (result.isSessionEstablished) {
         setStatus("success");
         setSafeMessage(result.safeMessage);
+        setDiagnostic(null);
         return;
       }
 
@@ -63,9 +105,11 @@ export function AuthLoginScaffoldScreen({
           ? "Kullan\u0131c\u0131 ad\u0131 veya parola hatal\u0131."
           : result.safeMessage,
       );
+      setDiagnostic(result.diagnostic);
     } catch {
       setStatus("failed");
       setSafeMessage("\u0130\u015flem \u015fu anda tamamlanamad\u0131. Daha sonra tekrar dene.");
+      setDiagnostic(null);
     }
   }
 
@@ -130,6 +174,8 @@ export function AuthLoginScaffoldScreen({
           </Text>
         </Pressable>
 
+        <AuthDiagnosticBlock diagnostic={diagnostic} />
+
         {visibleMessage !== null ? (
           <Text
             style={[
@@ -165,6 +211,26 @@ const styles = StyleSheet.create({
   },
   copy: {
     gap: 10,
+  },
+  diagnosticPanel: {
+    backgroundColor: "#0d0c12",
+    borderColor: "#3a3145",
+    borderRadius: 12,
+    borderWidth: StyleSheet.hairlineWidth,
+    gap: 4,
+    padding: 10,
+  },
+  diagnosticText: {
+    color: "#b9a8d8",
+    fontSize: 11,
+    fontWeight: "700",
+    lineHeight: 16,
+  },
+  diagnosticTitle: {
+    color: "#fff7ed",
+    fontSize: 11,
+    fontWeight: "900",
+    lineHeight: 15,
   },
   eyebrow: {
     color: "#d7cdf0",
