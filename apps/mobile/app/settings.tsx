@@ -137,19 +137,29 @@ export default function SettingsScreen() {
         </View>
       ))}
 
-      <AuthEntryCard />
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{"Oturum giri\u015fi"}</Text>
+        <AuthEntryCard />
+      </View>
 
-      <AuthSessionProbeCard />
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{"Oturum durumu"}</Text>
+        <AuthSessionProbeCard />
+      </View>
 
-      <OwnerProfileCreationCard />
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{"Profil temeli"}</Text>
+        <OwnerProfileCreationCard />
+        <BackendProfileFoundationProbeCard />
+      </View>
 
-      <BackendProfileFoundationProbeCard />
-
-      <View style={styles.logoutCard}>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{"Oturumdan \u00e7\u0131k\u0131\u015f"}</Text>
+        <View style={styles.logoutCard}>
         <View style={styles.logoutHeader}>
           <Text style={styles.logoutTitle}>Oturum</Text>
           <Text style={styles.logoutText}>
-            {"\u00c7\u0131k\u0131\u015f yapt\u0131\u011f\u0131nda bu cihazdaki oturum kapat\u0131l\u0131r ve giri\u015f ekran\u0131na d\u00f6nersin."}
+            {"Bu cihazdaki oturumu kapat\u0131r. Tekrar devam etmek i\u00e7in giri\u015f yapman gerekir."}
           </Text>
         </View>
 
@@ -171,6 +181,7 @@ export default function SettingsScreen() {
         {logoutMessage !== null ? (
           <Text style={styles.logoutErrorText}>{logoutMessage}</Text>
         ) : null}
+        </View>
       </View>
 
       <View style={styles.note}>

@@ -27,25 +27,25 @@ type AuthEntryCardProps = Readonly<{
 
 function getVisibleMessage(status: EntryUiStatus, safeMessage: string | null) {
   if (status === "request_sent") {
-    return "Bağlantı isteği gönderildi. E-postanı kontrol et.";
+    return "Ba\u011flant\u0131 iste\u011fi g\u00f6nderildi. E-postan\u0131 kontrol et.";
   }
 
   if (status === "invalid_email") {
-    return "Geçerli bir e-posta gir.";
+    return "Ge\u00e7erli bir e-posta gir.";
   }
 
   if (status === "client_unavailable" || status === "request_failed") {
-    return "İstek tamamlanamadı. Daha sonra tekrar dene.";
+    return "\u0130stek tamamlanamad\u0131. Daha sonra tekrar dene.";
   }
 
   return safeMessage;
 }
 
 export function AuthEntryCard({
-  title = "Oturum başlat",
-  description = "Güvenli e-posta giriş bağlantısı gönderir. ANKION özelliklerini henüz açmaz, profil oluşturmaz veya oturum dinleyicisi başlatmaz.",
-  actionLabel = "E-posta bağlantısı iste",
-  loadingLabel = "Gönderiliyor...",
+  title = "Email ile devam et",
+  description = "Email ba\u011flant\u0131s\u0131 g\u00f6nderir. Hesap kurtarma i\u00e7in eri\u015febildi\u011fin bir email kullanman \u00f6nerilir; bu ad\u0131m profil veya \u00fcr\u00fcn kilidi a\u00e7maz.",
+  actionLabel = "Email ba\u011flant\u0131s\u0131 iste",
+  loadingLabel = "G\u00f6nderiliyor...",
 }: AuthEntryCardProps) {
   const { requestEmailAuthEntry } = useAuthSessionBoundary();
   const [email, setEmail] = useState("");
@@ -67,7 +67,7 @@ export function AuthEntryCard({
       setSafeMessage(result.safeMessage);
     } catch {
       setStatus("request_failed");
-      setSafeMessage("İstek tamamlanamadı. Daha sonra tekrar dene.");
+      setSafeMessage("\u0130stek tamamlanamad\u0131. Daha sonra tekrar dene.");
     }
   }
 

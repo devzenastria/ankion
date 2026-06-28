@@ -38,15 +38,14 @@ export function BackendProfileFoundationProbeCard() {
     ? "Kontrol ediliyor..."
     : isSessionMissing
       ? "Oturum gerekli"
-      : "Backend profil durumunu yenile";
+      : "Profil durumunu yenile";
 
   return (
     <View style={styles.card}>
       <View style={styles.header}>
         <Text style={styles.title}>Backend profil durumu</Text>
         <Text style={styles.description}>
-          Oturum tokenini sadece guvenli istek basliginda kullanir; token, ham
-          yanit veya ozel kimlik bilgisi gostermez.
+          {"Profil ve anonim kimlik temelinin backend taraf\u0131nda haz\u0131r olup olmad\u0131\u011f\u0131n\u0131 g\u00f6sterir. Token veya \u00f6zel kimlik bilgisi g\u00f6stermez."}
         </Text>
       </View>
 
@@ -77,14 +76,14 @@ export function BackendProfileFoundationProbeCard() {
 
       <View style={styles.resultPanel}>
         <View style={styles.resultRow}>
-          <Text style={styles.resultLabel}>Profil hazir</Text>
+          <Text style={styles.resultLabel}>Profil haz\u0131r</Text>
           <Text style={styles.resultValue}>
             {formatBoolean(backendProfileFoundation.profileReady)}
           </Text>
         </View>
 
         <View style={styles.resultRow}>
-          <Text style={styles.resultLabel}>Anonim kimlik hazir</Text>
+          <Text style={styles.resultLabel}>Anonim kimlik haz\u0131r</Text>
           <Text style={styles.resultValue}>
             {formatBoolean(backendProfileFoundation.anonymousIdentityReady)}
           </Text>

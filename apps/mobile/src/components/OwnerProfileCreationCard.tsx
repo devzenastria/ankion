@@ -101,13 +101,12 @@ export function OwnerProfileCreationCard() {
         <View style={styles.header}>
           <Text style={styles.title}>Profil kurulumu</Text>
           <Text style={styles.description}>
-            Profil temeli hazir. Bu durum urun kilidi veya ucretli ozellik
-            acmaz.
+            {"Profil temeli haz\u0131r. Bu durum \u00fcr\u00fcn kilidi veya \u00fccretli \u00f6zellik a\u00e7maz."}
           </Text>
         </View>
 
         <View style={styles.statusPanel}>
-          <Text style={styles.statusTitle}>Kurulum tamamlandi</Text>
+          <Text style={styles.statusTitle}>{"Kurulum tamamland\u0131"}</Text>
           <Text style={styles.statusText}>{backendProfileFoundation.message}</Text>
         </View>
       </View>
@@ -119,8 +118,7 @@ export function OwnerProfileCreationCard() {
       <View style={styles.header}>
         <Text style={styles.title}>Profil kurulumu</Text>
         <Text style={styles.description}>
-          Oturumun gözlemlendikten sonra ANKION kimliğini güvenli şekilde
-          hazırlarsın. Bu işlem ürün kilidi açmaz.
+          {"Oturumun haz\u0131r oldu\u011funda ANKION profil temelini olu\u015fturabilirsin. Bu i\u015flem \u00fcr\u00fcn kilidi a\u00e7maz."}
         </Text>
       </View>
 

@@ -22,8 +22,7 @@ export function AuthLandingScreen({
           <Text style={styles.eyebrow}>Anonim başlangıç</Text>
           <Text style={styles.title}>ANKION</Text>
           <Text style={styles.subtitle}>
-            Sesle başla, kimliğini kontrol sende tut. Gerçek profil sadece izin
-            verdiğin bağlantılarda görünür.
+            {"Sesle ba\u015fla, ANKION kimli\u011fini kontrol sende tut. Ger\u00e7ek profil sadece izin verdi\u011fin ba\u011flant\u0131larda g\u00f6r\u00fcn\u00fcr."}
           </Text>
         </View>
       </View>
@@ -54,12 +53,10 @@ export function AuthLandingScreen({
 
       <View style={styles.notePanel}>
         <Text style={styles.noteText}>
-          E-posta hesap kurtarma için kullanılır; uygulamaya giriş için
-          aktivasyon şartı değildir.
+          {"Email ba\u011flant\u0131s\u0131 ile devam et. Hesap kurtarma i\u00e7in eri\u015febildi\u011fin bir email kullanman \u00f6nerilir."}
         </Text>
         <Text style={styles.legalText}>
-          Devam ederek kullanım şartlarını ve gizlilik bilgilendirmesini kabul
-          edeceğin adımlara geçersin.
+          {"Email aktivasyonu giri\u015f \u015fart\u0131 de\u011fildir; devam edersen kullan\u0131m ve gizlilik ad\u0131mlar\u0131na ge\u00e7ersin."}
         </Text>
       </View>
     </View>
