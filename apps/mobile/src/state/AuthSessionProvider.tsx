@@ -190,7 +190,6 @@ function canReadBackendProfileFoundation(
 ): boolean {
   return (
     nextSnapshot.session.status === "authenticated" &&
-    nextSnapshot.session.isServerConfirmed &&
     !nextSnapshot.session.isLocalOnly &&
     nextSnapshot.session.user !== null
   );
