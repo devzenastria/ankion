@@ -28,37 +28,37 @@ function formatBoolean(value: boolean): string {
 function formatStatus(status: AuthSessionReadBoundaryResult["status"]): string {
   switch (status) {
     case "client_unavailable":
-      return "İstemci yok";
+      return "\u0130stemci yok";
     case "unauthenticated":
       return "Oturum yok";
     case "authenticated_client_observed":
-      return "Oturum gözlemlendi";
+      return "Oturum g\u00f6zlemlendi";
     case "expired":
-      return "Oturum süresi dolmuş";
+      return "Oturum s\u00fcresi dolmu\u015f";
     case "read_failed":
-      return "Kontrol başarısız";
+      return "Kontrol ba\u015far\u0131s\u0131z";
   }
 }
 
 function getSafeRows(result: AuthSessionReadBoundaryResult): SafeProbeRow[] {
   return [
     { label: "Kontrol durumu", value: formatStatus(result.status) },
-    { label: "İstemci hazır", value: formatBoolean(result.clientAvailable) },
+    { label: "\u0130stemci haz\u0131r", value: formatBoolean(result.clientAvailable) },
     { label: "Oturum var", value: formatBoolean(result.sessionPresent) },
     {
-      label: "Sunucu onayı",
+      label: "Sunucu onay\u0131",
       value: formatBoolean(result.isServerConfirmed),
     },
     {
-      label: "Backend yetkisi",
+      label: "Sunucu yetkisi",
       value: formatBoolean(result.isBackendAuthority),
     },
     {
-      label: "Dinleyici açık",
+      label: "Dinleyici a\u00e7\u0131k",
       value: formatBoolean(result.isListenerEnabled),
     },
     {
-      label: "Değişiklik yetkisi",
+      label: "De\u011fi\u015fiklik yetkisi",
       value: formatBoolean(result.isMutationEnabled),
     },
   ];
@@ -95,17 +95,16 @@ export function AuthSessionProbeCard() {
     ? "Kontrol ediliyor..."
     : isResultVisible
       ? "Sonucu gizle"
-      : "Güvenli oturum kontrolünü çalıştır";
+      : "Oturumu kontrol et";
   const safeRows =
     probeState.status === "success" ? getSafeRows(probeState.result) : [];
 
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <Text style={styles.title}>Güvenli oturum kontrolü</Text>
+        <Text style={styles.title}>{"Oturum kontrol\u00fc"}</Text>
         <Text style={styles.description}>
-          Manuel tanı kontrolüdür; giriş yapmaz, dinleyici açmaz, özellik
-          kilidi çözmez veya backend yetkisini onaylamaz.
+          {"Sorun ya\u015farsan oturum durumunu g\u00fcvenli \u015fekilde tekrar okur. Giri\u015f yapmaz veya \u00f6zellik kilidi a\u00e7maz."}
         </Text>
       </View>
 
@@ -124,11 +123,13 @@ export function AuthSessionProbeCard() {
       </Pressable>
 
       {probeState.status === "idle" ? (
-        <Text style={styles.emptyText}>Henüz kontrol sonucu yok.</Text>
+        <Text style={styles.emptyText}>{"Hen\u00fcz kontrol sonucu yok."}</Text>
       ) : null}
 
       {probeState.status === "failed" ? (
-        <Text style={styles.errorText}>Kontrol güvenli şekilde tamamlanamadı.</Text>
+        <Text style={styles.errorText}>
+          {"Kontrol g\u00fcvenli \u015fekilde tamamlanamad\u0131."}
+        </Text>
       ) : null}
 
       {safeRows.length > 0 ? (
@@ -147,8 +148,8 @@ export function AuthSessionProbeCard() {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#111017",
-    borderColor: "#211d29",
+    backgroundColor: "#0d0c12",
+    borderColor: "#201c27",
     borderRadius: 16,
     borderWidth: 1,
     gap: 12,
@@ -158,24 +159,27 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   title: {
-    color: "#fff7ed",
-    fontSize: 14,
+    color: "#d7cdf0",
+    fontSize: 13,
     fontWeight: "900",
   },
   description: {
-    color: "#a99cbc",
+    color: "#817889",
     fontSize: 12,
     lineHeight: 17,
   },
   button: {
     alignItems: "center",
-    backgroundColor: "#d8b46a",
+    alignSelf: "flex-start",
+    backgroundColor: "#21183a",
+    borderColor: "#4b3b68",
     borderRadius: 12,
+    borderWidth: 1,
     flexDirection: "row",
     gap: 8,
     justifyContent: "center",
-    minHeight: 44,
-    paddingHorizontal: 14,
+    minHeight: 40,
+    paddingHorizontal: 12,
   },
   buttonPressed: {
     opacity: 0.82,
@@ -184,12 +188,12 @@ const styles = StyleSheet.create({
     opacity: 0.72,
   },
   buttonText: {
-    color: "#050509",
-    fontSize: 13,
+    color: "#f0abfc",
+    fontSize: 12,
     fontWeight: "900",
   },
   emptyText: {
-    color: "#817889",
+    color: "#6f6578",
     fontSize: 11,
     fontWeight: "700",
   },
@@ -199,7 +203,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   resultPanel: {
-    backgroundColor: "#0d0c12",
+    backgroundColor: "#09080d",
     borderColor: "#201c27",
     borderRadius: 12,
     borderWidth: 1,
@@ -208,10 +212,10 @@ const styles = StyleSheet.create({
   resultRow: {
     alignItems: "center",
     borderBottomColor: "#201c27",
-    borderBottomWidth: 1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
     flexDirection: "row",
     justifyContent: "space-between",
-    minHeight: 38,
+    minHeight: 36,
     paddingHorizontal: 10,
   },
   resultLabel: {
@@ -222,7 +226,7 @@ const styles = StyleSheet.create({
     paddingRight: 8,
   },
   resultValue: {
-    color: "#fff7ed",
+    color: "#d7cdf0",
     fontSize: 11,
     fontWeight: "900",
   },

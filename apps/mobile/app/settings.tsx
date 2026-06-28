@@ -12,42 +12,23 @@ import { useAuthSessionBoundary } from "../src/state/AuthSessionProvider";
 
 type LogoutStatus = "idle" | "loading" | "failed";
 
+const summaryChips = ["Anonim", "Ba\u011flant\u0131 bazl\u0131", "\u0130zinle g\u00f6r\u00fcn\u00fcr"];
+
 const settingsSections = [
-  {
-    title: "Hesap",
-    rows: [
-      { label: "Başlangıç modu", value: "Anonim" },
-      { label: "Profil fotoğrafı", value: "İzinle sonra" },
-    ],
-  },
   {
     title: "Gizlilik",
     rows: [
-      { label: "Profil görünürlüğü", value: "Bağlantı bazlı" },
-      { label: "Profil izinleri", value: "Sen onaylarsın" },
+      { label: "Ba\u015flang\u0131\u00e7 modu", value: "Anonim" },
+      { label: "Profil g\u00f6r\u00fcn\u00fcrl\u00fc\u011f\u00fc", value: "Ba\u011flant\u0131 bazl\u0131" },
+      { label: "Profil izinleri", value: "Sen onaylars\u0131n" },
       { label: "Engellenenler", value: "0" },
     ],
   },
   {
-    title: "Bildirimler",
+    title: "Cihaz izinleri",
     rows: [
-      { label: "Yeni sesli bağlantı", value: "Açık" },
-      { label: "Profil izni isteği", value: "Açık" },
-    ],
-  },
-  {
-    title: "Medya ve izinler",
-    rows: [
-      { label: "Mikrofon", value: "Gerektiğinde istenir" },
-      { label: "Kamera", value: "Gerektiğinde istenir" },
-      { label: "Galeri", value: "Profil fotoğrafında istenir" },
-    ],
-  },
-  {
-    title: "Güvenlik",
-    rows: [
-      { label: "Uygulama kilidi", value: "Sonraki güvenli faz" },
-      { label: "Ekran koruması", value: "Sonraki fazda" },
+      { label: "Mikrofon", value: "Gerekti\u011finde istenir" },
+      { label: "Kamera", value: "Gerekti\u011finde istenir" },
       { label: "Konum", value: "Kesin konum yok" },
     ],
   },
@@ -105,19 +86,37 @@ export default function SettingsScreen() {
         actionHref="/profile"
       />
 
-      <View style={styles.hero}>
-        <Text style={styles.heroTitle}>Kontrol sende</Text>
-        <Text style={styles.heroText}>
-          Profil, izinler ve medya erişimi bağlantı bazlı yönetilir. Gerçek
-          kimlik izinsiz açılmaz.
+      <View style={styles.summaryCard}>
+        <Text style={styles.summaryEyebrow}>{"Profil"}</Text>
+        <Text style={styles.summaryTitle}>{"Anonim profil haz\u0131r"}</Text>
+        <Text style={styles.summaryText}>
+          {"Ger\u00e7ek profilin yaln\u0131zca izin verdi\u011fin ba\u011flant\u0131larda g\u00f6r\u00fcn\u00fcr."}
         </Text>
+        <View style={styles.chipRow}>
+          {summaryChips.map((chip) => (
+            <View key={chip} style={styles.chip}>
+              <Text style={styles.chipText}>{chip}</Text>
+            </View>
+          ))}
+        </View>
       </View>
 
-      {settingsSections.map((section) => (
-        <View key={section.title} style={styles.section}>
-          <Text style={styles.sectionTitle}>{section.title}</Text>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{"Profil durumu"}</Text>
+        <OwnerProfileCreationCard />
+        <BackendProfileFoundationProbeCard />
+      </View>
 
-          <View style={styles.panel}>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{"Kontrol ayarlar\u0131"}</Text>
+        <Text style={styles.sectionIntro}>
+          {"Profil ve cihaz izinleri sade tutulur. Ayr\u0131nt\u0131lar yaln\u0131zca gerekti\u011finde a\u00e7\u0131l\u0131r."}
+        </Text>
+
+        {settingsSections.map((section) => (
+          <View key={section.title} style={styles.panel}>
+            <Text style={styles.panelTitle}>{section.title}</Text>
+
             {section.rows.map((row, index) => {
               const isLast = index === section.rows.length - 1;
 
@@ -134,61 +133,57 @@ export default function SettingsScreen() {
               );
             })}
           </View>
-        </View>
-      ))}
+        ))}
+      </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{"Oturum giri\u015fi"}</Text>
+      <View style={styles.secondarySection}>
+        <Text style={styles.sectionTitle}>{"\u0130kincil oturum ara\u00e7lar\u0131"}</Text>
+        <Text style={styles.secondaryText}>
+          {"Bu alan normal kullan\u0131m i\u00e7in gerekli de\u011fildir. Sorun ya\u015farsan kontrol ama\u00e7l\u0131 kullan\u0131l\u0131r."}
+        </Text>
         <AuthEntryCard />
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{"Oturum durumu"}</Text>
         <AuthSessionProbeCard />
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{"Profil temeli"}</Text>
-        <OwnerProfileCreationCard />
-        <BackendProfileFoundationProbeCard />
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>{"Oturumdan \u00e7\u0131k\u0131\u015f"}</Text>
         <View style={styles.logoutCard}>
-        <View style={styles.logoutHeader}>
-          <Text style={styles.logoutTitle}>Oturum</Text>
-          <Text style={styles.logoutText}>
-            {"Bu cihazdaki oturumu kapat\u0131r. Tekrar devam etmek i\u00e7in giri\u015f yapman gerekir."}
-          </Text>
-        </View>
+          <View style={styles.logoutHeader}>
+            <Text style={styles.logoutTitle}>{"Oturum"}</Text>
+            <Text style={styles.logoutText}>
+              {"Bu cihazdaki oturumu kapat\u0131r. Tekrar devam etmek i\u00e7in giri\u015f yapman gerekir."}
+            </Text>
+          </View>
 
-        <Pressable
-          accessibilityRole="button"
-          disabled={logoutStatus === "loading"}
-          onPress={handleSignOutPress}
-          style={({ pressed }) => [
-            styles.logoutButton,
-            pressed && logoutStatus !== "loading" ? styles.logoutButtonPressed : null,
-            logoutStatus === "loading" ? styles.logoutButtonDisabled : null,
-          ]}
-        >
-          <Text style={styles.logoutButtonText}>
-            {logoutStatus === "loading" ? "\u00c7\u0131k\u0131\u015f yap\u0131l\u0131yor..." : "\u00c7\u0131k\u0131\u015f yap"}
-          </Text>
-        </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            disabled={logoutStatus === "loading"}
+            onPress={handleSignOutPress}
+            style={({ pressed }) => [
+              styles.logoutButton,
+              pressed && logoutStatus !== "loading"
+                ? styles.logoutButtonPressed
+                : null,
+              logoutStatus === "loading" ? styles.logoutButtonDisabled : null,
+            ]}
+          >
+            <Text style={styles.logoutButtonText}>
+              {logoutStatus === "loading"
+                ? "\u00c7\u0131k\u0131\u015f yap\u0131l\u0131yor..."
+                : "\u00c7\u0131k\u0131\u015f yap"}
+            </Text>
+          </Pressable>
 
-        {logoutMessage !== null ? (
-          <Text style={styles.logoutErrorText}>{logoutMessage}</Text>
-        ) : null}
+          {logoutMessage !== null ? (
+            <Text style={styles.logoutErrorText}>{logoutMessage}</Text>
+          ) : null}
         </View>
       </View>
 
       <View style={styles.note}>
-        <Text style={styles.noteTitle}>Henüz kalıcı ayar yok</Text>
+        <Text style={styles.noteTitle}>{"Sonraki ayarlar"}</Text>
         <Text style={styles.noteText}>
-          Bu ekran şimdilik bilgi amaçlıdır. Gerçek izin, kilit ve medya
-          işlemleri sonraki güvenli fazlarda açılacak.
+          {"Hesap silme, Google giri\u015fi ve ileri g\u00fcvenlik ayarlar\u0131 bu sprintte eklenmedi."}
         </Text>
       </View>
     </ScreenContainer>
@@ -196,26 +191,57 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  hero: {
+  summaryCard: {
     backgroundColor: "#111017",
-    borderColor: "#211d29",
+    borderColor: "#2f2940",
     borderRadius: 18,
     borderWidth: 1,
-    padding: 14,
+    gap: 10,
+    padding: 16,
   },
-  heroTitle: {
+  summaryEyebrow: {
+    color: "#d8b46a",
+    fontSize: 11,
+    fontWeight: "900",
+    letterSpacing: 0.4,
+  },
+  summaryTitle: {
     color: "#fff7ed",
-    fontSize: 17,
+    fontSize: 22,
     fontWeight: "900",
   },
-  heroText: {
+  summaryText: {
     color: "#a99cbc",
-    fontSize: 12,
-    lineHeight: 18,
-    marginTop: 6,
+    fontSize: 13,
+    fontWeight: "700",
+    lineHeight: 19,
+  },
+  chipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    paddingTop: 2,
+  },
+  chip: {
+    backgroundColor: "#17131f",
+    borderColor: "#332b44",
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+  },
+  chipText: {
+    color: "#d7cdf0",
+    fontSize: 11,
+    fontWeight: "900",
   },
   section: {
-    gap: 8,
+    gap: 10,
+    marginTop: 6,
+  },
+  secondarySection: {
+    gap: 10,
+    marginTop: 12,
   },
   sectionTitle: {
     color: "#817889",
@@ -224,21 +250,41 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
     marginLeft: 2,
   },
+  sectionIntro: {
+    color: "#817889",
+    fontSize: 12,
+    fontWeight: "700",
+    lineHeight: 18,
+    marginLeft: 2,
+  },
+  secondaryText: {
+    color: "#6f6578",
+    fontSize: 11,
+    fontWeight: "700",
+    lineHeight: 16,
+    marginLeft: 2,
+  },
   panel: {
-    backgroundColor: "#0d0c12",
-    borderColor: "#211d29",
-    borderRadius: 16,
-    borderWidth: 1,
+    backgroundColor: "transparent",
+    borderTopColor: "#211d29",
+    borderTopWidth: 1,
     overflow: "hidden",
-    paddingHorizontal: 12,
+    paddingTop: 4,
+  },
+  panelTitle: {
+    color: "#d7cdf0",
+    fontSize: 12,
+    fontWeight: "900",
+    marginBottom: 2,
+    marginLeft: 2,
   },
   settingRow: {
     alignItems: "center",
     borderBottomColor: "#201c27",
-    borderBottomWidth: 1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
     flexDirection: "row",
     justifyContent: "space-between",
-    minHeight: 58,
+    minHeight: 48,
   },
   settingRowLast: {
     borderBottomWidth: 0,
@@ -259,8 +305,8 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
   logoutCard: {
-    backgroundColor: "#111017",
-    borderColor: "#211d29",
+    backgroundColor: "#0d0c12",
+    borderColor: "#2d1c22",
     borderRadius: 16,
     borderWidth: 1,
     gap: 12,
@@ -307,7 +353,7 @@ const styles = StyleSheet.create({
     lineHeight: 17,
   },
   note: {
-    backgroundColor: "#111017",
+    backgroundColor: "#0d0c12",
     borderColor: "#211d29",
     borderRadius: 16,
     borderWidth: 1,
