@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { BackHandler, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { AppHeader } from "../src/components/AppHeader";
-import { AuthEntryCard } from "../src/components/AuthEntryCard";
 import { AuthSessionProbeCard } from "../src/components/AuthSessionProbeCard";
 import { BackendProfileFoundationProbeCard } from "../src/components/BackendProfileFoundationProbeCard";
 import { OwnerProfileCreationCard } from "../src/components/OwnerProfileCreationCard";
@@ -141,7 +140,6 @@ export default function SettingsScreen() {
         <Text style={styles.secondaryText}>
           {"Bu alan normal kullan\u0131m i\u00e7in gerekli de\u011fildir. Sorun ya\u015farsan kontrol ama\u00e7l\u0131 kullan\u0131l\u0131r."}
         </Text>
-        <AuthEntryCard />
         <AuthSessionProbeCard />
       </View>
 

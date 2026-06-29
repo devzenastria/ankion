@@ -21,10 +21,6 @@ import {
   type AuthCallbackBoundaryRequest,
   type AuthCallbackBoundaryResult,
 } from "../lib/authCallbackBoundary";
-import {
-  requestEmailAuthEntry,
-  type AuthEntryBoundaryResult,
-} from "../lib/authEntryBoundary";
 import { getBackendApiPublicEnv } from "../lib/apiEnv";
 import {
   getBackendProfileFoundation,
@@ -153,7 +149,6 @@ export type AuthSessionProviderValue = Readonly<{
   phaseGate: "auth_provider_skeleton";
   isRuntimeAuthEnabled: false;
   isAuthCallbackBoundaryEnabled: true;
-  isAuthEntryBoundaryEnabled: true;
   isOwnerProfileCreationBoundaryEnabled: true;
   isRuntimeAuthReadBoundaryAvailable: true;
   isRuntimeAuthListenerEnabled: false;
@@ -161,7 +156,6 @@ export type AuthSessionProviderValue = Readonly<{
     request: AuthCallbackBoundaryRequest,
   ) => Promise<AuthCallbackBoundaryResult>;
   readSessionBoundary: () => Promise<AuthSessionReadBoundaryResult>;
-  requestEmailAuthEntry: (email: string) => Promise<AuthEntryBoundaryResult>;
   requestUsernameSignup: (
     input: UsernameSignupRequest,
   ) => Promise<UsernameAuthResult>;
@@ -552,13 +546,11 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       phaseGate: "auth_provider_skeleton",
       isRuntimeAuthEnabled: false,
       isAuthCallbackBoundaryEnabled: true,
-      isAuthEntryBoundaryEnabled: true,
       isOwnerProfileCreationBoundaryEnabled: true,
       isRuntimeAuthReadBoundaryAvailable: true,
       isRuntimeAuthListenerEnabled: false,
       completeAuthCallbackFromUrl: completeAuthCallbackWithSnapshot,
       readSessionBoundary: readSessionBoundaryWithSnapshot,
-      requestEmailAuthEntry: (email) => requestEmailAuthEntry({ email }),
       requestUsernameSignup: requestUsernameSignupWithSnapshot,
       requestUsernameLogin: requestUsernameLoginWithSnapshot,
       requestOwnerProfileCreation,
