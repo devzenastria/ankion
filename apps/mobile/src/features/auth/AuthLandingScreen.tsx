@@ -19,10 +19,10 @@ export function AuthLandingScreen({
         </View>
 
         <View style={styles.copy}>
-          <Text style={styles.eyebrow}>{"Anonim ba\u015flang\u0131\u00e7"}</Text>
+          <Text style={styles.eyebrow}>{"Anonim başlangıç"}</Text>
           <Text style={styles.title}>ANKION</Text>
           <Text style={styles.subtitle}>
-            {"Sesle ba\u015fla, ANKION kimli\u011fini kontrol sende tut. Ger\u00e7ek profil sadece izin verdi\u011fin ba\u011flant\u0131larda g\u00f6r\u00fcn\u00fcr."}
+            {"Sesle başla, ANKION kimliğini kontrol sende tut. Gerçek profil sadece izin verdiğin bağlantılarda görünür."}
           </Text>
         </View>
       </View>
@@ -36,7 +36,7 @@ export function AuthLandingScreen({
             pressed ? styles.buttonPressed : null,
           ]}
         >
-          <Text style={styles.primaryButtonText}>{"\u00dcye Ol"}</Text>
+          <Text style={styles.primaryButtonText}>{"Üye Ol"}</Text>
         </Pressable>
 
         <Pressable
@@ -47,16 +47,16 @@ export function AuthLandingScreen({
             pressed ? styles.buttonPressed : null,
           ]}
         >
-          <Text style={styles.secondaryButtonText}>{"Giri\u015f Yap"}</Text>
+          <Text style={styles.secondaryButtonText}>{"Giriş Yap"}</Text>
         </Pressable>
       </View>
 
       <View style={styles.notePanel}>
         <Text style={styles.noteText}>
-          {"Kullan\u0131c\u0131 ad\u0131 ve \u015fifreyle devam et. E-posta giri\u015f i\u00e7in de\u011fil, kurtarma i\u00e7indir."}
+          {"Kullanıcı adı ve şifreyle devam et. E-posta giriş için değil, kurtarma içindir."}
         </Text>
         <Text style={styles.legalText}>
-          {"Devam edersen kullan\u0131m \u015fartlar\u0131 ve gizlilik bilgilendirmesi ad\u0131mlar\u0131na ge\u00e7ersin."}
+          {"Devam edersen kullanım şartları ve gizlilik bilgilendirmesi adımlarına geçersin."}
         </Text>
       </View>
     </View>

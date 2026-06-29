@@ -21,7 +21,7 @@ function formatDiagnosticValue(value: string | number | boolean | null): string 
   }
 
   if (typeof value === "boolean") {
-    return value ? "evet" : "hay\u0131r";
+    return value ? "evet" : "hayır";
   }
 
   return String(value);
@@ -36,7 +36,7 @@ function AuthDiagnosticBlock({
 
   return (
     <View style={styles.diagnosticPanel}>
-      <Text style={styles.diagnosticTitle}>{"Oturum tan\u0131s\u0131"}</Text>
+      <Text style={styles.diagnosticTitle}>{"Oturum tanısı"}</Text>
       <Text style={styles.diagnosticText}>marker: {diagnostic.marker}</Text>
       <Text style={styles.diagnosticText}>
         errorName: {formatDiagnosticValue(diagnostic.errorName)}
@@ -55,11 +55,11 @@ function AuthDiagnosticBlock({
 }
 function getLoginMessage(status: LoginUiStatus, safeMessage: string | null) {
   if (status === "success") {
-    return "Giri\u015f yap\u0131ld\u0131.";
+    return "Giriş yapıldı.";
   }
 
   if (status === "failed") {
-    return safeMessage ?? "Kullan\u0131c\u0131 ad\u0131 veya parola hatal\u0131.";
+    return safeMessage ?? "Kullanıcı adı veya parola hatalı.";
   }
 
   return null;
@@ -102,13 +102,13 @@ export function AuthLoginScaffoldScreen({
       setStatus("failed");
       setSafeMessage(
         result.status === "auth_failed"
-          ? "Kullan\u0131c\u0131 ad\u0131 veya parola hatal\u0131."
+          ? "Kullanıcı adı veya parola hatalı."
           : result.safeMessage,
       );
       setDiagnostic(result.diagnostic);
     } catch {
       setStatus("failed");
-      setSafeMessage("\u0130\u015flem \u015fu anda tamamlanamad\u0131. Daha sonra tekrar dene.");
+      setSafeMessage("İşlem şu anda tamamlanamadı. Daha sonra tekrar dene.");
       setDiagnostic(null);
     }
   }
@@ -120,17 +120,17 @@ export function AuthLoginScaffoldScreen({
     <View style={styles.screen}>
       <View style={styles.copy}>
         <Text style={styles.eyebrow}>ANKION</Text>
-        <Text style={styles.title}>{"Giri\u015f Yap"}</Text>
+        <Text style={styles.title}>{"Giriş Yap"}</Text>
         <Text style={styles.note}>
-          {"Kullan\u0131c\u0131 ad\u0131n ve \u015fifrenle devam et. E-posta giri\u015f i\u00e7in de\u011fil, kurtarma i\u00e7indir."}
+          {"Kullanıcı adın ve şifrenle devam et. E-posta giriş için değil, kurtarma içindir."}
         </Text>
       </View>
 
       <View style={styles.formPanel}>
         <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>{"Kullan\u0131c\u0131 ad\u0131"}</Text>
+          <Text style={styles.inputLabel}>{"Kullanıcı adı"}</Text>
           <TextInput
-            accessibilityLabel="Kullan\u0131c\u0131 ad\u0131"
+            accessibilityLabel="Kullanıcı adı"
             autoCapitalize="none"
             autoCorrect={false}
             onChangeText={setUsername}
@@ -170,7 +170,7 @@ export function AuthLoginScaffoldScreen({
         >
           {isLoading ? <ActivityIndicator color="#050509" size="small" /> : null}
           <Text style={styles.primaryButtonText}>
-            {isLoading ? "Giri\u015f yap\u0131l\u0131yor..." : "Giri\u015f yap"}
+            {isLoading ? "Giriş yapılıyor..." : "Giriş yap"}
           </Text>
         </Pressable>
 

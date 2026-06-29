@@ -23,7 +23,7 @@ function formatDiagnosticValue(value: string | number | boolean | null): string 
   }
 
   if (typeof value === "boolean") {
-    return value ? "evet" : "hay\u0131r";
+    return value ? "evet" : "hayır";
   }
 
   return String(value);
@@ -38,7 +38,7 @@ function AuthDiagnosticBlock({
 
   return (
     <View style={styles.diagnosticPanel}>
-      <Text style={styles.diagnosticTitle}>{"Oturum tan\u0131s\u0131"}</Text>
+      <Text style={styles.diagnosticTitle}>{"Oturum tanısı"}</Text>
       <Text style={styles.diagnosticText}>marker: {diagnostic.marker}</Text>
       <Text style={styles.diagnosticText}>
         errorName: {formatDiagnosticValue(diagnostic.errorName)}
@@ -58,7 +58,7 @@ function AuthDiagnosticBlock({
 
 function getSignupMessage(status: SignupUiStatus, safeMessage: string | null) {
   if (status === "success") {
-    return "Hesap olu\u015fturuldu.";
+    return "Hesap oluşturuldu.";
   }
 
   if (status === "failed") {
@@ -110,7 +110,7 @@ export function AuthSignupCredentialsScaffoldScreen({
       setDiagnostic(result.diagnostic);
     } catch {
       setStatus("failed");
-      setSafeMessage("\u0130\u015flem \u015fu anda tamamlanamad\u0131. Daha sonra tekrar dene.");
+      setSafeMessage("İşlem şu anda tamamlanamadı. Daha sonra tekrar dene.");
       setDiagnostic(null);
     }
   }
@@ -122,17 +122,17 @@ export function AuthSignupCredentialsScaffoldScreen({
     <View style={styles.screen}>
       <View style={styles.copy}>
         <Text style={styles.eyebrow}>ANKION</Text>
-        <Text style={styles.title}>{"\u00dcye Ol"}</Text>
+        <Text style={styles.title}>{"Üye Ol"}</Text>
         <Text style={styles.note}>
-          {"Kullan\u0131c\u0131 ad\u0131 ve \u015fifreyle hesap olu\u015ftur. E-posta giri\u015f i\u00e7in de\u011fil, kurtarma i\u00e7indir."}
+          {"Kullanıcı adı ve şifreyle hesap oluştur. E-posta giriş için değil, kurtarma içindir."}
         </Text>
       </View>
 
       <View style={styles.formPanel}>
         <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>{"Kullan\u0131c\u0131 ad\u0131"}</Text>
+          <Text style={styles.inputLabel}>{"Kullanıcı adı"}</Text>
           <TextInput
-            accessibilityLabel="Kullan\u0131c\u0131 ad\u0131"
+            accessibilityLabel="Kullanıcı adı"
             autoCapitalize="none"
             autoCorrect={false}
             onChangeText={setUsername}
@@ -179,10 +179,10 @@ export function AuthSignupCredentialsScaffoldScreen({
 
         <View style={styles.recoveryPanel}>
           <Text style={styles.recoveryText}>
-            {"E-posta giri\u015f i\u00e7in kullan\u0131lmaz. \u015eifreni unutursan yaln\u0131zca eri\u015febildi\u011fin e-posta ile kurtarma m\u00fcmk\u00fcn olabilir."}
+            {"E-posta giriş için kullanılmaz. Şifreni unutursan yalnızca erişebildiğin e-posta ile kurtarma mümkün olabilir."}
           </Text>
           <Text style={styles.recoveryWarning}>
-            {"Eri\u015femedi\u011fin bir e-posta yazarsan hesab\u0131 kurtaramayabilirsin."}
+            {"Erişemediğin bir e-posta yazarsan hesabı kurtaramayabilirsin."}
           </Text>
 
           <Pressable
@@ -205,11 +205,11 @@ export function AuthSignupCredentialsScaffoldScreen({
               ]}
             >
               {recoveryWarningAcknowledged ? (
-                <Text style={styles.checkboxMark}>{"\u2713"}</Text>
+                <Text style={styles.checkboxMark}>{"✓"}</Text>
               ) : null}
             </View>
             <Text style={styles.acknowledgementText}>
-              {"Kurtarma riskini anlad\u0131m."}
+              {"Kurtarma riskini anladım."}
             </Text>
           </Pressable>
         </View>
@@ -226,7 +226,7 @@ export function AuthSignupCredentialsScaffoldScreen({
         >
           {isLoading ? <ActivityIndicator color="#050509" size="small" /> : null}
           <Text style={styles.primaryButtonText}>
-            {isLoading ? "Hesap olu\u015fturuluyor..." : "Hesap olu\u015ftur"}
+            {isLoading ? "Hesap oluşturuluyor..." : "Hesap oluştur"}
           </Text>
         </Pressable>
 
