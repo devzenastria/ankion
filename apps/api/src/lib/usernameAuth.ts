@@ -402,7 +402,7 @@ export async function signupWithUsernamePassword(
   );
 
   if (credentialsResult.error !== null) {
-    await cleanupCreatedAuthUser(client, ownerUserId);
+    await cleanupCreatedSignupState(client, ownerUserId);
 
     if (credentialsResult.error.code === '23505') {
       return createErrorResult(
@@ -423,7 +423,7 @@ export async function signupWithUsernamePassword(
     );
   }
 
-  return signInWithInternalIdentifier(
+  const signInResult = await signInWithInternalIdentifier(
     client,
     authIdentifier,
     password.password,
@@ -431,6 +431,21 @@ export async function signupWithUsernamePassword(
       stage: 'USERNAME_SIGNUP_STAGE_SIGN_IN',
     },
   );
+
+  if (!signInResult.ok) {
+    await cleanupCreatedSignupState(client, ownerUserId);
+
+    return createErrorResult(
+      500,
+      'USERNAME_AUTH_UNAVAILABLE',
+      unavailableMessage,
+      signInResult.diagnostic ?? {
+        stage: 'USERNAME_SIGNUP_STAGE_SIGN_IN',
+      },
+    );
+  }
+
+  return signInResult;
 }
 
 export async function loginWithUsernamePassword(
