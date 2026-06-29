@@ -5,6 +5,7 @@ import {
   signupWithUsernamePassword,
   type UsernameAuthResult,
 } from '../lib/usernameAuth';
+import { getClientRateLimitKey } from '../lib/requestIdentity';
 
 const authAttemptWindowMs = 60_000;
 const authAttemptMaxRequests = 20;
@@ -99,7 +100,9 @@ export async function registerUsernameAuthRoutes(
   server: FastifyInstance,
 ): Promise<void> {
   server.post('/v1/auth/signup', async function signupHandler(request, reply) {
-    if (isAuthAttemptLimited(`signup:${request.ip}`, Date.now())) {
+    if (
+      isAuthAttemptLimited(`signup:${getClientRateLimitKey(request)}`, Date.now())
+    ) {
       return reply.status(429).send(sendAuthRateLimitResponse());
     }
 
@@ -139,7 +142,9 @@ export async function registerUsernameAuthRoutes(
   });
 
   server.post('/v1/auth/login', async function loginHandler(request, reply) {
-    if (isAuthAttemptLimited(`login:${request.ip}`, Date.now())) {
+    if (
+      isAuthAttemptLimited(`login:${getClientRateLimitKey(request)}`, Date.now())
+    ) {
       return reply.status(429).send(sendAuthRateLimitResponse());
     }
 

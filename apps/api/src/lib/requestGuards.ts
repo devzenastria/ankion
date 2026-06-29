@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 import { sendPublicError } from './httpErrors';
+import { getClientRateLimitKey } from './requestIdentity';
 
 const corsAllowedMethods = 'GET,POST,OPTIONS';
 const corsAllowedHeaders = 'Authorization,Content-Type';
@@ -32,7 +33,7 @@ function isOriginAllowed(origin: string | undefined): boolean {
 }
 
 function getRateLimitKey(request: FastifyRequest): string {
-  return request.ip;
+  return getClientRateLimitKey(request);
 }
 
 function isRateLimited(request: FastifyRequest, now: number): boolean {
