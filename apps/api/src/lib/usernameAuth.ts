@@ -28,7 +28,9 @@ export type UsernameSignupDiagnosticStage =
   | 'USERNAME_SIGNUP_STAGE_CREATE_CREDENTIALS_RPC'
   | 'USERNAME_SIGNUP_STAGE_SIGN_IN'
   | 'USERNAME_SIGNUP_STAGE_CLEANUP_RPC'
-  | 'USERNAME_LOGIN_STAGE_LOOKUP_IDENTIFIER_RPC';
+  | 'USERNAME_LOGIN_STAGE_VALIDATE_INPUT'
+  | 'USERNAME_LOGIN_STAGE_LOOKUP_IDENTIFIER_RPC'
+  | 'USERNAME_LOGIN_STAGE_SIGN_IN';
 
 export type UsernameSignupDiagnostic = {
   stage: UsernameSignupDiagnosticStage;
@@ -65,6 +67,8 @@ export type UsernameAuthResult =
         | 'USERNAME_AUTH_UNAVAILABLE';
       message: string;
       diagnostic?: UsernameSignupDiagnostic;
+      cleanupAttempted?: boolean;
+      cleanupSucceeded?: boolean;
     };
 
 type UsernameAuthErrorStatusCode = Extract<
@@ -106,6 +110,10 @@ function createErrorResult(
   code: UsernameAuthErrorCode,
   message: string,
   diagnostic?: UsernameSignupDiagnostic,
+  cleanup?: {
+    cleanupAttempted: boolean;
+    cleanupSucceeded: boolean;
+  },
 ): UsernameAuthResult {
   const result: UsernameAuthResult = {
     ok: false,
@@ -116,6 +124,11 @@ function createErrorResult(
 
   if (diagnostic !== undefined) {
     result.diagnostic = diagnostic;
+  }
+
+  if (cleanup !== undefined) {
+    result.cleanupAttempted = cleanup.cleanupAttempted;
+    result.cleanupSucceeded = cleanup.cleanupSucceeded;
   }
 
   return result;
@@ -242,33 +255,50 @@ async function isUsernameTaken(
 async function cleanupCreatedAuthUser(
   client: SupabaseServerClient,
   ownerUserId: string,
-): Promise<void> {
+): Promise<boolean> {
   try {
-    await client.auth.admin.deleteUser(ownerUserId);
+    const { error } = await client.auth.admin.deleteUser(ownerUserId);
+
+    return error === null;
   } catch {
     // Best-effort cleanup only. The public response remains generic.
+    return false;
   }
 }
 
 async function cleanupCreatedUsernameArtifacts(
   client: SupabaseServerClient,
   ownerUserId: string,
-): Promise<void> {
+): Promise<boolean> {
   try {
-    await client.rpc('username_auth_cleanup_account_credentials', {
+    const { error } = await client.rpc('username_auth_cleanup_account_credentials', {
       p_owner_user_id: ownerUserId,
     });
+
+    return error === null;
   } catch {
     // Best-effort cleanup only. The public response remains generic.
+    return false;
   }
 }
 
 async function cleanupCreatedSignupState(
   client: SupabaseServerClient,
   ownerUserId: string,
-): Promise<void> {
-  await cleanupCreatedUsernameArtifacts(client, ownerUserId);
-  await cleanupCreatedAuthUser(client, ownerUserId);
+): Promise<{
+  cleanupAttempted: boolean;
+  cleanupSucceeded: boolean;
+}> {
+  const artifactsCleanupSucceeded = await cleanupCreatedUsernameArtifacts(
+    client,
+    ownerUserId,
+  );
+  const authUserCleanupSucceeded = await cleanupCreatedAuthUser(client, ownerUserId);
+
+  return {
+    cleanupAttempted: true,
+    cleanupSucceeded: artifactsCleanupSucceeded && authUserCleanupSucceeded,
+  };
 }
 
 async function signInWithInternalIdentifier(
@@ -306,7 +336,14 @@ export async function signupWithUsernamePassword(
 
   if (!username.ok) {
     if (username.code === 'USERNAME_RESERVED') {
-      return createErrorResult(409, 'USERNAME_UNAVAILABLE', usernameUnavailableMessage);
+      return createErrorResult(
+        409,
+        'USERNAME_UNAVAILABLE',
+        usernameUnavailableMessage,
+        {
+          stage: 'USERNAME_SIGNUP_STAGE_VALIDATE_INPUT',
+        },
+      );
     }
 
     return createErrorResult(
@@ -360,7 +397,14 @@ export async function signupWithUsernamePassword(
   }
 
   if (usernameTakenResult.usernameTaken) {
-    return createErrorResult(409, 'USERNAME_UNAVAILABLE', usernameUnavailableMessage);
+    return createErrorResult(
+      409,
+      'USERNAME_UNAVAILABLE',
+      usernameUnavailableMessage,
+      {
+        stage: 'USERNAME_SIGNUP_STAGE_USERNAME_EXISTS_RPC',
+      },
+    );
   }
 
   const authIdentifier = createInternalAuthIdentifier();
@@ -402,13 +446,17 @@ export async function signupWithUsernamePassword(
   );
 
   if (credentialsResult.error !== null) {
-    await cleanupCreatedSignupState(client, ownerUserId);
+    const cleanup = await cleanupCreatedSignupState(client, ownerUserId);
 
     if (credentialsResult.error.code === '23505') {
       return createErrorResult(
         409,
         'USERNAME_UNAVAILABLE',
         usernameUnavailableMessage,
+        {
+          stage: 'USERNAME_SIGNUP_STAGE_CREATE_CREDENTIALS_RPC',
+        },
+        cleanup,
       );
     }
 
@@ -420,6 +468,7 @@ export async function signupWithUsernamePassword(
         'USERNAME_SIGNUP_STAGE_CREATE_CREDENTIALS_RPC',
         credentialsResult.error,
       ),
+      cleanup,
     );
   }
 
@@ -433,7 +482,7 @@ export async function signupWithUsernamePassword(
   );
 
   if (!signInResult.ok) {
-    await cleanupCreatedSignupState(client, ownerUserId);
+    const cleanup = await cleanupCreatedSignupState(client, ownerUserId);
 
     return createErrorResult(
       500,
@@ -442,6 +491,7 @@ export async function signupWithUsernamePassword(
       signInResult.diagnostic ?? {
         stage: 'USERNAME_SIGNUP_STAGE_SIGN_IN',
       },
+      cleanup,
     );
   }
 
@@ -455,7 +505,9 @@ export async function loginWithUsernamePassword(
   const password = validatePassword(input.password);
 
   if (!username.ok || !password.ok) {
-    return createErrorResult(401, 'USERNAME_AUTH_FAILED', loginFailedMessage);
+    return createErrorResult(401, 'USERNAME_AUTH_FAILED', loginFailedMessage, {
+      stage: 'USERNAME_LOGIN_STAGE_VALIDATE_INPUT',
+    });
   }
 
   const clientResult = await getClientOrError();
@@ -473,22 +525,46 @@ export async function loginWithUsernamePassword(
   );
 
   if (identifierError !== null || !Array.isArray(identifierRows)) {
-    return createErrorResult(401, 'USERNAME_AUTH_FAILED', loginFailedMessage);
+    return createErrorResult(
+      401,
+      'USERNAME_AUTH_FAILED',
+      loginFailedMessage,
+      {
+        stage: 'USERNAME_LOGIN_STAGE_LOOKUP_IDENTIFIER_RPC',
+      },
+    );
   }
 
   if (identifierRows.length !== 1) {
-    return createErrorResult(401, 'USERNAME_AUTH_FAILED', loginFailedMessage);
+    return createErrorResult(
+      401,
+      'USERNAME_AUTH_FAILED',
+      loginFailedMessage,
+      {
+        stage: 'USERNAME_LOGIN_STAGE_LOOKUP_IDENTIFIER_RPC',
+      },
+    );
   }
 
   const identifierRow = (identifierRows as UsernameIdentifierLookupRow[])[0];
 
   if (identifierRow === undefined) {
-    return createErrorResult(401, 'USERNAME_AUTH_FAILED', loginFailedMessage);
+    return createErrorResult(
+      401,
+      'USERNAME_AUTH_FAILED',
+      loginFailedMessage,
+      {
+        stage: 'USERNAME_LOGIN_STAGE_LOOKUP_IDENTIFIER_RPC',
+      },
+    );
   }
 
   return signInWithInternalIdentifier(
     client,
     identifierRow.auth_identifier,
     password.password,
+    {
+      stage: 'USERNAME_LOGIN_STAGE_SIGN_IN',
+    },
   );
 }

@@ -5,6 +5,7 @@ import {
   signupWithUsernamePassword,
   type UsernameAuthResult,
 } from '../lib/usernameAuth';
+import { emitAuthTelemetry } from '../lib/authTelemetry';
 import { getClientRateLimitKey } from '../lib/requestIdentity';
 
 const authAttemptWindowMs = 60_000;
@@ -34,6 +35,11 @@ type UsernameAuthSuccessResponse = {
     user_id: string;
   };
 };
+
+type UsernameAuthFailureStatusCode = Extract<
+  UsernameAuthResult,
+  { ok: false }
+>['statusCode'];
 
 const authAttemptBuckets = new Map<string, AuthAttemptBucket>();
 
@@ -88,6 +94,12 @@ function sendAuthRateLimitResponse() {
   };
 }
 
+function getAuthFailureOutcome(
+  statusCode: UsernameAuthFailureStatusCode,
+): 'failed' | 'unavailable' {
+  return statusCode >= 500 ? 'unavailable' : 'failed';
+}
+
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return (
     typeof value === 'object' &&
@@ -103,10 +115,24 @@ export async function registerUsernameAuthRoutes(
     if (
       isAuthAttemptLimited(`signup:${getClientRateLimitKey(request)}`, Date.now())
     ) {
+      emitAuthTelemetry(request.log, {
+        event: 'username_signup_failed',
+        outcome: 'blocked',
+        statusCode: 429,
+        rateLimited: true,
+      });
+
       return reply.status(429).send(sendAuthRateLimitResponse());
     }
 
     if (!isPlainObject(request.body)) {
+      emitAuthTelemetry(request.log, {
+        event: 'username_signup_failed',
+        outcome: 'failed',
+        statusCode: 400,
+        stage: 'validation',
+      });
+
       return reply.status(400).send({
         ok: false,
         error: {
@@ -123,13 +149,21 @@ export async function registerUsernameAuthRoutes(
       recoveryWarningAcknowledged: request.body.recoveryWarningAcknowledged,
     });
 
-    if (!result.ok && result.diagnostic !== undefined) {
-      request.log.warn(
-        {
-          usernameSignupDiagnostic: result.diagnostic,
-        },
-        'username signup diagnostic',
-      );
+    if (result.ok) {
+      emitAuthTelemetry(request.log, {
+        event: 'username_signup_succeeded',
+        outcome: 'success',
+        statusCode: 200,
+      });
+    } else {
+      emitAuthTelemetry(request.log, {
+        event: 'username_signup_failed',
+        outcome: getAuthFailureOutcome(result.statusCode),
+        statusCode: result.statusCode,
+        diagnostic: result.diagnostic,
+        cleanupAttempted: result.cleanupAttempted,
+        cleanupSucceeded: result.cleanupSucceeded,
+      });
     }
 
     const output = sendUsernameAuthResult(result);
@@ -145,10 +179,24 @@ export async function registerUsernameAuthRoutes(
     if (
       isAuthAttemptLimited(`login:${getClientRateLimitKey(request)}`, Date.now())
     ) {
+      emitAuthTelemetry(request.log, {
+        event: 'username_login_failed',
+        outcome: 'blocked',
+        statusCode: 429,
+        rateLimited: true,
+      });
+
       return reply.status(429).send(sendAuthRateLimitResponse());
     }
 
     if (!isPlainObject(request.body)) {
+      emitAuthTelemetry(request.log, {
+        event: 'username_login_failed',
+        outcome: 'failed',
+        statusCode: 401,
+        stage: 'validation',
+      });
+
       return reply.status(401).send({
         ok: false,
         error: {
@@ -162,6 +210,22 @@ export async function registerUsernameAuthRoutes(
       username: request.body.username,
       password: request.body.password,
     });
+
+    if (result.ok) {
+      emitAuthTelemetry(request.log, {
+        event: 'username_login_succeeded',
+        outcome: 'success',
+        statusCode: 200,
+      });
+    } else {
+      emitAuthTelemetry(request.log, {
+        event: 'username_login_failed',
+        outcome: getAuthFailureOutcome(result.statusCode),
+        statusCode: result.statusCode,
+        diagnostic: result.diagnostic,
+      });
+    }
+
     const output = sendUsernameAuthResult(result);
 
     if ('statusCode' in output) {
