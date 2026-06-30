@@ -6,6 +6,7 @@ import { registerRequestGuards } from './lib/requestGuards';
 import { registerUsernameAuthRoutes } from './routes/authUsername';
 import { registerChatRoutes } from './routes/chat';
 import { registerHealthRoute } from './routes/health';
+import { registerOwnAuthRoutes } from './routes/ownAuth';
 import { registerProfileFoundationRoute } from './routes/profileFoundation';
 
 export type BuildServerOptions = {
@@ -69,6 +70,7 @@ export async function buildServer(options: BuildServerOptions = {}) {
   await registerRequestGuards(server);
   await registerHealthRoute(server);
   await registerUsernameAuthRoutes(server);
+  await registerOwnAuthRoutes(server);
   await registerChatRoutes(server);
   await registerProfileFoundationRoute(server);
 
