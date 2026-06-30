@@ -96,8 +96,8 @@ function sendAuthRateLimitResponse() {
 
 function getAuthFailureOutcome(
   statusCode: UsernameAuthFailureStatusCode,
-): 'failed' | 'unavailable' {
-  return statusCode >= 500 ? 'unavailable' : 'failed';
+): 'rejected' | 'failed' {
+  return statusCode >= 500 ? 'failed' : 'rejected';
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -116,9 +116,12 @@ export async function registerUsernameAuthRoutes(
       isAuthAttemptLimited(`signup:${getClientRateLimitKey(request)}`, Date.now())
     ) {
       emitAuthTelemetry(request.log, {
-        event: 'username_signup_failed',
-        outcome: 'blocked',
+        event: 'username_signup_rate_limited',
+        authSurface: 'username_signup',
+        outcome: 'rate_limited',
         statusCode: 429,
+        code: 'USERNAME_AUTH_RATE_LIMITED',
+        requestId: request.id,
         rateLimited: true,
       });
 
@@ -127,9 +130,12 @@ export async function registerUsernameAuthRoutes(
 
     if (!isPlainObject(request.body)) {
       emitAuthTelemetry(request.log, {
-        event: 'username_signup_failed',
-        outcome: 'failed',
+        event: 'username_signup_rejected',
+        authSurface: 'username_signup',
+        outcome: 'rejected',
         statusCode: 400,
+        code: 'USERNAME_AUTH_INVALID_INPUT',
+        requestId: request.id,
         stage: 'validation',
       });
 
@@ -151,15 +157,23 @@ export async function registerUsernameAuthRoutes(
 
     if (result.ok) {
       emitAuthTelemetry(request.log, {
-        event: 'username_signup_succeeded',
-        outcome: 'success',
+        event: 'username_signup_accepted',
+        authSurface: 'username_signup',
+        outcome: 'accepted',
         statusCode: 200,
+        requestId: request.id,
       });
     } else {
       emitAuthTelemetry(request.log, {
-        event: 'username_signup_failed',
+        event:
+          result.statusCode >= 500
+            ? 'username_signup_failed'
+            : 'username_signup_rejected',
+        authSurface: 'username_signup',
         outcome: getAuthFailureOutcome(result.statusCode),
         statusCode: result.statusCode,
+        code: result.code,
+        requestId: request.id,
         diagnostic: result.diagnostic,
         cleanupAttempted: result.cleanupAttempted,
         cleanupSucceeded: result.cleanupSucceeded,
@@ -180,9 +194,12 @@ export async function registerUsernameAuthRoutes(
       isAuthAttemptLimited(`login:${getClientRateLimitKey(request)}`, Date.now())
     ) {
       emitAuthTelemetry(request.log, {
-        event: 'username_login_failed',
-        outcome: 'blocked',
+        event: 'username_login_rate_limited',
+        authSurface: 'username_login',
+        outcome: 'rate_limited',
         statusCode: 429,
+        code: 'USERNAME_AUTH_RATE_LIMITED',
+        requestId: request.id,
         rateLimited: true,
       });
 
@@ -191,9 +208,12 @@ export async function registerUsernameAuthRoutes(
 
     if (!isPlainObject(request.body)) {
       emitAuthTelemetry(request.log, {
-        event: 'username_login_failed',
-        outcome: 'failed',
+        event: 'username_login_rejected',
+        authSurface: 'username_login',
+        outcome: 'rejected',
         statusCode: 401,
+        code: 'USERNAME_AUTH_FAILED',
+        requestId: request.id,
         stage: 'validation',
       });
 
@@ -213,15 +233,23 @@ export async function registerUsernameAuthRoutes(
 
     if (result.ok) {
       emitAuthTelemetry(request.log, {
-        event: 'username_login_succeeded',
-        outcome: 'success',
+        event: 'username_login_accepted',
+        authSurface: 'username_login',
+        outcome: 'accepted',
         statusCode: 200,
+        requestId: request.id,
       });
     } else {
       emitAuthTelemetry(request.log, {
-        event: 'username_login_failed',
+        event:
+          result.statusCode >= 500
+            ? 'username_login_failed'
+            : 'username_login_rejected',
+        authSurface: 'username_login',
         outcome: getAuthFailureOutcome(result.statusCode),
         statusCode: result.statusCode,
+        code: result.code,
+        requestId: request.id,
         diagnostic: result.diagnostic,
       });
     }

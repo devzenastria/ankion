@@ -13,8 +13,7 @@ async function main() {
   server.log.info({ host: env.host, port: env.port }, 'ankion api listening');
 }
 
-main().catch(function handleStartupError(error: unknown) {
+main().catch(function handleStartupError() {
   console.error('ANKION_API_START_FAILED');
-  console.error(error);
   process.exit(1);
 });

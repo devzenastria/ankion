@@ -6,12 +6,18 @@ import type {
 } from './usernameAuth';
 
 type AuthTelemetryEventName =
+  | 'username_signup_accepted'
+  | 'username_signup_rejected'
   | 'username_signup_failed'
-  | 'username_signup_succeeded'
+  | 'username_signup_rate_limited'
+  | 'username_login_accepted'
+  | 'username_login_rejected'
   | 'username_login_failed'
-  | 'username_login_succeeded';
+  | 'username_login_rate_limited';
 
-type AuthTelemetryOutcome = 'success' | 'failed' | 'blocked' | 'unavailable';
+type AuthTelemetrySurface = 'username_signup' | 'username_login';
+
+type AuthTelemetryOutcome = 'accepted' | 'rejected' | 'failed' | 'rate_limited';
 
 type AuthTelemetryStage =
   | 'validation'
@@ -24,8 +30,11 @@ type AuthTelemetryStage =
 
 type AuthTelemetryInput = {
   event: AuthTelemetryEventName;
+  authSurface: AuthTelemetrySurface;
   outcome: AuthTelemetryOutcome;
   statusCode: number;
+  code?: string | undefined;
+  requestId?: string | undefined;
   diagnostic?: UsernameSignupDiagnostic | undefined;
   stage?: AuthTelemetryStage | undefined;
   cleanupAttempted?: boolean | undefined;
@@ -35,9 +44,12 @@ type AuthTelemetryInput = {
 
 type AuthTelemetryRecord = {
   event: AuthTelemetryEventName;
-  routeGroup: 'auth_username';
+  authSurface: AuthTelemetrySurface;
   outcome: AuthTelemetryOutcome;
   statusCode: number;
+  timestamp: string;
+  code?: string;
+  requestId?: string;
   stage?: AuthTelemetryStage;
   cleanupAttempted?: boolean;
   cleanupSucceeded?: boolean;
@@ -60,7 +72,7 @@ const diagnosticStageMap: Record<
 };
 
 function getTelemetryLevel(outcome: AuthTelemetryOutcome): 'info' | 'warn' {
-  return outcome === 'success' ? 'info' : 'warn';
+  return outcome === 'accepted' ? 'info' : 'warn';
 }
 
 function getTelemetryStage(input: AuthTelemetryInput): AuthTelemetryStage | undefined {
@@ -81,12 +93,21 @@ export function emitAuthTelemetry(
 ): void {
   const telemetry: AuthTelemetryRecord = {
     event: input.event,
-    routeGroup: 'auth_username',
+    authSurface: input.authSurface,
     outcome: input.outcome,
     statusCode: input.statusCode,
+    timestamp: new Date().toISOString(),
   };
 
   const stage = getTelemetryStage(input);
+
+  if (input.code !== undefined) {
+    telemetry.code = input.code;
+  }
+
+  if (input.requestId !== undefined) {
+    telemetry.requestId = input.requestId;
+  }
 
   if (stage !== undefined) {
     telemetry.stage = stage;
