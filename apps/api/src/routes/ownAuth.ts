@@ -4,14 +4,23 @@ import type { FastifyInstance, FastifyReply } from 'fastify';
 
 import { readOwnDbEnv } from '../config/ownDbEnv';
 import { createOwnAuthPostgresRepository } from '../lib/ownAuthPostgresRepository';
-import type { OwnAuthRepository } from '../lib/ownAuthRepository';
+import type {
+  OwnAccountRecord,
+  OwnAuthRepository,
+  OwnPasswordCredentialRecord,
+  OwnProfileReadinessRecord,
+  OwnRefreshSessionRecord,
+} from '../lib/ownAuthRepository';
 import { readOwnAuthRouteGate } from '../lib/ownAuthRouteGate';
 import { createOwnDbPostgresAdapter, OwnDbPostgresError } from '../lib/ownDbPostgresAdapter';
 import {
   createOwnPasswordHash,
   verifyOwnPasswordHash,
 } from '../lib/ownPasswordHashing';
-import { createOwnRefreshToken } from '../lib/ownSessionTokens';
+import {
+  createOwnRefreshToken,
+  hashOwnRefreshToken,
+} from '../lib/ownSessionTokens';
 import {
   normalizeRecoveryEmail,
   normalizeUsername,
@@ -24,25 +33,47 @@ type OwnAuthNotReadyResponse = Readonly<{
   message: 'Own auth is not ready yet.';
 }>;
 
-type OwnAuthRuntimeNotImplementedResponse = Readonly<{
-  error: {
-    code: 'OWN_AUTH_RUNTIME_NOT_IMPLEMENTED';
-    message: 'Own auth runtime is enabled but this endpoint is not implemented yet.';
-  };
-}>;
-
 type OwnAuthErrorResponse = Readonly<{
   error: {
     code:
       | 'OWN_AUTH_DATABASE_NOT_CONFIGURED'
       | 'OWN_AUTH_DATABASE_UNAVAILABLE'
       | 'OWN_AUTH_INVALID_CREDENTIALS'
+      | 'OWN_AUTH_INVALID_REQUEST'
+      | 'OWN_AUTH_INVALID_SESSION'
       | 'OWN_AUTH_INVALID_INPUT'
       | 'OWN_AUTH_LOGIN_FAILED'
+      | 'OWN_AUTH_LOGOUT_FAILED'
+      | 'OWN_AUTH_REFRESH_FAILED'
+      | 'OWN_AUTH_SESSION_FAILED'
       | 'OWN_AUTH_SIGNUP_FAILED'
       | 'OWN_AUTH_USERNAME_TAKEN';
     message: string;
   };
+}>;
+
+type OwnAuthSessionTokenDto = Readonly<{
+  accountId: string;
+  anonymousIdentityId: string | null;
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: string;
+  tokenType: 'Bearer';
+  sessionId: string;
+  profileReady: boolean;
+  anonymousIdentityReady: boolean;
+  onboardingComplete: boolean;
+}>;
+
+type OwnAuthSessionReadDto = Readonly<{
+  accountId: string;
+  anonymousIdentityId: string | null;
+  expiresAt: string;
+  tokenType: 'Bearer';
+  sessionId: string;
+  profileReady: boolean;
+  anonymousIdentityReady: boolean;
+  onboardingComplete: boolean;
 }>;
 
 type OwnAuthSignupCreatedResponse = Readonly<{
@@ -91,6 +122,35 @@ type OwnAuthLoginOkResponse = Readonly<{
   };
 }>;
 
+type OwnAuthRefreshOkResponse = Readonly<{
+  ok: true;
+  code: 'OWN_AUTH_REFRESH_OK';
+  data: {
+    account: {
+      id: string;
+      username: string;
+    };
+    session: OwnAuthSessionTokenDto;
+  };
+}>;
+
+type OwnAuthLogoutOkResponse = Readonly<{
+  ok: true;
+  code: 'OWN_AUTH_LOGOUT_OK';
+}>;
+
+type OwnAuthSessionOkResponse = Readonly<{
+  ok: true;
+  code: 'OWN_AUTH_SESSION_OK';
+  data: {
+    account: {
+      id: string;
+      username: string;
+    };
+    session: OwnAuthSessionReadDto;
+  };
+}>;
+
 type OwnAuthSignupResult = Readonly<{
   statusCode: 201 | 400 | 409 | 500 | 503;
   response: OwnAuthSignupCreatedResponse | OwnAuthErrorResponse;
@@ -99,6 +159,21 @@ type OwnAuthSignupResult = Readonly<{
 type OwnAuthLoginResult = Readonly<{
   statusCode: 200 | 400 | 401 | 500 | 503;
   response: OwnAuthLoginOkResponse | OwnAuthErrorResponse;
+}>;
+
+type OwnAuthRefreshResult = Readonly<{
+  statusCode: 200 | 400 | 401 | 500 | 503;
+  response: OwnAuthRefreshOkResponse | OwnAuthErrorResponse;
+}>;
+
+type OwnAuthLogoutResult = Readonly<{
+  statusCode: 200 | 400 | 500 | 503;
+  response: OwnAuthLogoutOkResponse | OwnAuthErrorResponse;
+}>;
+
+type OwnAuthSessionResult = Readonly<{
+  statusCode: 200 | 401 | 500 | 503;
+  response: OwnAuthSessionOkResponse | OwnAuthErrorResponse;
 }>;
 
 type OwnAuthRepositoryCache = {
@@ -115,21 +190,8 @@ const ownAuthNotReadyResponse: OwnAuthNotReadyResponse = {
   message: 'Own auth is not ready yet.',
 };
 
-const ownAuthRuntimeNotImplementedResponse: OwnAuthRuntimeNotImplementedResponse =
-  {
-    error: {
-      code: 'OWN_AUTH_RUNTIME_NOT_IMPLEMENTED',
-      message:
-        'Own auth runtime is enabled but this endpoint is not implemented yet.',
-    },
-  };
-
 function sendOwnAuthNotReady(reply: FastifyReply) {
   return reply.status(503).send(ownAuthNotReadyResponse);
-}
-
-function sendOwnAuthRuntimeNotImplemented(reply: FastifyReply) {
-  return reply.status(501).send(ownAuthRuntimeNotImplementedResponse);
 }
 
 function createOwnAuthErrorResponse(
@@ -154,6 +216,27 @@ function sendOwnAuthSignupResult(
 function sendOwnAuthLoginResult(
   reply: FastifyReply,
   result: OwnAuthLoginResult,
+) {
+  return reply.status(result.statusCode).send(result.response);
+}
+
+function sendOwnAuthRefreshResult(
+  reply: FastifyReply,
+  result: OwnAuthRefreshResult,
+) {
+  return reply.status(result.statusCode).send(result.response);
+}
+
+function sendOwnAuthLogoutResult(
+  reply: FastifyReply,
+  result: OwnAuthLogoutResult,
+) {
+  return reply.status(result.statusCode).send(result.response);
+}
+
+function sendOwnAuthSessionResult(
+  reply: FastifyReply,
+  result: OwnAuthSessionResult,
 ) {
   return reply.status(result.statusCode).send(result.response);
 }
@@ -222,6 +305,50 @@ function hasUnsupportedLoginField(input: Record<string, unknown>): boolean {
   return Object.keys(input).some((key) => !supportedFields.has(key));
 }
 
+function hasUnsupportedRefreshTokenField(
+  input: Record<string, unknown>,
+): boolean {
+  const supportedFields = new Set(['refreshToken']);
+
+  return Object.keys(input).some((key) => !supportedFields.has(key));
+}
+
+function readRefreshTokenFromBody(input: unknown): string | null {
+  if (!isPlainObject(input) || hasUnsupportedRefreshTokenField(input)) {
+    return null;
+  }
+
+  const refreshToken = input.refreshToken;
+
+  if (typeof refreshToken !== 'string') {
+    return null;
+  }
+
+  const trimmedRefreshToken = refreshToken.trim();
+
+  return trimmedRefreshToken.length >= 20 && trimmedRefreshToken.length <= 512
+    ? trimmedRefreshToken
+    : null;
+}
+
+function readBearerRefreshToken(authorization: unknown): string | null {
+  if (typeof authorization !== 'string') {
+    return null;
+  }
+
+  const parts = authorization.trim().split(/\s+/);
+
+  if (parts.length !== 2 || parts[0] !== 'Bearer') {
+    return null;
+  }
+
+  const refreshToken = parts[1] ?? '';
+
+  return refreshToken.length >= 20 && refreshToken.length <= 512
+    ? refreshToken
+    : null;
+}
+
 function createRecoveryContactHash(recoveryEmailNormalized: string): string {
   return createHash('sha256').update(recoveryEmailNormalized, 'utf8').digest('hex');
 }
@@ -232,6 +359,59 @@ function createOwnAccessToken(): string {
 
 function getRefreshSessionExpiresAt(): string {
   return new Date(Date.now() + refreshSessionTtlMs).toISOString();
+}
+
+function isActiveRefreshSession(session: OwnRefreshSessionRecord): boolean {
+  return (
+    session.sessionStatus === 'active' &&
+    session.revokedAt === null &&
+    Date.parse(session.expiresAt) > Date.now()
+  );
+}
+
+function createSessionTokenDto(
+  session: OwnRefreshSessionRecord,
+  profileReadiness: OwnProfileReadinessRecord,
+  refreshToken: string,
+): OwnAuthSessionTokenDto {
+  return {
+    accessToken: createOwnAccessToken(),
+    accountId: session.accountId,
+    anonymousIdentityId: profileReadiness.anonymousIdentityId,
+    anonymousIdentityReady: profileReadiness.anonymousIdentityReady,
+    expiresAt: session.expiresAt,
+    onboardingComplete: profileReadiness.onboardingComplete,
+    profileReady: profileReadiness.profileReady,
+    refreshToken,
+    sessionId: session.id,
+    tokenType: 'Bearer',
+  };
+}
+
+function createSessionReadDto(
+  session: OwnRefreshSessionRecord,
+  profileReadiness: OwnProfileReadinessRecord,
+): OwnAuthSessionReadDto {
+  return {
+    accountId: session.accountId,
+    anonymousIdentityId: profileReadiness.anonymousIdentityId,
+    anonymousIdentityReady: profileReadiness.anonymousIdentityReady,
+    expiresAt: session.expiresAt,
+    onboardingComplete: profileReadiness.onboardingComplete,
+    profileReady: profileReadiness.profileReady,
+    sessionId: session.id,
+    tokenType: 'Bearer',
+  };
+}
+
+function createAccountDto(
+  account: OwnAccountRecord,
+  passwordCredential: OwnPasswordCredentialRecord,
+) {
+  return {
+    id: account.id,
+    username: passwordCredential.usernameNormalized,
+  };
 }
 
 async function signupWithOwnAuth(input: unknown): Promise<OwnAuthSignupResult> {
@@ -530,14 +710,323 @@ async function loginWithOwnAuth(input: unknown): Promise<OwnAuthLoginResult> {
   }
 }
 
-function sendOwnAuthGateResponse(reply: FastifyReply) {
-  const gate = readOwnAuthRouteGate();
+type OwnActiveRefreshSessionContext = Readonly<{
+  account: OwnAccountRecord;
+  passwordCredential: OwnPasswordCredentialRecord;
+  profileReadiness: OwnProfileReadinessRecord;
+  refreshSession: OwnRefreshSessionRecord;
+}>;
 
-  if (!gate.enabled) {
-    return sendOwnAuthNotReady(reply);
+function createInvalidRequestResult(): OwnAuthRefreshResult {
+  return {
+    response: createOwnAuthErrorResponse(
+      'OWN_AUTH_INVALID_REQUEST',
+      'Check own auth request input.',
+    ),
+    statusCode: 400,
+  };
+}
+
+function createInvalidLogoutRequestResult(): OwnAuthLogoutResult {
+  return {
+    response: createOwnAuthErrorResponse(
+      'OWN_AUTH_INVALID_REQUEST',
+      'Check own auth request input.',
+    ),
+    statusCode: 400,
+  };
+}
+
+function createInvalidSessionResult(): OwnAuthRefreshResult {
+  return {
+    response: createOwnAuthErrorResponse(
+      'OWN_AUTH_INVALID_SESSION',
+      'Own auth session is invalid.',
+    ),
+    statusCode: 401,
+  };
+}
+
+function createSessionLookupInvalidResult(): OwnAuthSessionResult {
+  return {
+    response: createOwnAuthErrorResponse(
+      'OWN_AUTH_INVALID_SESSION',
+      'Own auth session is invalid.',
+    ),
+    statusCode: 401,
+  };
+}
+
+async function readActiveRefreshSessionContext(
+  repository: OwnAuthRepository,
+  refreshToken: string,
+): Promise<OwnActiveRefreshSessionContext | null> {
+  const refreshSession = await repository.readRefreshSessionByTokenHash(
+    hashOwnRefreshToken(refreshToken),
+  );
+
+  if (refreshSession === null || !isActiveRefreshSession(refreshSession)) {
+    return null;
   }
 
-  return sendOwnAuthRuntimeNotImplemented(reply);
+  const account = await repository.readAccountById(refreshSession.accountId);
+
+  if (account === null || account.lifecycleState !== 'active') {
+    return null;
+  }
+
+  const passwordCredential = await repository.readPasswordCredentialByAccountId(
+    account.id,
+  );
+
+  if (
+    passwordCredential === null ||
+    passwordCredential.credentialStatus !== 'active'
+  ) {
+    return null;
+  }
+
+  const profileReadiness = await repository.readProfileReadinessForSessionDto(
+    account.id,
+  );
+
+  return {
+    account,
+    passwordCredential,
+    profileReadiness,
+    refreshSession,
+  };
+}
+
+async function refreshWithOwnAuth(input: unknown): Promise<OwnAuthRefreshResult> {
+  const repositoryResult = getOwnAuthRepositoryFromEnv();
+
+  if (!repositoryResult.ok) {
+    return {
+      response: createOwnAuthErrorResponse(
+        'OWN_AUTH_DATABASE_NOT_CONFIGURED',
+        'Own auth database is not configured.',
+      ),
+      statusCode: 503,
+    };
+  }
+
+  const refreshToken = readRefreshTokenFromBody(input);
+
+  if (refreshToken === null) {
+    return createInvalidRequestResult();
+  }
+
+  const nextRefreshToken = createOwnRefreshToken();
+  const nextRefreshSessionExpiresAt = getRefreshSessionExpiresAt();
+
+  try {
+    const refresh = await repositoryResult.repository.withTransaction(
+      async (repository) => {
+        const context = await readActiveRefreshSessionContext(
+          repository,
+          refreshToken,
+        );
+
+        if (context === null) {
+          return null;
+        }
+
+        const nextRefreshSession = await repository.rotateRefreshSession({
+          nextExpiresAt: nextRefreshSessionExpiresAt,
+          nextRefreshTokenHash: nextRefreshToken.tokenHash,
+          previousSessionId: context.refreshSession.id,
+        });
+
+        const profileReadiness = await repository.readProfileReadinessForSessionDto(
+          context.account.id,
+        );
+
+        return {
+          account: context.account,
+          passwordCredential: context.passwordCredential,
+          profileReadiness,
+          refreshSession: nextRefreshSession,
+        };
+      },
+    );
+
+    if (refresh === null) {
+      return createInvalidSessionResult();
+    }
+
+    return {
+      response: {
+        code: 'OWN_AUTH_REFRESH_OK',
+        data: {
+          account: createAccountDto(
+            refresh.account,
+            refresh.passwordCredential,
+          ),
+          session: createSessionTokenDto(
+            refresh.refreshSession,
+            refresh.profileReadiness,
+            nextRefreshToken.token,
+          ),
+        },
+        ok: true,
+      },
+      statusCode: 200,
+    };
+  } catch (error) {
+    if (error instanceof OwnDbPostgresError) {
+      if (error.code === 'connection_unavailable') {
+        return {
+          response: createOwnAuthErrorResponse(
+            'OWN_AUTH_DATABASE_UNAVAILABLE',
+            'Own auth database is unavailable.',
+          ),
+          statusCode: 503,
+        };
+      }
+    }
+
+    return {
+      response: createOwnAuthErrorResponse(
+        'OWN_AUTH_REFRESH_FAILED',
+        'Own auth refresh could not be completed.',
+      ),
+      statusCode: 500,
+    };
+  }
+}
+
+async function logoutWithOwnAuth(input: unknown): Promise<OwnAuthLogoutResult> {
+  const repositoryResult = getOwnAuthRepositoryFromEnv();
+
+  if (!repositoryResult.ok) {
+    return {
+      response: createOwnAuthErrorResponse(
+        'OWN_AUTH_DATABASE_NOT_CONFIGURED',
+        'Own auth database is not configured.',
+      ),
+      statusCode: 503,
+    };
+  }
+
+  const refreshToken = readRefreshTokenFromBody(input);
+
+  if (refreshToken === null) {
+    return createInvalidLogoutRequestResult();
+  }
+
+  try {
+    const refreshSession =
+      await repositoryResult.repository.readRefreshSessionByTokenHash(
+        hashOwnRefreshToken(refreshToken),
+      );
+
+    if (refreshSession !== null && isActiveRefreshSession(refreshSession)) {
+      await repositoryResult.repository.revokeRefreshSession({
+        reasonCode: 'user_logout',
+        sessionId: refreshSession.id,
+      });
+    }
+
+    return {
+      response: {
+        code: 'OWN_AUTH_LOGOUT_OK',
+        ok: true,
+      },
+      statusCode: 200,
+    };
+  } catch (error) {
+    if (error instanceof OwnDbPostgresError) {
+      if (error.code === 'connection_unavailable') {
+        return {
+          response: createOwnAuthErrorResponse(
+            'OWN_AUTH_DATABASE_UNAVAILABLE',
+            'Own auth database is unavailable.',
+          ),
+          statusCode: 503,
+        };
+      }
+    }
+
+    return {
+      response: createOwnAuthErrorResponse(
+        'OWN_AUTH_LOGOUT_FAILED',
+        'Own auth logout could not be completed.',
+      ),
+      statusCode: 500,
+    };
+  }
+}
+
+async function readSessionWithOwnAuth(
+  authorization: unknown,
+): Promise<OwnAuthSessionResult> {
+  const repositoryResult = getOwnAuthRepositoryFromEnv();
+
+  if (!repositoryResult.ok) {
+    return {
+      response: createOwnAuthErrorResponse(
+        'OWN_AUTH_DATABASE_NOT_CONFIGURED',
+        'Own auth database is not configured.',
+      ),
+      statusCode: 503,
+    };
+  }
+
+  const refreshToken = readBearerRefreshToken(authorization);
+
+  if (refreshToken === null) {
+    return createSessionLookupInvalidResult();
+  }
+
+  try {
+    const context = await readActiveRefreshSessionContext(
+      repositoryResult.repository,
+      refreshToken,
+    );
+
+    if (context === null) {
+      return createSessionLookupInvalidResult();
+    }
+
+    return {
+      response: {
+        code: 'OWN_AUTH_SESSION_OK',
+        data: {
+          account: createAccountDto(
+            context.account,
+            context.passwordCredential,
+          ),
+          session: createSessionReadDto(
+            context.refreshSession,
+            context.profileReadiness,
+          ),
+        },
+        ok: true,
+      },
+      statusCode: 200,
+    };
+  } catch (error) {
+    if (error instanceof OwnDbPostgresError) {
+      if (error.code === 'connection_unavailable') {
+        return {
+          response: createOwnAuthErrorResponse(
+            'OWN_AUTH_DATABASE_UNAVAILABLE',
+            'Own auth database is unavailable.',
+          ),
+          statusCode: 503,
+        };
+      }
+    }
+
+    return {
+      response: createOwnAuthErrorResponse(
+        'OWN_AUTH_SESSION_FAILED',
+        'Own auth session could not be read.',
+      ),
+      statusCode: 500,
+    };
+  }
 }
 
 export async function registerOwnAuthRoutes(
@@ -563,15 +1052,42 @@ export async function registerOwnAuthRoutes(
     return sendOwnAuthLoginResult(reply, await loginWithOwnAuth(request.body));
   });
 
-  server.post('/own-auth/refresh', async function ownAuthRefreshHandler(_, reply) {
-    return sendOwnAuthGateResponse(reply);
+  server.post('/own-auth/refresh', async function ownAuthRefreshHandler(request, reply) {
+    const gate = readOwnAuthRouteGate();
+
+    if (!gate.enabled) {
+      return sendOwnAuthNotReady(reply);
+    }
+
+    return sendOwnAuthRefreshResult(
+      reply,
+      await refreshWithOwnAuth(request.body),
+    );
   });
 
-  server.post('/own-auth/logout', async function ownAuthLogoutHandler(_, reply) {
-    return sendOwnAuthGateResponse(reply);
+  server.post('/own-auth/logout', async function ownAuthLogoutHandler(request, reply) {
+    const gate = readOwnAuthRouteGate();
+
+    if (!gate.enabled) {
+      return sendOwnAuthNotReady(reply);
+    }
+
+    return sendOwnAuthLogoutResult(
+      reply,
+      await logoutWithOwnAuth(request.body),
+    );
   });
 
-  server.get('/own-auth/session', async function ownAuthSessionHandler(_, reply) {
-    return sendOwnAuthGateResponse(reply);
+  server.get('/own-auth/session', async function ownAuthSessionHandler(request, reply) {
+    const gate = readOwnAuthRouteGate();
+
+    if (!gate.enabled) {
+      return sendOwnAuthNotReady(reply);
+    }
+
+    return sendOwnAuthSessionResult(
+      reply,
+      await readSessionWithOwnAuth(request.headers.authorization),
+    );
   });
 }

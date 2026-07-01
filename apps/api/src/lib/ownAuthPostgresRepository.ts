@@ -685,6 +685,24 @@ function createRepository(
       return row === undefined ? null : mapRefreshSessionRow(row);
     },
 
+    async readRefreshSessionByTokenHash(
+      refreshTokenHash: string,
+    ): Promise<OwnRefreshSessionRecord | null> {
+      const result = await executor.query<RefreshSessionRow>({
+        parameters: [refreshTokenHash],
+        text: `
+          select ${refreshSessionColumns}
+          from auth_refresh_sessions
+          where refresh_token_hash = $1
+          limit 1
+        `,
+      });
+
+      const row = result.rows[0];
+
+      return row === undefined ? null : mapRefreshSessionRow(row);
+    },
+
     async rotateRefreshSession(
       input: OwnRotateRefreshSessionInput,
     ): Promise<OwnRefreshSessionRecord> {

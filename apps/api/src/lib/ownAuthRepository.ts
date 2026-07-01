@@ -188,6 +188,9 @@ export type OwnRefreshSessionRepository = Readonly<{
   readRefreshSessionById(
     sessionId: OwnRefreshSessionId,
   ): Promise<OwnRefreshSessionRecord | null>;
+  readRefreshSessionByTokenHash(
+    refreshTokenHash: OwnRefreshTokenHash,
+  ): Promise<OwnRefreshSessionRecord | null>;
   rotateRefreshSession(
     input: OwnRotateRefreshSessionInput,
   ): Promise<OwnRefreshSessionRecord>;
