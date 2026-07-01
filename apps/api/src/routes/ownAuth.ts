@@ -7,7 +7,10 @@ import { createOwnAuthPostgresRepository } from '../lib/ownAuthPostgresRepositor
 import type { OwnAuthRepository } from '../lib/ownAuthRepository';
 import { readOwnAuthRouteGate } from '../lib/ownAuthRouteGate';
 import { createOwnDbPostgresAdapter, OwnDbPostgresError } from '../lib/ownDbPostgresAdapter';
-import { createOwnPasswordHash } from '../lib/ownPasswordHashing';
+import {
+  createOwnPasswordHash,
+  verifyOwnPasswordHash,
+} from '../lib/ownPasswordHashing';
 import { createOwnRefreshToken } from '../lib/ownSessionTokens';
 import {
   normalizeRecoveryEmail,
@@ -33,7 +36,9 @@ type OwnAuthErrorResponse = Readonly<{
     code:
       | 'OWN_AUTH_DATABASE_NOT_CONFIGURED'
       | 'OWN_AUTH_DATABASE_UNAVAILABLE'
+      | 'OWN_AUTH_INVALID_CREDENTIALS'
       | 'OWN_AUTH_INVALID_INPUT'
+      | 'OWN_AUTH_LOGIN_FAILED'
       | 'OWN_AUTH_SIGNUP_FAILED'
       | 'OWN_AUTH_USERNAME_TAKEN';
     message: string;
@@ -63,9 +68,37 @@ type OwnAuthSignupCreatedResponse = Readonly<{
   };
 }>;
 
+type OwnAuthLoginOkResponse = Readonly<{
+  ok: true;
+  code: 'OWN_AUTH_LOGIN_OK';
+  data: {
+    account: {
+      id: string;
+      username: string;
+    };
+    session: {
+      accountId: string;
+      anonymousIdentityId: string | null;
+      accessToken: string;
+      refreshToken: string;
+      expiresAt: string;
+      tokenType: 'Bearer';
+      sessionId: string;
+      profileReady: boolean;
+      anonymousIdentityReady: boolean;
+      onboardingComplete: boolean;
+    };
+  };
+}>;
+
 type OwnAuthSignupResult = Readonly<{
   statusCode: 201 | 400 | 409 | 500 | 503;
   response: OwnAuthSignupCreatedResponse | OwnAuthErrorResponse;
+}>;
+
+type OwnAuthLoginResult = Readonly<{
+  statusCode: 200 | 400 | 401 | 500 | 503;
+  response: OwnAuthLoginOkResponse | OwnAuthErrorResponse;
 }>;
 
 type OwnAuthRepositoryCache = {
@@ -114,6 +147,13 @@ function createOwnAuthErrorResponse(
 function sendOwnAuthSignupResult(
   reply: FastifyReply,
   result: OwnAuthSignupResult,
+) {
+  return reply.status(result.statusCode).send(result.response);
+}
+
+function sendOwnAuthLoginResult(
+  reply: FastifyReply,
+  result: OwnAuthLoginResult,
 ) {
   return reply.status(result.statusCode).send(result.response);
 }
@@ -172,6 +212,12 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 
 function hasUnsupportedSignupField(input: Record<string, unknown>): boolean {
   const supportedFields = new Set(['email', 'password', 'recoveryEmail', 'username']);
+
+  return Object.keys(input).some((key) => !supportedFields.has(key));
+}
+
+function hasUnsupportedLoginField(input: Record<string, unknown>): boolean {
+  const supportedFields = new Set(['password', 'username']);
 
   return Object.keys(input).some((key) => !supportedFields.has(key));
 }
@@ -350,6 +396,140 @@ async function signupWithOwnAuth(input: unknown): Promise<OwnAuthSignupResult> {
   }
 }
 
+function createInvalidCredentialsResult(): OwnAuthLoginResult {
+  return {
+    response: createOwnAuthErrorResponse(
+      'OWN_AUTH_INVALID_CREDENTIALS',
+      'Username or password is invalid.',
+    ),
+    statusCode: 401,
+  };
+}
+
+async function loginWithOwnAuth(input: unknown): Promise<OwnAuthLoginResult> {
+  if (!isPlainObject(input) || hasUnsupportedLoginField(input)) {
+    return {
+      response: createOwnAuthErrorResponse(
+        'OWN_AUTH_INVALID_INPUT',
+        'Check login input.',
+      ),
+      statusCode: 400,
+    };
+  }
+
+  const username = normalizeUsername(input.username);
+  const password = validatePassword(input.password);
+
+  if (!username.ok || !password.ok) {
+    return createInvalidCredentialsResult();
+  }
+
+  const repositoryResult = getOwnAuthRepositoryFromEnv();
+
+  if (!repositoryResult.ok) {
+    return {
+      response: createOwnAuthErrorResponse(
+        'OWN_AUTH_DATABASE_NOT_CONFIGURED',
+        'Own auth database is not configured.',
+      ),
+      statusCode: 503,
+    };
+  }
+
+  const refreshToken = createOwnRefreshToken();
+  const refreshSessionExpiresAt = getRefreshSessionExpiresAt();
+
+  try {
+    const accountWithCredential =
+      await repositoryResult.repository.readAccountByNormalizedUsername(
+        username.normalized,
+      );
+
+    if (
+      accountWithCredential === null ||
+      accountWithCredential.account.lifecycleState !== 'active' ||
+      accountWithCredential.passwordCredential.credentialStatus !== 'active'
+    ) {
+      return createInvalidCredentialsResult();
+    }
+
+    const passwordMatches = await verifyOwnPasswordHash(
+      password.password,
+      accountWithCredential.passwordCredential.passwordHash,
+    );
+
+    if (!passwordMatches) {
+      return createInvalidCredentialsResult();
+    }
+
+    const login = await repositoryResult.repository.withTransaction(
+      async (repository) => {
+        const refreshSession = await repository.createRefreshSession({
+          accountId: accountWithCredential.account.id,
+          expiresAt: refreshSessionExpiresAt,
+          refreshTokenHash: refreshToken.tokenHash,
+        });
+        const profileReadiness = await repository.readProfileReadinessForSessionDto(
+          accountWithCredential.account.id,
+        );
+
+        return {
+          profileReadiness,
+          refreshSession,
+        };
+      },
+    );
+
+    return {
+      response: {
+        code: 'OWN_AUTH_LOGIN_OK',
+        data: {
+          account: {
+            id: accountWithCredential.account.id,
+            username:
+              accountWithCredential.passwordCredential.usernameNormalized,
+          },
+          session: {
+            accessToken: createOwnAccessToken(),
+            accountId: accountWithCredential.account.id,
+            anonymousIdentityId: login.profileReadiness.anonymousIdentityId,
+            anonymousIdentityReady:
+              login.profileReadiness.anonymousIdentityReady,
+            expiresAt: login.refreshSession.expiresAt,
+            onboardingComplete: login.profileReadiness.onboardingComplete,
+            profileReady: login.profileReadiness.profileReady,
+            refreshToken: refreshToken.token,
+            sessionId: login.refreshSession.id,
+            tokenType: 'Bearer',
+          },
+        },
+        ok: true,
+      },
+      statusCode: 200,
+    };
+  } catch (error) {
+    if (error instanceof OwnDbPostgresError) {
+      if (error.code === 'connection_unavailable') {
+        return {
+          response: createOwnAuthErrorResponse(
+            'OWN_AUTH_DATABASE_UNAVAILABLE',
+            'Own auth database is unavailable.',
+          ),
+          statusCode: 503,
+        };
+      }
+    }
+
+    return {
+      response: createOwnAuthErrorResponse(
+        'OWN_AUTH_LOGIN_FAILED',
+        'Own auth login could not be completed.',
+      ),
+      statusCode: 500,
+    };
+  }
+}
+
 function sendOwnAuthGateResponse(reply: FastifyReply) {
   const gate = readOwnAuthRouteGate();
 
@@ -373,8 +553,14 @@ export async function registerOwnAuthRoutes(
     return sendOwnAuthSignupResult(reply, await signupWithOwnAuth(request.body));
   });
 
-  server.post('/own-auth/login', async function ownAuthLoginHandler(_, reply) {
-    return sendOwnAuthGateResponse(reply);
+  server.post('/own-auth/login', async function ownAuthLoginHandler(request, reply) {
+    const gate = readOwnAuthRouteGate();
+
+    if (!gate.enabled) {
+      return sendOwnAuthNotReady(reply);
+    }
+
+    return sendOwnAuthLoginResult(reply, await loginWithOwnAuth(request.body));
   });
 
   server.post('/own-auth/refresh', async function ownAuthRefreshHandler(_, reply) {
