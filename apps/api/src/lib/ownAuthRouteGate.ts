@@ -8,6 +8,6 @@ export function readOwnAuthRouteGate(
   env: NodeJS.ProcessEnv = process.env,
 ): OwnAuthRouteGateState {
   return {
-    enabled: env[ownAuthRuntimeEnabledEnvKey]?.trim().toLowerCase() === 'true',
+    enabled: env[ownAuthRuntimeEnabledEnvKey] === 'true',
   };
 }

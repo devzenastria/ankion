@@ -8,14 +8,34 @@ type OwnAuthNotReadyResponse = Readonly<{
   message: 'Own auth is not ready yet.';
 }>;
 
+type OwnAuthRuntimeNotImplementedResponse = Readonly<{
+  error: {
+    code: 'OWN_AUTH_RUNTIME_NOT_IMPLEMENTED';
+    message: 'Own auth runtime is enabled but this endpoint is not implemented yet.';
+  };
+}>;
+
 const ownAuthNotReadyResponse: OwnAuthNotReadyResponse = {
   ok: false,
   code: 'OWN_AUTH_NOT_READY',
   message: 'Own auth is not ready yet.',
 };
 
+const ownAuthRuntimeNotImplementedResponse: OwnAuthRuntimeNotImplementedResponse =
+  {
+    error: {
+      code: 'OWN_AUTH_RUNTIME_NOT_IMPLEMENTED',
+      message:
+        'Own auth runtime is enabled but this endpoint is not implemented yet.',
+    },
+  };
+
 function sendOwnAuthNotReady(reply: FastifyReply) {
   return reply.status(503).send(ownAuthNotReadyResponse);
+}
+
+function sendOwnAuthRuntimeNotImplemented(reply: FastifyReply) {
+  return reply.status(501).send(ownAuthRuntimeNotImplementedResponse);
 }
 
 function sendOwnAuthGateResponse(reply: FastifyReply) {
@@ -25,7 +45,7 @@ function sendOwnAuthGateResponse(reply: FastifyReply) {
     return sendOwnAuthNotReady(reply);
   }
 
-  return sendOwnAuthNotReady(reply);
+  return sendOwnAuthRuntimeNotImplemented(reply);
 }
 
 export async function registerOwnAuthRoutes(
