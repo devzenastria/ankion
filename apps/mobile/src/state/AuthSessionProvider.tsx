@@ -11,21 +11,20 @@ import {
 
 import type {
   AnonymousIdentityReadiness,
+  AuthErrorState,
   AuthSessionState,
+  AuthUserView,
   OwnerCreationReadiness,
   SessionBoundarySnapshot,
   SessionRecoveryState,
 } from "../lib/authSessionBoundary";
-import {
-  completeAuthCallbackFromUrl,
-  type AuthCallbackBoundaryRequest,
-  type AuthCallbackBoundaryResult,
+import type {
+  AuthCallbackBoundaryRequest,
+  AuthCallbackBoundaryResult,
 } from "../lib/authCallbackBoundary";
-import { getBackendApiPublicEnv } from "../lib/apiEnv";
-import {
-  getBackendProfileFoundation,
-  type BackendProfileFoundationResult,
-  type BackendProfileFoundationStatus,
+import type {
+  BackendProfileFoundationResult,
+  BackendProfileFoundationStatus,
 } from "../lib/backendApiBoundary";
 import {
   requestOwnerProfileCreation,
@@ -33,21 +32,24 @@ import {
   type OwnerProfileCreationRequest,
 } from "../lib/ownerProfileCreationBoundary";
 import {
-  readAuthSessionBoundary,
   type AuthSessionReadBoundaryResult,
 } from "../lib/authSessionReadBoundary";
 import {
   getAuthBoundaryViewState,
   type AuthBoundaryViewState,
 } from "../lib/authSessionViewState";
-import { getRuntimeSupabaseBoundary } from "../lib/supabaseBoundary";
 import {
-  requestUsernameLogin,
-  requestUsernameSignup,
-  type UsernameAuthResult,
   type UsernameLoginRequest,
   type UsernameSignupRequest,
 } from "../lib/usernameAuthBoundary";
+import {
+  readOwnAuthSession,
+  requestOwnAuthLogin,
+  requestOwnAuthLogout,
+  requestOwnAuthSignup,
+  type OwnAuthMemorySession,
+  type OwnAuthUsernameResult,
+} from "../lib/ownAuthClient";
 
 const inertRecoveryState: SessionRecoveryState = {
   status: "none",
@@ -124,6 +126,35 @@ const loadingBackendProfileFoundationState: BackendProfileFoundationReadState = 
   isProductUnlockEnabled: false,
 };
 
+function createBackendProfileFoundationSessionMissingResult(): BackendProfileFoundationResult {
+  return {
+    kind: "backend_profile_foundation_result",
+    status: "session_missing",
+    isConfigured: true,
+    isSessionRequired: true,
+    isBackendAuthority: false,
+    isProductUnlockEnabled: false,
+    profileFoundation: null,
+  };
+}
+
+function createBackendProfileFoundationResultFromOwnSession(
+  ownSession: OwnAuthMemorySession,
+): BackendProfileFoundationResult {
+  return {
+    kind: "backend_profile_foundation_result",
+    status: "success",
+    isConfigured: true,
+    isSessionRequired: false,
+    isBackendAuthority: false,
+    isProductUnlockEnabled: false,
+    profileFoundation: {
+      anonymousIdentityReady: ownSession.session.anonymousIdentityReady,
+      profileReady: ownSession.session.profileReady,
+    },
+  };
+}
+
 export type AuthSignOutBoundaryStatus =
   | "signed_out"
   | "client_unavailable"
@@ -136,7 +167,7 @@ export type AuthSignOutBoundaryResult = Readonly<{
   status: AuthSignOutBoundaryStatus;
   safeMessage: string;
   isSessionCleared: boolean;
-  isBackendAuthority: false;
+  isBackendAuthority: true;
   isProductUnlockEnabled: false;
   isListenerEnabled: false;
 }>;
@@ -147,8 +178,8 @@ export type AuthSessionProviderValue = Readonly<{
   backendProfileFoundation: BackendProfileFoundationReadState;
   isInitialSessionReadPending: boolean;
   phaseGate: "auth_provider_skeleton";
-  isRuntimeAuthEnabled: false;
-  isAuthCallbackBoundaryEnabled: true;
+  isRuntimeAuthEnabled: boolean;
+  isAuthCallbackBoundaryEnabled: false;
   isOwnerProfileCreationBoundaryEnabled: true;
   isRuntimeAuthReadBoundaryAvailable: true;
   isRuntimeAuthListenerEnabled: false;
@@ -158,10 +189,10 @@ export type AuthSessionProviderValue = Readonly<{
   readSessionBoundary: () => Promise<AuthSessionReadBoundaryResult>;
   requestUsernameSignup: (
     input: UsernameSignupRequest,
-  ) => Promise<UsernameAuthResult>;
+  ) => Promise<OwnAuthUsernameResult>;
   requestUsernameLogin: (
     input: UsernameLoginRequest,
-  ) => Promise<UsernameAuthResult>;
+  ) => Promise<OwnAuthUsernameResult>;
   requestOwnerProfileCreation: (
     input: OwnerProfileCreationRequest,
   ) => Promise<OwnerProfileCreationBoundaryResult>;
@@ -172,42 +203,14 @@ export type AuthSessionProviderValue = Readonly<{
 
 const AuthSessionContext = createContext<AuthSessionProviderValue | null>(null);
 
-async function readBackendProfileFoundationBoundary(): Promise<BackendProfileFoundationResult> {
-  const apiEnv = getBackendApiPublicEnv();
-
-  if (!apiEnv.isConfigured) {
-    return getBackendProfileFoundation({
-      apiBaseUrl: apiEnv.apiBaseUrl,
-      accessToken: null,
-    });
+async function readBackendProfileFoundationBoundary(
+  ownSession: OwnAuthMemorySession | null,
+): Promise<BackendProfileFoundationResult> {
+  if (ownSession === null) {
+    return createBackendProfileFoundationSessionMissingResult();
   }
 
-  const boundary = getRuntimeSupabaseBoundary();
-
-  if (!boundary.clientAvailable || boundary.client === null) {
-    return getBackendProfileFoundation({
-      apiBaseUrl: apiEnv.apiBaseUrl,
-      accessToken: null,
-    });
-  }
-
-  try {
-    const { data, error } = await boundary.client.auth.getSession();
-    const accessToken =
-      error === null && data.session !== null
-        ? data.session.access_token
-        : null;
-
-    return getBackendProfileFoundation({
-      apiBaseUrl: apiEnv.apiBaseUrl,
-      accessToken,
-    });
-  } catch {
-    return getBackendProfileFoundation({
-      apiBaseUrl: apiEnv.apiBaseUrl,
-      accessToken: null,
-    });
-  }
+  return createBackendProfileFoundationResultFromOwnSession(ownSession);
 }
 
 function canReadBackendProfileFoundation(
@@ -305,8 +308,128 @@ function createAuthSignOutResult(
     status,
     safeMessage,
     isSessionCleared,
-    isBackendAuthority: false,
+    isBackendAuthority: true,
     isProductUnlockEnabled: false,
+    isListenerEnabled: false,
+  };
+}
+
+function createOwnAuthUserView(ownSession: OwnAuthMemorySession): AuthUserView {
+  return {
+    id: ownSession.account.id,
+    displayName: ownSession.account.username,
+    email: null,
+    phone: null,
+    providerLabel: "ankion_api",
+    isServerDerived: true,
+    isDisplayOnly: true,
+  };
+}
+
+function createOwnAuthAnonymousIdentity(
+  ownSession: OwnAuthMemorySession,
+): AnonymousIdentityReadiness {
+  return {
+    status: ownSession.session.anonymousIdentityReady ? "ready" : "not_created",
+    serverConfirmedAnonymousIdentityId: ownSession.session.anonymousIdentityId,
+    isServerConfirmed: true,
+    localCacheTrusted: false,
+  };
+}
+
+function createOwnAuthOwnerCreation(
+  ownSession: OwnAuthMemorySession,
+): OwnerCreationReadiness {
+  return {
+    status: ownSession.session.profileReady ? "complete" : "not_authenticated",
+    error: null,
+    canRequest: false,
+    isRequestEligibilityOnly: true,
+  };
+}
+
+function createOwnAuthSnapshot(
+  ownSession: OwnAuthMemorySession,
+): SessionBoundarySnapshot {
+  const session: AuthSessionState = {
+    status: "authenticated",
+    user: createOwnAuthUserView(ownSession),
+    error: null,
+    recovery: inertRecoveryState,
+    isServerConfirmed: true,
+    isLocalOnly: false,
+  };
+
+  return {
+    session,
+    anonymousIdentity: createOwnAuthAnonymousIdentity(ownSession),
+    ownerCreation: createOwnAuthOwnerCreation(ownSession),
+    recovery: inertRecoveryState,
+    errors: [],
+  };
+}
+
+function createOwnAuthUnauthenticatedSnapshot(): SessionBoundarySnapshot {
+  return {
+    session: {
+      status: "unauthenticated",
+      user: null,
+      error: null,
+      recovery: inertRecoveryState,
+      isServerConfirmed: true,
+      isLocalOnly: false,
+    },
+    anonymousIdentity: inertAnonymousIdentity,
+    ownerCreation: inertOwnerCreation,
+    recovery: inertRecoveryState,
+    errors: [],
+  };
+}
+
+function createReadFailedSnapshot(message: string | null): SessionBoundarySnapshot {
+  const recovery: SessionRecoveryState = {
+    status: "server_recheck_required",
+    reason: "own_auth_session_read_failed",
+    requiresServerRecheck: true,
+  };
+  const error: AuthErrorState = {
+    code: "SESSION_REFRESH_FAILED",
+    message,
+    recoveryStatus: recovery.status,
+  };
+
+  return {
+    session: {
+      status: "refresh_failed",
+      user: null,
+      error,
+      recovery,
+      isServerConfirmed: false,
+      isLocalOnly: false,
+    },
+    anonymousIdentity: inertAnonymousIdentity,
+    ownerCreation: inertOwnerCreation,
+    recovery,
+    errors: [error],
+  };
+}
+
+function createOwnAuthSessionReadResult(input: {
+  status: AuthSessionReadBoundaryResult["status"];
+  snapshot: SessionBoundarySnapshot;
+  sessionPresent: boolean;
+  isServerConfirmed: boolean;
+}): AuthSessionReadBoundaryResult {
+  return {
+    kind: "auth_session_read_boundary_result",
+    phaseGate: "auth_session_read_boundary",
+    status: input.status,
+    snapshot: input.snapshot,
+    clientAvailable: true,
+    sessionPresent: input.sessionPresent,
+    isBackendAuthority: true,
+    isServerConfirmed: input.isServerConfirmed,
+    isMutationEnabled: false,
     isListenerEnabled: false,
   };
 }
@@ -321,6 +444,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     );
   const [isInitialSessionReadPending, setIsInitialSessionReadPending] =
     useState(true);
+  const ownAuthMemorySessionRef = useRef<OwnAuthMemorySession | null>(null);
   const isMountedRef = useRef(true);
   const backendProfileReadIdRef = useRef(0);
 
@@ -346,7 +470,9 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       }
 
       try {
-        const result = await readBackendProfileFoundationBoundary();
+        const result = await readBackendProfileFoundationBoundary(
+          ownAuthMemorySessionRef.current,
+        );
         const nextState = createBackendProfileFoundationState(result);
 
         if (
@@ -380,40 +506,140 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
 
   const readSessionBoundaryWithSnapshot =
     useCallback(async (): Promise<AuthSessionReadBoundaryResult> => {
-      const result = await readAuthSessionBoundary();
+      const currentSession = ownAuthMemorySessionRef.current;
 
-      setSnapshot(result.snapshot);
-      void refreshBackendProfileFoundationForSnapshot(result.snapshot);
+      if (currentSession === null) {
+        const snapshot = createOwnAuthUnauthenticatedSnapshot();
+        const result = createOwnAuthSessionReadResult({
+          status: "unauthenticated",
+          snapshot,
+          sessionPresent: false,
+          isServerConfirmed: true,
+        });
+
+        if (isMountedRef.current) {
+          setSnapshot(result.snapshot);
+          void refreshBackendProfileFoundationForSnapshot(result.snapshot);
+        }
+
+        return result;
+      }
+
+      const ownAuthSessionResult = await readOwnAuthSession(
+        currentSession.session.refreshToken,
+      );
+
+      if (ownAuthSessionResult.status === "success") {
+        const nextSession: OwnAuthMemorySession = {
+          account: ownAuthSessionResult.session.account,
+          session: {
+            ...ownAuthSessionResult.session.session,
+            accessToken: currentSession.session.accessToken,
+            refreshToken: currentSession.session.refreshToken,
+          },
+        };
+        const snapshot = createOwnAuthSnapshot(nextSession);
+        const result = createOwnAuthSessionReadResult({
+          status: "authenticated_client_observed",
+          snapshot,
+          sessionPresent: true,
+          isServerConfirmed: true,
+        });
+
+        ownAuthMemorySessionRef.current = nextSession;
+
+        if (isMountedRef.current) {
+          setSnapshot(result.snapshot);
+          void refreshBackendProfileFoundationForSnapshot(result.snapshot);
+        }
+
+        return result;
+      }
+
+      if (ownAuthSessionResult.status === "invalid_session") {
+        const snapshot = createOwnAuthUnauthenticatedSnapshot();
+        const result = createOwnAuthSessionReadResult({
+          status: "unauthenticated",
+          snapshot,
+          sessionPresent: false,
+          isServerConfirmed: true,
+        });
+
+        ownAuthMemorySessionRef.current = null;
+
+        if (isMountedRef.current) {
+          setSnapshot(result.snapshot);
+          void refreshBackendProfileFoundationForSnapshot(result.snapshot);
+        }
+
+        return result;
+      }
+
+      const snapshot = createReadFailedSnapshot(ownAuthSessionResult.safeMessage);
+      const result = createOwnAuthSessionReadResult({
+        status: "read_failed",
+        snapshot,
+        sessionPresent: false,
+        isServerConfirmed: false,
+      });
+
+      if (isMountedRef.current) {
+        setSnapshot(result.snapshot);
+        void refreshBackendProfileFoundationForSnapshot(result.snapshot);
+      }
 
       return result;
-    }, [refreshBackendProfileFoundationForSnapshot]);
+    }, []);
 
   const completeAuthCallbackWithSnapshot = useCallback(
     async (
       request: AuthCallbackBoundaryRequest,
     ): Promise<AuthCallbackBoundaryResult> => {
-      const result = await completeAuthCallbackFromUrl(request);
+      const hasCallbackData =
+        (request.callbackUrl !== null && request.callbackUrl.trim().length > 0) ||
+        (request.routeParams !== null &&
+          request.routeParams !== undefined &&
+          Object.keys(request.routeParams).length > 0);
 
-      if (result.isSessionEstablished) {
-        const sessionResult = await readAuthSessionBoundary();
-
-        setSnapshot(sessionResult.snapshot);
-        void refreshBackendProfileFoundationForSnapshot(sessionResult.snapshot);
-      }
-
-      return result;
+      return {
+        kind: "auth_callback_boundary_result",
+        phaseGate: "auth_callback_deep_link_boundary",
+        status: hasCallbackData ? "callback_failed" : "missing_url",
+        isBackendAuthority: false,
+        isServerConfirmed: false,
+        isListenerEnabled: false,
+        isOwnerCreationEnabled: false,
+        isProfileCreationEnabled: false,
+        isProductUnlockEnabled: false,
+        isSessionEstablished: false,
+        isPersistentSessionEnabled: false,
+        hasCallbackData,
+        hasAccessToken: false,
+        hasRefreshToken: false,
+        hasCode: false,
+        hasErrorParam: false,
+        safeMessage: "Own auth mobil oturum baglantisi kullanmaz.",
+      };
     },
-    [refreshBackendProfileFoundationForSnapshot],
+    [],
   );
 
   const refreshSnapshotAfterUsernameAuth = useCallback(
-    async (result: UsernameAuthResult): Promise<UsernameAuthResult> => {
-      if (result.isSessionEstablished) {
-        const sessionResult = await readAuthSessionBoundary();
+    async (result: OwnAuthUsernameResult): Promise<OwnAuthUsernameResult> => {
+      if (result.isSessionEstablished && result.ownAuthSession !== null) {
+        const snapshot = createOwnAuthSnapshot(result.ownAuthSession);
+
+        ownAuthMemorySessionRef.current = result.ownAuthSession;
 
         if (isMountedRef.current) {
-          setSnapshot(sessionResult.snapshot);
-          void refreshBackendProfileFoundationForSnapshot(sessionResult.snapshot);
+          setSnapshot(snapshot);
+          setBackendProfileFoundation(
+            createBackendProfileFoundationState(
+              createBackendProfileFoundationResultFromOwnSession(
+                result.ownAuthSession,
+              ),
+            ),
+          );
         }
       }
 
@@ -423,8 +649,8 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
   );
 
   const requestUsernameSignupWithSnapshot = useCallback(
-    async (input: UsernameSignupRequest): Promise<UsernameAuthResult> => {
-      const result = await requestUsernameSignup(input);
+    async (input: UsernameSignupRequest): Promise<OwnAuthUsernameResult> => {
+      const result = await requestOwnAuthSignup(input);
 
       return refreshSnapshotAfterUsernameAuth(result);
     },
@@ -432,8 +658,8 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
   );
 
   const requestUsernameLoginWithSnapshot = useCallback(
-    async (input: UsernameLoginRequest): Promise<UsernameAuthResult> => {
-      const result = await requestUsernameLogin(input);
+    async (input: UsernameLoginRequest): Promise<OwnAuthUsernameResult> => {
+      const result = await requestOwnAuthLogin(input);
 
       return refreshSnapshotAfterUsernameAuth(result);
     },
@@ -442,63 +668,39 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
 
   const requestSignOutWithSnapshot =
     useCallback(async (): Promise<AuthSignOutBoundaryResult> => {
-      const boundary = getRuntimeSupabaseBoundary();
-
-      if (!boundary.clientAvailable || boundary.client === null) {
-        return createAuthSignOutResult(
-          "client_unavailable",
-          "\u00c7\u0131k\u0131\u015f yap\u0131lamad\u0131. Oturum istemcisi haz\u0131r de\u011fil.",
-          false,
-        );
-      }
+      const currentSession = ownAuthMemorySessionRef.current;
 
       try {
-        const { error } = await boundary.client.auth.signOut();
-
-        if (error !== null) {
-          return createAuthSignOutResult(
-            "sign_out_failed",
-            "\u00c7\u0131k\u0131\u015f yap\u0131lamad\u0131. Tekrar dene.",
-            false,
-          );
+        if (currentSession !== null) {
+          await requestOwnAuthLogout(currentSession.session.refreshToken);
         }
 
-        const sessionResult = await readAuthSessionBoundary();
+        ownAuthMemorySessionRef.current = null;
+        const snapshot = createOwnAuthUnauthenticatedSnapshot();
 
         if (isMountedRef.current) {
-          setSnapshot(sessionResult.snapshot);
-          void refreshBackendProfileFoundationForSnapshot(sessionResult.snapshot);
-        }
-
-        if (
-          sessionResult.status === "unauthenticated" &&
-          !sessionResult.sessionPresent
-        ) {
-          return createAuthSignOutResult(
-            "signed_out",
-            "\u00c7\u0131k\u0131\u015f yap\u0131ld\u0131.",
-            true,
-          );
-        }
-
-        if (sessionResult.status === "read_failed") {
-          return createAuthSignOutResult(
-            "session_read_failed",
-            "\u00c7\u0131k\u0131\u015f durumu do\u011frulanamad\u0131. Tekrar dene.",
-            false,
-          );
+          setSnapshot(snapshot);
+          setBackendProfileFoundation(createBackendProfileFoundationSessionMissingState());
         }
 
         return createAuthSignOutResult(
-          "session_still_present",
-          "Oturum hala a\u00e7\u0131k g\u00f6r\u00fcn\u00fcyor. Tekrar dene.",
-          false,
+          "signed_out",
+          "\u00c7\u0131k\u0131\u015f yap\u0131ld\u0131.",
+          true,
         );
       } catch {
+        ownAuthMemorySessionRef.current = null;
+        const snapshot = createOwnAuthUnauthenticatedSnapshot();
+
+        if (isMountedRef.current) {
+          setSnapshot(snapshot);
+          setBackendProfileFoundation(createBackendProfileFoundationSessionMissingState());
+        }
+
         return createAuthSignOutResult(
-          "sign_out_failed",
-          "\u00c7\u0131k\u0131\u015f yap\u0131lamad\u0131. Tekrar dene.",
-          false,
+          "signed_out",
+          "\u00c7\u0131k\u0131\u015f yap\u0131ld\u0131.",
+          true,
         );
       }
     }, [refreshBackendProfileFoundationForSnapshot]);
@@ -513,7 +715,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     let isCancelled = false;
 
-    void readAuthSessionBoundary()
+    void readSessionBoundaryWithSnapshot()
       .then((result) => {
         if (!isCancelled && isMountedRef.current) {
           setSnapshot(result.snapshot);
@@ -529,7 +731,14 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     return () => {
       isCancelled = true;
     };
-  }, [refreshBackendProfileFoundationForSnapshot]);
+  }, [readSessionBoundaryWithSnapshot, refreshBackendProfileFoundationForSnapshot]);
+
+  const readBackendProfileFoundationWithMemory =
+    useCallback(async (): Promise<BackendProfileFoundationResult> => {
+      return readBackendProfileFoundationBoundary(
+        ownAuthMemorySessionRef.current,
+      );
+    }, []);
 
   const value = useMemo<AuthSessionProviderValue>(() => {
     return {
@@ -544,8 +753,8 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       backendProfileFoundation,
       isInitialSessionReadPending,
       phaseGate: "auth_provider_skeleton",
-      isRuntimeAuthEnabled: false,
-      isAuthCallbackBoundaryEnabled: true,
+      isRuntimeAuthEnabled: true,
+      isAuthCallbackBoundaryEnabled: false,
       isOwnerProfileCreationBoundaryEnabled: true,
       isRuntimeAuthReadBoundaryAvailable: true,
       isRuntimeAuthListenerEnabled: false,
@@ -554,7 +763,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       requestUsernameSignup: requestUsernameSignupWithSnapshot,
       requestUsernameLogin: requestUsernameLoginWithSnapshot,
       requestOwnerProfileCreation,
-      readBackendProfileFoundation: readBackendProfileFoundationBoundary,
+      readBackendProfileFoundation: readBackendProfileFoundationWithMemory,
       refreshBackendProfileFoundation,
       requestSignOut: requestSignOutWithSnapshot,
     };
@@ -562,6 +771,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     backendProfileFoundation,
     completeAuthCallbackWithSnapshot,
     isInitialSessionReadPending,
+    readBackendProfileFoundationWithMemory,
     refreshBackendProfileFoundation,
     readSessionBoundaryWithSnapshot,
     requestSignOutWithSnapshot,

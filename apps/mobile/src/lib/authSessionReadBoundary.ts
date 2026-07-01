@@ -23,10 +23,10 @@ export type AuthSessionReadBoundaryResult = Readonly<{
   snapshot: SessionBoundarySnapshot;
   clientAvailable: boolean;
   sessionPresent: boolean;
-  isBackendAuthority: false;
-  isServerConfirmed: false;
-  isMutationEnabled: false;
-  isListenerEnabled: false;
+  isBackendAuthority: boolean;
+  isServerConfirmed: boolean;
+  isMutationEnabled: boolean;
+  isListenerEnabled: boolean;
 }>;
 
 type SafeUserSource = Readonly<{
