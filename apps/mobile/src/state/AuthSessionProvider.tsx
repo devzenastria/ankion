@@ -301,6 +301,19 @@ function createBackendProfileFoundationState(
   };
 }
 
+function createBackendProfileFoundationCompleteState(): BackendProfileFoundationReadState {
+  return {
+    status: "success",
+    profileReady: true,
+    anonymousIdentityReady: true,
+    onboardingComplete: true,
+    message: getBackendProfileFoundationMessage("success", true, true, true),
+    canRetry: false,
+    isBackendAuthority: false,
+    isProductUnlockEnabled: false,
+  };
+}
+
 function createBackendProfileFoundationSessionMissingState(): BackendProfileFoundationReadState {
   return {
     status: "session_missing",
@@ -510,6 +523,12 @@ function createOwnAuthSessionReadResult(input: {
   };
 }
 
+function isSnapshotProfileFoundationComplete(
+  snapshot: SessionBoundarySnapshot,
+): boolean {
+  return snapshot.ownerCreation.status === "complete";
+}
+
 export function AuthSessionProvider({ children }: PropsWithChildren) {
   const [snapshot, setSnapshot] = useState<SessionBoundarySnapshot>(
     inertSessionBoundarySnapshot,
@@ -544,10 +563,12 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       if (isMountedRef.current) {
         setBackendProfileFoundation((currentState) => {
           if (
-            currentState.status === "success" &&
-            currentState.onboardingComplete
+            currentState.onboardingComplete ||
+            isSnapshotProfileFoundationComplete(nextSnapshot)
           ) {
-            return currentState;
+            return currentState.onboardingComplete
+              ? currentState
+              : createBackendProfileFoundationCompleteState();
           }
 
           return loadingBackendProfileFoundationState;

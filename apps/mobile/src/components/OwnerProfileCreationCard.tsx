@@ -48,6 +48,7 @@ export function OwnerProfileCreationCard() {
     backendProfileFoundation,
     refreshBackendProfileFoundation,
     requestOwnerProfileCreation,
+    snapshot,
   } = useAuthSessionBoundary();
   const [displayName, setDisplayName] = useState("");
   const [shortBio, setShortBio] = useState("");
@@ -87,7 +88,12 @@ export function OwnerProfileCreationCard() {
   const isLoading = status === "loading";
   const visibleMessage = getVisibleMessage(status);
   const isBackendLoading = backendProfileFoundation.status === "loading";
-  const isFoundationComplete = backendProfileFoundation.onboardingComplete;
+  const isFoundationComplete =
+    backendProfileFoundation.onboardingComplete ||
+    snapshot.ownerCreation.status === "complete";
+  const foundationMessage = isFoundationComplete
+    ? "Profil kurulumu güncel."
+    : backendProfileFoundation.message;
   const canRetryBackendRead =
     backendProfileFoundation.canRetry &&
     !isBackendLoading &&
@@ -105,7 +111,7 @@ export function OwnerProfileCreationCard() {
 
         <View style={styles.statusPanel}>
           <Text style={styles.statusTitle}>{"Kurulum tamamlandı"}</Text>
-          <Text style={styles.statusText}>{backendProfileFoundation.message}</Text>
+          <Text style={styles.statusText}>{foundationMessage}</Text>
         </View>
       </View>
     );
