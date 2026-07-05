@@ -8,6 +8,7 @@ import {
   useState,
   type PropsWithChildren,
 } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import type {
   AnonymousIdentityReadiness,
@@ -48,8 +49,11 @@ import {
   requestOwnAuthLogout,
   requestOwnAuthSignup,
   type OwnAuthMemorySession,
+  type OwnAuthSessionReadDto,
   type OwnAuthUsernameResult,
 } from "../lib/ownAuthClient";
+
+const ownAuthRefreshTokenStorageKey = "ankion.own_auth.refresh_token.v1";
 
 const inertRecoveryState: SessionRecoveryState = {
   status: "none",
@@ -365,10 +369,12 @@ function createOwnAuthAnonymousIdentity(
 function createOwnAuthOwnerCreation(
   ownSession: OwnAuthMemorySession,
 ): OwnerCreationReadiness {
+  const isComplete = ownSession.session.onboardingComplete;
+
   return {
-    status: ownSession.session.profileReady ? "complete" : "not_authenticated",
+    status: isComplete ? "complete" : "eligible",
     error: null,
-    canRequest: false,
+    canRequest: !isComplete,
     isRequestEligibilityOnly: true,
   };
 }
@@ -439,6 +445,51 @@ function createReadFailedSnapshot(message: string | null): SessionBoundarySnapsh
   };
 }
 
+async function readPersistedOwnAuthRefreshToken(): Promise<string | null> {
+  try {
+    const storedValue = await AsyncStorage.getItem(ownAuthRefreshTokenStorageKey);
+    const refreshToken =
+      typeof storedValue === "string" ? storedValue.trim() : "";
+
+    return refreshToken.length > 0 ? refreshToken : null;
+  } catch {
+    return null;
+  }
+}
+
+async function persistOwnAuthRefreshToken(refreshToken: string): Promise<void> {
+  try {
+    await AsyncStorage.setItem(ownAuthRefreshTokenStorageKey, refreshToken);
+  } catch {
+    // Runtime auth remains usable in-memory even if device storage is unavailable.
+  }
+}
+
+async function clearPersistedOwnAuthRefreshToken(): Promise<void> {
+  try {
+    await AsyncStorage.removeItem(ownAuthRefreshTokenStorageKey);
+  } catch {
+    // Best-effort cleanup; server-side logout still invalidates the session.
+  }
+}
+
+function createOwnAuthMemorySessionFromRead(
+  input: {
+    account: OwnAuthMemorySession["account"];
+    session: OwnAuthSessionReadDto;
+  },
+  refreshToken: string,
+): OwnAuthMemorySession {
+  return {
+    account: input.account,
+    session: {
+      ...input.session,
+      accessToken: "",
+      refreshToken,
+    },
+  };
+}
+
 function createOwnAuthSessionReadResult(input: {
   status: AuthSessionReadBoundaryResult["status"];
   snapshot: SessionBoundarySnapshot;
@@ -491,7 +542,16 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       }
 
       if (isMountedRef.current) {
-        setBackendProfileFoundation(loadingBackendProfileFoundationState);
+        setBackendProfileFoundation((currentState) => {
+          if (
+            currentState.status === "success" &&
+            currentState.onboardingComplete
+          ) {
+            return currentState;
+          }
+
+          return loadingBackendProfileFoundationState;
+        });
       }
 
       try {
@@ -534,6 +594,58 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       const currentSession = ownAuthMemorySessionRef.current;
 
       if (currentSession === null) {
+        const persistedRefreshToken = await readPersistedOwnAuthRefreshToken();
+
+        if (persistedRefreshToken !== null) {
+          const persistedSessionResult = await readOwnAuthSession(
+            persistedRefreshToken,
+          );
+
+          if (persistedSessionResult.status === "success") {
+            const nextSession = createOwnAuthMemorySessionFromRead(
+              persistedSessionResult.session,
+              persistedRefreshToken,
+            );
+            const snapshot = createOwnAuthSnapshot(nextSession);
+            const result = createOwnAuthSessionReadResult({
+              status: "authenticated_client_observed",
+              snapshot,
+              sessionPresent: true,
+              isServerConfirmed: true,
+            });
+
+            ownAuthMemorySessionRef.current = nextSession;
+
+            if (isMountedRef.current) {
+              setSnapshot(result.snapshot);
+              void refreshBackendProfileFoundationForSnapshot(result.snapshot);
+            }
+
+            return result;
+          }
+
+          if (persistedSessionResult.status === "invalid_session") {
+            await clearPersistedOwnAuthRefreshToken();
+          } else {
+            const snapshot = createReadFailedSnapshot(
+              persistedSessionResult.safeMessage,
+            );
+            const result = createOwnAuthSessionReadResult({
+              status: "read_failed",
+              snapshot,
+              sessionPresent: false,
+              isServerConfirmed: false,
+            });
+
+            if (isMountedRef.current) {
+              setSnapshot(result.snapshot);
+              void refreshBackendProfileFoundationForSnapshot(result.snapshot);
+            }
+
+            return result;
+          }
+        }
+
         const snapshot = createOwnAuthUnauthenticatedSnapshot();
         const result = createOwnAuthSessionReadResult({
           status: "unauthenticated",
@@ -591,6 +703,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
         });
 
         ownAuthMemorySessionRef.current = null;
+        await clearPersistedOwnAuthRefreshToken();
 
         if (isMountedRef.current) {
           setSnapshot(result.snapshot);
@@ -655,6 +768,9 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
         const snapshot = createOwnAuthSnapshot(result.ownAuthSession);
 
         ownAuthMemorySessionRef.current = result.ownAuthSession;
+        await persistOwnAuthRefreshToken(
+          result.ownAuthSession.session.refreshToken,
+        );
 
         if (isMountedRef.current) {
           setSnapshot(snapshot);
@@ -719,6 +835,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
         }
 
         ownAuthMemorySessionRef.current = null;
+        await clearPersistedOwnAuthRefreshToken();
         const snapshot = createOwnAuthUnauthenticatedSnapshot();
 
         if (isMountedRef.current) {
@@ -733,6 +850,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
         );
       } catch {
         ownAuthMemorySessionRef.current = null;
+        await clearPersistedOwnAuthRefreshToken();
         const snapshot = createOwnAuthUnauthenticatedSnapshot();
 
         if (isMountedRef.current) {
