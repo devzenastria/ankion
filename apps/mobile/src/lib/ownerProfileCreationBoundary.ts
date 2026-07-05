@@ -1,10 +1,16 @@
-import { getRuntimeSupabaseBoundary } from "./supabaseBoundary";
+import { getBackendApiPublicEnv } from "./apiEnv";
 
 export type OwnerProfileCreationRequest = Readonly<{
   displayName: string;
   shortBio: string;
   ageBand: string;
 }>;
+
+export type OwnerProfileCreationBoundaryRequest =
+  OwnerProfileCreationRequest &
+    Readonly<{
+      refreshToken: string | null;
+    }>;
 
 export type OwnerProfileCreationBoundaryStatus =
   | "not_authenticated"
@@ -22,7 +28,7 @@ export type OwnerProfileCreationBoundaryResult = Readonly<{
   phaseGate: "owner_profile_creation_boundary";
   status: OwnerProfileCreationBoundaryStatus;
   isServerConfirmed: boolean;
-  isBackendAuthority: false;
+  isBackendAuthority: true;
   isOwnerProfileCreationEnabled: true;
   isProductUnlockEnabled: false;
   isListenerEnabled: false;
@@ -33,7 +39,24 @@ export type OwnerProfileCreationBoundaryResult = Readonly<{
 type NormalizedOwnerProfileCreationInput = Readonly<{
   displayName: string;
   shortBio: string | null;
-  rpcAgeBand: "18_24" | "25_34" | "35_44" | "45_plus";
+  ageBand: "18-24" | "25-34" | "35-44" | "45+";
+}>;
+
+type OwnerProfileCreationSuccessCode =
+  | "OWN_AUTH_PROFILE_FOUNDATION_CREATED"
+  | "OWN_AUTH_PROFILE_FOUNDATION_EXISTING";
+
+type OwnerProfileCreationSuccessBody = Readonly<{
+  ok: true;
+  code: OwnerProfileCreationSuccessCode;
+}>;
+
+type OwnerProfileCreationErrorBody = Readonly<{
+  ok?: false;
+  code?: string;
+  error?: {
+    code?: string;
+  };
 }>;
 
 const displayNameMinLength = 2;
@@ -49,7 +72,7 @@ function createResult(
     phaseGate: "owner_profile_creation_boundary",
     status,
     isServerConfirmed: status === "created" || status === "idempotent_existing",
-    isBackendAuthority: false,
+    isBackendAuthority: true,
     isOwnerProfileCreationEnabled: true,
     isProductUnlockEnabled: false,
     isListenerEnabled: false,
@@ -60,16 +83,16 @@ function createResult(
 
 function normalizeAgeBand(
   ageBand: string,
-): NormalizedOwnerProfileCreationInput["rpcAgeBand"] | null {
+): NormalizedOwnerProfileCreationInput["ageBand"] | null {
   switch (ageBand.trim()) {
     case "18-24":
-      return "18_24";
+      return "18-24";
     case "25-34":
-      return "25_34";
+      return "25-34";
     case "35-44":
-      return "35_44";
+      return "35-44";
     case "45+":
-      return "45_plus";
+      return "45+";
     default:
       return null;
   }
@@ -80,37 +103,66 @@ function normalizeInput(
 ): NormalizedOwnerProfileCreationInput | null {
   const displayName = input.displayName.trim();
   const shortBio = input.shortBio.trim();
-  const rpcAgeBand = normalizeAgeBand(input.ageBand);
+  const ageBand = normalizeAgeBand(input.ageBand);
 
   if (
     displayName.length < displayNameMinLength ||
     displayName.length > displayNameMaxLength ||
     shortBio.length > shortBioMaxLength ||
-    rpcAgeBand === null
+    ageBand === null
   ) {
     return null;
   }
 
   return {
+    ageBand,
     displayName,
     shortBio: shortBio.length > 0 ? shortBio : null,
-    rpcAgeBand,
   };
 }
 
-function classifyRpcError(error: { code?: string; message?: string }): OwnerProfileCreationBoundaryStatus {
-  if (
-    error.code === "28000" ||
-    error.message?.includes("AUTHENTICATED_OWNER_REQUIRED") === true
-  ) {
+function isSuccessBody(value: unknown): value is OwnerProfileCreationSuccessBody {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const candidate = value as Partial<OwnerProfileCreationSuccessBody>;
+
+  return (
+    candidate.ok === true &&
+    (candidate.code === "OWN_AUTH_PROFILE_FOUNDATION_CREATED" ||
+      candidate.code === "OWN_AUTH_PROFILE_FOUNDATION_EXISTING")
+  );
+}
+
+function getSafeErrorCode(value: unknown): string | null {
+  if (typeof value !== "object" || value === null) {
+    return null;
+  }
+
+  const candidate = value as OwnerProfileCreationErrorBody;
+  const code = candidate.error?.code ?? candidate.code;
+
+  return typeof code === "string" ? code : null;
+}
+
+function classifyBackendError(
+  responseStatus: number,
+  safeCode: string | null,
+): OwnerProfileCreationBoundaryStatus {
+  if (safeCode === "OWN_AUTH_INVALID_SESSION" || responseStatus === 401) {
     return "not_authenticated";
   }
 
-  if (error.code === "42501") {
-    return "denied";
+  if (safeCode === "OWN_AUTH_INVALID_INPUT" || responseStatus === 400) {
+    return "invalid_input";
   }
 
-  if (error.code === "PGRST301" || error.code === "PGRST302") {
+  if (
+    safeCode === "OWN_AUTH_DATABASE_NOT_CONFIGURED" ||
+    safeCode === "OWN_AUTH_DATABASE_UNAVAILABLE" ||
+    responseStatus === 503
+  ) {
     return "network_failed";
   }
 
@@ -135,8 +187,16 @@ function getSafeMessage(status: OwnerProfileCreationBoundaryStatus): string {
   }
 }
 
+async function readJsonSafely(response: Response): Promise<unknown> {
+  try {
+    return await response.json();
+  } catch {
+    return null;
+  }
+}
+
 export async function requestOwnerProfileCreation(
-  input: OwnerProfileCreationRequest,
+  input: OwnerProfileCreationBoundaryRequest,
 ): Promise<OwnerProfileCreationBoundaryResult> {
   const normalizedInput = normalizeInput(input);
 
@@ -144,32 +204,52 @@ export async function requestOwnerProfileCreation(
     return createResult("invalid_input", getSafeMessage("invalid_input"));
   }
 
-  const boundary = getRuntimeSupabaseBoundary();
+  const apiEnv = getBackendApiPublicEnv();
 
-  if (!boundary.clientAvailable || boundary.client === null) {
+  if (!apiEnv.isConfigured || apiEnv.apiBaseUrl === null) {
     return createResult(
       "client_unavailable",
       getSafeMessage("client_unavailable"),
     );
   }
 
+  if (input.refreshToken === null || input.refreshToken.trim().length === 0) {
+    return createResult(
+      "not_authenticated",
+      getSafeMessage("not_authenticated"),
+    );
+  }
+
   try {
-    const { error } = await boundary.client.rpc(
-      "create_owner_identity_foundation",
+    const response = await fetch(
+      `${apiEnv.apiBaseUrl}/own-auth/profile-foundation`,
       {
-        p_chosen_display_name: normalizedInput.displayName,
-        p_short_bio: normalizedInput.shortBio,
-        p_age_band: normalizedInput.rpcAgeBand,
+        body: JSON.stringify({
+          ageBand: normalizedInput.ageBand,
+          displayName: normalizedInput.displayName,
+          shortBio: normalizedInput.shortBio ?? "",
+        }),
+        headers: {
+          Authorization: `Bearer ${input.refreshToken}`,
+          "Content-Type": "application/json",
+        },
+        method: "POST",
       },
     );
+    const body = await readJsonSafely(response);
 
-    if (error !== null) {
-      const status = classifyRpcError(error);
+    if (response.ok && isSuccessBody(body)) {
+      const status =
+        body.code === "OWN_AUTH_PROFILE_FOUNDATION_EXISTING"
+          ? "idempotent_existing"
+          : "created";
 
       return createResult(status, getSafeMessage(status));
     }
 
-    return createResult("created", getSafeMessage("created"));
+    const status = classifyBackendError(response.status, getSafeErrorCode(body));
+
+    return createResult(status, getSafeMessage(status));
   } catch {
     return createResult("network_failed", getSafeMessage("network_failed"));
   }

@@ -9,7 +9,7 @@ import {
 import { useAuthSessionBoundary } from "../state/AuthSessionProvider";
 
 function formatBoolean(value: boolean): string {
-  return value ? "evet" : "hayir";
+  return value ? "evet" : "hayır";
 }
 
 export function BackendProfileFoundationProbeCard() {
@@ -45,7 +45,7 @@ export function BackendProfileFoundationProbeCard() {
       <View style={styles.header}>
         <Text style={styles.title}>Profil durumu</Text>
         <Text style={styles.description}>
-          {"Profil ve anonim kimlik temelinin haz\u0131r olup olmad\u0131\u011f\u0131n\u0131 g\u00f6sterir. Gizli oturum bilgisi veya \u00f6zel kimlik g\u00f6stermez."}
+          {"Profil ve anonim kimlik temelinin hazır olup olmadığını gösterir. Gizli oturum bilgisi veya özel kimlik göstermez."}
         </Text>
       </View>
 
@@ -76,14 +76,14 @@ export function BackendProfileFoundationProbeCard() {
 
       <View style={styles.resultPanel}>
         <View style={styles.resultRow}>
-          <Text style={styles.resultLabel}>Profil haz\u0131r</Text>
+          <Text style={styles.resultLabel}>Profil hazır</Text>
           <Text style={styles.resultValue}>
             {formatBoolean(backendProfileFoundation.profileReady)}
           </Text>
         </View>
 
         <View style={styles.resultRow}>
-          <Text style={styles.resultLabel}>Anonim kimlik haz\u0131r</Text>
+          <Text style={styles.resultLabel}>Anonim kimlik hazır</Text>
           <Text style={styles.resultValue}>
             {formatBoolean(backendProfileFoundation.anonymousIdentityReady)}
           </Text>

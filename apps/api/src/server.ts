@@ -7,7 +7,6 @@ import { registerUsernameAuthRoutes } from './routes/authUsername';
 import { registerChatRoutes } from './routes/chat';
 import { registerHealthRoute } from './routes/health';
 import { registerOwnAuthRoutes } from './routes/ownAuth';
-import { registerProfileFoundationRoute } from './routes/profileFoundation';
 
 export type BuildServerOptions = {
   logger?: boolean;
@@ -72,7 +71,6 @@ export async function buildServer(options: BuildServerOptions = {}) {
   await registerUsernameAuthRoutes(server);
   await registerOwnAuthRoutes(server);
   await registerChatRoutes(server);
-  await registerProfileFoundationRoute(server);
 
   return server;
 }

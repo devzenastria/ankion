@@ -109,7 +109,7 @@ const idleBackendProfileFoundationState: BackendProfileFoundationReadState = {
   profileReady: false,
   anonymousIdentityReady: false,
   onboardingComplete: false,
-  message: "Profil durumu henuz kontrol edilmedi.",
+  message: "Profil durumu henüz kontrol edilmedi.",
   canRetry: false,
   isBackendAuthority: false,
   isProductUnlockEnabled: false,
@@ -150,6 +150,7 @@ function createBackendProfileFoundationResultFromOwnSession(
     isProductUnlockEnabled: false,
     profileFoundation: {
       anonymousIdentityReady: ownSession.session.anonymousIdentityReady,
+      onboardingComplete: ownSession.session.onboardingComplete,
       profileReady: ownSession.session.profileReady,
     },
   };
@@ -225,23 +226,39 @@ function canReadBackendProfileFoundation(
 
 function getBackendProfileFoundationMessage(
   status: BackendProfileFoundationStatus,
+  profileReady = false,
+  anonymousIdentityReady = false,
+  onboardingComplete = false,
 ): string {
   switch (status) {
     case "configured_false":
-      return "Backend API adresi yapilandirilmadi.";
+      return "Backend API adresi yapılandırılmadı.";
     case "session_missing":
-      return "Oturum yok. Once giris yap.";
-    case "success":
-      return "Profil kurulumu guncel.";
+      return "Oturum yok. Önce giriş yap.";
+    case "success": {
+      if (onboardingComplete) {
+        return "Profil kurulumu güncel.";
+      }
+
+      if (profileReady && !anonymousIdentityReady) {
+        return "Profil bilgisi hazır, anonim kimlik eksik.";
+      }
+
+      if (!profileReady && anonymousIdentityReady) {
+        return "Anonim kimlik hazır, profil bilgisi eksik.";
+      }
+
+      return "Profil temeli henüz oluşturulmadı.";
+    }
     case "auth_required":
     case "auth_invalid":
-      return "Oturum backend tarafindan dogrulanamadi.";
+      return "Oturum backend tarafından doğrulanamadı.";
     case "backend_configuration_required":
-      return "Backend yapilandirmasi tamamlanmadi.";
+      return "Backend yapılandırması tamamlanmadı.";
     case "read_failed":
-      return "Profil durumu guvenli sekilde okunamadi.";
+      return "Profil durumu güvenli şekilde okunamadı.";
     case "network_failed":
-      return "Backend baglantisi kurulamadi. Tekrar deneyebilirsin.";
+      return "Backend bağlantısı kurulamadı. Tekrar deneyebilirsin.";
     case "unknown_failed":
       return "Profil durumu kontrol edilemedi. Tekrar deneyebilirsin.";
   }
@@ -259,13 +276,21 @@ function createBackendProfileFoundationState(
   const profileReady = result.profileFoundation?.profileReady ?? false;
   const anonymousIdentityReady =
     result.profileFoundation?.anonymousIdentityReady ?? false;
+  const onboardingComplete =
+    result.profileFoundation?.onboardingComplete ??
+    (profileReady && anonymousIdentityReady);
 
   return {
     status: result.status,
     profileReady,
     anonymousIdentityReady,
-    onboardingComplete: anonymousIdentityReady,
-    message: getBackendProfileFoundationMessage(result.status),
+    onboardingComplete,
+    message: getBackendProfileFoundationMessage(
+      result.status,
+      profileReady,
+      anonymousIdentityReady,
+      onboardingComplete,
+    ),
     canRetry: getBackendProfileFoundationCanRetry(result.status),
     isBackendAuthority: false,
     isProductUnlockEnabled: false,
@@ -618,7 +643,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
         hasRefreshToken: false,
         hasCode: false,
         hasErrorParam: false,
-        safeMessage: "Own auth mobil oturum baglantisi kullanmaz.",
+        safeMessage: "Own auth mobil oturum bağlantısı kullanmaz.",
       };
     },
     [],
@@ -666,6 +691,24 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     [refreshSnapshotAfterUsernameAuth],
   );
 
+  const requestOwnerProfileCreationWithSnapshot = useCallback(
+    async (
+      input: OwnerProfileCreationRequest,
+    ): Promise<OwnerProfileCreationBoundaryResult> => {
+      const result = await requestOwnerProfileCreation({
+        ...input,
+        refreshToken: ownAuthMemorySessionRef.current?.session.refreshToken ?? null,
+      });
+
+      if (result.isServerConfirmed) {
+        await readSessionBoundaryWithSnapshot();
+      }
+
+      return result;
+    },
+    [readSessionBoundaryWithSnapshot],
+  );
+
   const requestSignOutWithSnapshot =
     useCallback(async (): Promise<AuthSignOutBoundaryResult> => {
       const currentSession = ownAuthMemorySessionRef.current;
@@ -685,7 +728,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
 
         return createAuthSignOutResult(
           "signed_out",
-          "\u00c7\u0131k\u0131\u015f yap\u0131ld\u0131.",
+          "Çıkış yapıldı.",
           true,
         );
       } catch {
@@ -699,7 +742,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
 
         return createAuthSignOutResult(
           "signed_out",
-          "\u00c7\u0131k\u0131\u015f yap\u0131ld\u0131.",
+          "Çıkış yapıldı.",
           true,
         );
       }
@@ -762,7 +805,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       readSessionBoundary: readSessionBoundaryWithSnapshot,
       requestUsernameSignup: requestUsernameSignupWithSnapshot,
       requestUsernameLogin: requestUsernameLoginWithSnapshot,
-      requestOwnerProfileCreation,
+      requestOwnerProfileCreation: requestOwnerProfileCreationWithSnapshot,
       readBackendProfileFoundation: readBackendProfileFoundationWithMemory,
       refreshBackendProfileFoundation,
       requestSignOut: requestSignOutWithSnapshot,
@@ -775,6 +818,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     refreshBackendProfileFoundation,
     readSessionBoundaryWithSnapshot,
     requestSignOutWithSnapshot,
+    requestOwnerProfileCreationWithSnapshot,
     requestUsernameLoginWithSnapshot,
     requestUsernameSignupWithSnapshot,
     snapshot,

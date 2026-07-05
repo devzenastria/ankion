@@ -12,6 +12,7 @@ export type BackendProfileFoundationStatus =
 export type BackendProfileFoundation = Readonly<{
   profileReady: boolean;
   anonymousIdentityReady: boolean;
+  onboardingComplete: boolean;
 }>;
 
 export type BackendProfileFoundationResult = Readonly<{
@@ -157,9 +158,12 @@ export async function getBackendProfileFoundation(
       return createResult("success", {
         isConfigured: true,
         profileFoundation: {
-          profileReady: body.profileFoundation.profileReady,
           anonymousIdentityReady:
             body.profileFoundation.anonymousIdentityReady,
+          onboardingComplete:
+            body.profileFoundation.profileReady &&
+            body.profileFoundation.anonymousIdentityReady,
+          profileReady: body.profileFoundation.profileReady,
         },
       });
     }

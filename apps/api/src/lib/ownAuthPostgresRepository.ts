@@ -402,8 +402,8 @@ function mapIdentityProfileFoundationRow(
       row.anonymous_identity_id,
     ) as OwnAnonymousIdentityId,
     anonymousIdentityReady: true,
-    onboardingComplete: false,
-    profileReady: false,
+    onboardingComplete: true,
+    profileReady: true,
   };
 }
 
@@ -900,22 +900,52 @@ function createRepository(
           input.publicHandle,
           input.displayLabel,
           input.visualSeed,
+          input.privateDisplayName,
+          input.privateBio,
         ],
         text: `
-          with identity as (
+          with existing_identity as (
+            select id, account_id
+            from anonymous_identities
+            where account_id = $1
+              and identity_status = 'active'
+              and deleted_at is null
+            order by created_at asc
+            limit 1
+          ),
+          inserted_identity as (
             insert into anonymous_identities (
               account_id,
               public_handle,
               display_label,
               visual_seed
             )
-            values ($1, $2, $3, $4)
+            select $1, $2, $3, $4
+            where not exists (select 1 from existing_identity)
             returning id, account_id
           ),
+          identity as (
+            select id, account_id
+            from existing_identity
+            union all
+            select id, account_id
+            from inserted_identity
+            limit 1
+          ),
           profile as (
-            insert into profiles_private (account_id)
-            select account_id
-            from identity
+            insert into profiles_private (
+              account_id,
+              profile_status,
+              display_name,
+              bio
+            )
+            values ($1, 'active', $5, $6)
+            on conflict (account_id) where profile_status <> 'deleted'
+            do update set
+              profile_status = 'active',
+              display_name = excluded.display_name,
+              bio = excluded.bio,
+              updated_at = now()
             returning account_id
           )
           select

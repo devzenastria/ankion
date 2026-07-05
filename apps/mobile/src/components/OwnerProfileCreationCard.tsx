@@ -24,9 +24,9 @@ function getVisibleMessage(status: CreationUiStatus): string | null {
     case "loading":
       return null;
     case "created":
-      return "Profil temeli g\u00fcvenli \u015fekilde haz\u0131rland\u0131.";
+      return "Profil temeli güvenli şekilde hazırlandı.";
     case "idempotent_existing":
-      return "Profil temeli zaten haz\u0131r.";
+      return "Profil temeli zaten hazır.";
     case "invalid_input":
       return "Bilgileri kontrol et.";
     case "not_authenticated":
@@ -35,7 +35,7 @@ function getVisibleMessage(status: CreationUiStatus): string | null {
     case "denied":
     case "network_failed":
     case "unknown_failed":
-      return "Profil kurulumu tamamlanamad\u0131. Daha sonra tekrar dene.";
+      return "Profil kurulumu tamamlanamadı. Daha sonra tekrar dene.";
   }
 }
 
@@ -87,9 +87,7 @@ export function OwnerProfileCreationCard() {
   const isLoading = status === "loading";
   const visibleMessage = getVisibleMessage(status);
   const isBackendLoading = backendProfileFoundation.status === "loading";
-  const isFoundationComplete =
-    backendProfileFoundation.profileReady ||
-    backendProfileFoundation.anonymousIdentityReady;
+  const isFoundationComplete = backendProfileFoundation.onboardingComplete;
   const canRetryBackendRead =
     backendProfileFoundation.canRetry &&
     !isBackendLoading &&
@@ -101,12 +99,12 @@ export function OwnerProfileCreationCard() {
         <View style={styles.header}>
           <Text style={styles.title}>{"Profil kurulumu"}</Text>
           <Text style={styles.description}>
-            {"Profil temeli haz\u0131r. Bu durum \u00fcr\u00fcn kilidi veya \u00fccretli \u00f6zellik a\u00e7maz."}
+            {"Profil temeli hazır. Bu durum ürün kilidi veya ücretli özellik açmaz."}
           </Text>
         </View>
 
         <View style={styles.statusPanel}>
-          <Text style={styles.statusTitle}>{"Kurulum tamamland\u0131"}</Text>
+          <Text style={styles.statusTitle}>{"Kurulum tamamlandı"}</Text>
           <Text style={styles.statusText}>{backendProfileFoundation.message}</Text>
         </View>
       </View>
@@ -118,7 +116,7 @@ export function OwnerProfileCreationCard() {
       <View style={styles.header}>
         <Text style={styles.title}>{"Profil kurulumu"}</Text>
         <Text style={styles.description}>
-          {"Oturumun haz\u0131r oldu\u011funda ANKION profil temelini olu\u015fturabilirsin. Bu i\u015flem \u00fcr\u00fcn kilidi a\u00e7maz."}
+          {"Oturumun hazır olduğunda ANKION profil temelini oluşturabilirsin. Bu işlem ürün kilidi açmaz."}
         </Text>
       </View>
 
@@ -144,13 +142,13 @@ export function OwnerProfileCreationCard() {
       ) : null}
 
       <View style={styles.inputGroup}>
-        <Text style={styles.inputLabel}>{"G\u00f6r\u00fcnen ad"}</Text>
+        <Text style={styles.inputLabel}>{"Görünen ad"}</Text>
         <TextInput
-          accessibilityLabel="G\u00f6r\u00fcnen ad"
+          accessibilityLabel="Görünen ad"
           autoCapitalize="words"
           maxLength={32}
           onChangeText={setDisplayName}
-          placeholder="ANKION ad\u0131"
+          placeholder="ANKION adı"
           placeholderTextColor="#5f5668"
           style={styles.input}
           value={displayName}
@@ -158,13 +156,13 @@ export function OwnerProfileCreationCard() {
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.inputLabel}>{"K\u0131sa bio"}</Text>
+        <Text style={styles.inputLabel}>{"Kısa bio"}</Text>
         <TextInput
-          accessibilityLabel="K\u0131sa bio"
+          accessibilityLabel="Kısa bio"
           maxLength={160}
           multiline
           onChangeText={setShortBio}
-          placeholder="K\u0131sa bir tan\u0131t\u0131m"
+          placeholder="Kısa bir tanıtım"
           placeholderTextColor="#5f5668"
           style={[styles.input, styles.bioInput]}
           textAlignVertical="top"
@@ -173,7 +171,7 @@ export function OwnerProfileCreationCard() {
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.inputLabel}>{"Ya\u015f aral\u0131\u011f\u0131"}</Text>
+        <Text style={styles.inputLabel}>{"Yaş aralığı"}</Text>
         <View style={styles.ageBandRow}>
           {ageBands.map((item) => {
             const isActive = ageBand === item;
@@ -214,7 +212,7 @@ export function OwnerProfileCreationCard() {
       >
         {isLoading ? <ActivityIndicator color="#050509" size="small" /> : null}
         <Text style={styles.buttonText}>
-          {isLoading ? "Haz\u0131rlan\u0131yor..." : "Profil temelini olu\u015ftur"}
+          {isLoading ? "Hazırlanıyor..." : "Profil temelini oluştur"}
         </Text>
       </Pressable>
 

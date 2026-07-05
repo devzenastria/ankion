@@ -134,6 +134,8 @@ export type OwnProfileReadinessRecord = Readonly<{
 
 export type OwnCreateIdentityProfileFoundationInput = Readonly<{
   accountId: OwnAccountId;
+  privateDisplayName: string;
+  privateBio: string | null;
   publicHandle: string;
   displayLabel: string;
   visualSeed: string;
@@ -142,9 +144,9 @@ export type OwnCreateIdentityProfileFoundationInput = Readonly<{
 export type OwnCreateIdentityProfileFoundationResult = Readonly<{
   accountId: OwnAccountId;
   anonymousIdentityId: OwnAnonymousIdentityId;
-  profileReady: false;
+  profileReady: true;
   anonymousIdentityReady: true;
-  onboardingComplete: false;
+  onboardingComplete: true;
 }>;
 
 export type OwnAuthRepositoryTransaction<TRepository> = Readonly<{

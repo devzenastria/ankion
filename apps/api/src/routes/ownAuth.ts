@@ -44,6 +44,7 @@ type OwnAuthErrorResponse = Readonly<{
       | 'OWN_AUTH_INVALID_INPUT'
       | 'OWN_AUTH_LOGIN_FAILED'
       | 'OWN_AUTH_LOGOUT_FAILED'
+      | 'OWN_AUTH_PROFILE_FOUNDATION_FAILED'
       | 'OWN_AUTH_REFRESH_FAILED'
       | 'OWN_AUTH_SESSION_FAILED'
       | 'OWN_AUTH_SIGNUP_FAILED'
@@ -151,6 +152,14 @@ type OwnAuthSessionOkResponse = Readonly<{
   };
 }>;
 
+type OwnAuthProfileFoundationOkResponse = Readonly<{
+  ok: true;
+  code: 'OWN_AUTH_PROFILE_FOUNDATION_CREATED' | 'OWN_AUTH_PROFILE_FOUNDATION_EXISTING';
+  data: {
+    profileFoundation: OwnAuthSessionReadDto;
+  };
+}>;
+
 type OwnAuthSignupResult = Readonly<{
   statusCode: 201 | 400 | 409 | 500 | 503;
   response: OwnAuthSignupCreatedResponse | OwnAuthErrorResponse;
@@ -174,6 +183,11 @@ type OwnAuthLogoutResult = Readonly<{
 type OwnAuthSessionResult = Readonly<{
   statusCode: 200 | 401 | 500 | 503;
   response: OwnAuthSessionOkResponse | OwnAuthErrorResponse;
+}>;
+
+type OwnAuthProfileFoundationResult = Readonly<{
+  statusCode: 200 | 201 | 400 | 401 | 500 | 503;
+  response: OwnAuthProfileFoundationOkResponse | OwnAuthErrorResponse;
 }>;
 
 type OwnAuthRepositoryCache = {
@@ -237,6 +251,13 @@ function sendOwnAuthLogoutResult(
 function sendOwnAuthSessionResult(
   reply: FastifyReply,
   result: OwnAuthSessionResult,
+) {
+  return reply.status(result.statusCode).send(result.response);
+}
+
+function sendOwnAuthProfileFoundationResult(
+  reply: FastifyReply,
+  result: OwnAuthProfileFoundationResult,
 ) {
   return reply.status(result.statusCode).send(result.response);
 }
@@ -313,6 +334,14 @@ function hasUnsupportedRefreshTokenField(
   return Object.keys(input).some((key) => !supportedFields.has(key));
 }
 
+function hasUnsupportedProfileFoundationField(
+  input: Record<string, unknown>,
+): boolean {
+  const supportedFields = new Set(['ageBand', 'displayName', 'shortBio']);
+
+  return Object.keys(input).some((key) => !supportedFields.has(key));
+}
+
 function readRefreshTokenFromBody(input: unknown): string | null {
   if (!isPlainObject(input) || hasUnsupportedRefreshTokenField(input)) {
     return null;
@@ -349,12 +378,77 @@ function readBearerRefreshToken(authorization: unknown): string | null {
     : null;
 }
 
+type ProfileFoundationInput = Readonly<{
+  displayName: string;
+  shortBio: string | null;
+  ageBand: '18_24' | '25_34' | '35_44' | '45_plus';
+}>;
+
+function normalizeProfileFoundationAgeBand(
+  value: unknown,
+): ProfileFoundationInput['ageBand'] | null {
+  if (typeof value !== 'string') {
+    return null;
+  }
+
+  switch (value.trim()) {
+    case '18-24':
+      return '18_24';
+    case '25-34':
+      return '25_34';
+    case '35-44':
+      return '35_44';
+    case '45+':
+      return '45_plus';
+    default:
+      return null;
+  }
+}
+
+function readProfileFoundationInput(input: unknown): ProfileFoundationInput | null {
+  if (!isPlainObject(input) || hasUnsupportedProfileFoundationField(input)) {
+    return null;
+  }
+
+  if (typeof input.displayName !== 'string') {
+    return null;
+  }
+
+  const displayName = input.displayName.trim();
+  const shortBio =
+    typeof input.shortBio === 'string' ? input.shortBio.trim() : '';
+  const ageBand = normalizeProfileFoundationAgeBand(input.ageBand);
+
+  if (
+    displayName.length < 2 ||
+    displayName.length > 32 ||
+    shortBio.length > 160 ||
+    ageBand === null
+  ) {
+    return null;
+  }
+
+  return {
+    ageBand,
+    displayName,
+    shortBio: shortBio.length > 0 ? shortBio : null,
+  };
+}
+
 function createRecoveryContactHash(recoveryEmailNormalized: string): string {
   return createHash('sha256').update(recoveryEmailNormalized, 'utf8').digest('hex');
 }
 
 function createOwnAccessToken(): string {
   return randomBytes(32).toString('base64url');
+}
+
+function createAnonymousPublicHandle(): string {
+  return `anon_${randomBytes(9).toString('base64url').toLowerCase()}`;
+}
+
+function createAnonymousVisualSeed(): string {
+  return `voice-${randomBytes(8).toString('hex')}`;
 }
 
 function getRefreshSessionExpiresAt(): string {
@@ -1029,6 +1123,144 @@ async function readSessionWithOwnAuth(
   }
 }
 
+async function createProfileFoundationWithOwnAuth(
+  authorization: unknown,
+  body: unknown,
+): Promise<OwnAuthProfileFoundationResult> {
+  const profileInput = readProfileFoundationInput(body);
+
+  if (profileInput === null) {
+    return {
+      response: createOwnAuthErrorResponse(
+        'OWN_AUTH_INVALID_INPUT',
+        'Check profile foundation input.',
+      ),
+      statusCode: 400,
+    };
+  }
+
+  const repositoryResult = getOwnAuthRepositoryFromEnv();
+
+  if (!repositoryResult.ok) {
+    return {
+      response: createOwnAuthErrorResponse(
+        'OWN_AUTH_DATABASE_NOT_CONFIGURED',
+        'Own auth database is not configured.',
+      ),
+      statusCode: 503,
+    };
+  }
+
+  const refreshToken = readBearerRefreshToken(authorization);
+
+  if (refreshToken === null) {
+    return {
+      response: createOwnAuthErrorResponse(
+        'OWN_AUTH_INVALID_SESSION',
+        'Own auth session is invalid.',
+      ),
+      statusCode: 401,
+    };
+  }
+
+  try {
+    const result = await repositoryResult.repository.withTransaction(
+      async (repository) => {
+        const context = await readActiveRefreshSessionContext(
+          repository,
+          refreshToken,
+        );
+
+        if (context === null) {
+          return null;
+        }
+
+        if (context.profileReadiness.onboardingComplete) {
+          return {
+            code: 'OWN_AUTH_PROFILE_FOUNDATION_EXISTING' as const,
+            profileReadiness: context.profileReadiness,
+            refreshSession: context.refreshSession,
+          };
+        }
+
+        await repository.createInitialIdentityProfileFoundation({
+          accountId: context.account.id,
+          displayLabel: 'Anonim kullanıcı',
+          privateBio: profileInput.shortBio,
+          privateDisplayName: profileInput.displayName,
+          publicHandle: createAnonymousPublicHandle(),
+          visualSeed: createAnonymousVisualSeed(),
+        });
+
+        const profileReadiness = await repository.readProfileReadinessForSessionDto(
+          context.account.id,
+        );
+
+        return {
+          code: 'OWN_AUTH_PROFILE_FOUNDATION_CREATED' as const,
+          profileReadiness,
+          refreshSession: context.refreshSession,
+        };
+      },
+    );
+
+    if (result === null) {
+      return {
+        response: createOwnAuthErrorResponse(
+          'OWN_AUTH_INVALID_SESSION',
+          'Own auth session is invalid.',
+        ),
+        statusCode: 401,
+      };
+    }
+
+    return {
+      response: {
+        code: result.code,
+        data: {
+          profileFoundation: createSessionReadDto(
+            result.refreshSession,
+            result.profileReadiness,
+          ),
+        },
+        ok: true,
+      },
+      statusCode:
+        result.code === 'OWN_AUTH_PROFILE_FOUNDATION_CREATED' ? 201 : 200,
+    };
+  } catch (error) {
+    if (error instanceof OwnDbPostgresError) {
+      if (error.code === 'connection_unavailable') {
+        return {
+          response: createOwnAuthErrorResponse(
+            'OWN_AUTH_DATABASE_UNAVAILABLE',
+            'Own auth database is unavailable.',
+          ),
+          statusCode: 503,
+        };
+      }
+
+      if (error.code === 'constraint_violation' || error.code === 'unique_violation') {
+        return {
+          response: createOwnAuthErrorResponse(
+            'OWN_AUTH_INVALID_INPUT',
+            'Check profile foundation input.',
+          ),
+          statusCode: 400,
+        };
+      }
+    }
+
+    return {
+      response: createOwnAuthErrorResponse(
+        'OWN_AUTH_PROFILE_FOUNDATION_FAILED',
+        'Own auth profile foundation could not be completed.',
+      ),
+      statusCode: 500,
+    };
+  }
+}
+
 export async function registerOwnAuthRoutes(
   server: FastifyInstance,
 ): Promise<void> {
@@ -1088,6 +1320,22 @@ export async function registerOwnAuthRoutes(
     return sendOwnAuthSessionResult(
       reply,
       await readSessionWithOwnAuth(request.headers.authorization),
+    );
+  });
+
+  server.post('/own-auth/profile-foundation', async function ownAuthProfileFoundationHandler(request, reply) {
+    const gate = readOwnAuthRouteGate();
+
+    if (!gate.enabled) {
+      return sendOwnAuthNotReady(reply);
+    }
+
+    return sendOwnAuthProfileFoundationResult(
+      reply,
+      await createProfileFoundationWithOwnAuth(
+        request.headers.authorization,
+        request.body,
+      ),
     );
   });
 }
